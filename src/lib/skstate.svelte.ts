@@ -9,9 +9,12 @@ class SKState {
 
 	set settings(vals: Partial<typeof DEFAULT_SETTINGS>) {
 		this.#settings = { ...this.#settings, ...vals };
+		localStorage.setItem('sk-settings', JSON.stringify(this.#settings));
 	}
 
 	get darkMode() {
 		return this.#settings.theme === 'dark';
 	}
 }
+
+export const skstate = new SKState();

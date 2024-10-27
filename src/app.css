@@ -1,3 +1,9 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+@layer components {
+	* {
+		@apply text-donkey-800 dark:text-donkey-50;
+	}
+}
