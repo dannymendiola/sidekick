@@ -10,4 +10,6 @@ declare global {
 	}
 }
 
-export {};
+type TWColor = import('$lib/types/tailwind')._twColor;
+
+// export {};
