@@ -45,6 +45,23 @@
 
 	let csrFmt = new CursorFormat();
 
+	const updateCsrFmt = () => {
+		if (!quill) return;
+
+		const range = quill.getSelection();
+		const fmt = range ? quill.getFormat(range.index, range.length) : quill.getFormat();
+
+		if (!fmt) return;
+
+		csrFmt.bold = (fmt.bold as boolean) || false;
+		csrFmt.italic = (fmt.italic as boolean) || false;
+		csrFmt.underline = (fmt.underline as boolean) || false;
+
+		csrFmt.indent = (fmt.indent as number) || 0;
+		csrFmt.align = (fmt.align as typeof csrFmt.align) || 'left';
+		csrFmt.list = (fmt.list as 'bullet' | 'ordered') || undefined;
+	};
+
 	let quill: Quill | undefined = $state();
 	const id = `ql-${uuid()}`;
 
@@ -70,27 +87,22 @@
 	{#if toolbar}
 		{@render Toolbar()}
 	{/if}
-	<!-- onpointerup={() => {
-            updateFmtAtCursor();
-        }}
-        onkeyupcapture={() => {
-            updateFmtAtCursor();
-        }} -->
 	<div
-		class="selection:bg-meadow-500 h-full overflow-auto border-none bg-slate-100 text-[1rem] text-slate-950 dark:bg-slate-300 [&>*>*>a]:cursor-pointer [&>*>*>a]:font-bold [&>*>*>a]:text-sky-700 [&>*>*>a]:underline [&>*]:outline-none [&>div]:max-h-full
-        {toolbar ? 'rounded-b-[0.4rem]' : 'rounded-[0.4rem] p-0'}"
+		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none bg-zinc-100 px-6 py-2 text-[1rem] text-slate-950 outline-none selection:bg-genie-400 selection:text-genie-950 dark:bg-zinc-300 [&>*]:outline-none [&>.ql-editor]:h-full [&>div]:max-h-full
+        {toolbar ? 'rounded-b-[0.4rem]' : 'rounded-[0.4rem]'}"
 		{id}
 		{spellcheck}
 		role="textbox"
 		tabindex="0"
+		onpointerup={updateCsrFmt}
+		onkeyupcapture={updateCsrFmt}
 	></div>
 </div>
 
 {#snippet Toolbar()}
 	<div
-		class="flex min-h-14 flex-wrap content-start rounded-t-[0.4rem] bg-slate-200 px-4 pb-6 pt-4 dark:bg-slate-200 [&>*]:text-slate-800 [&>button]:text-xl"
+		class="flex min-h-14 flex-wrap content-start gap-2 rounded-t-[0.4rem] bg-zinc-200 px-4 pb-6 pt-4 dark:bg-zinc-200 [&>button]:text-xl"
 	>
-		<!-- onpointerup={() => onFmtButton('bold', cFmtBold)} -->
 		<button class="rounded px-2 font-mono font-bold {csrFmt.bold ? twActiveButton : ''}">B</button>
 		<button class="rounded px-2 font-mono italic {csrFmt.italic ? twActiveButton : ''}">I</button>
 		<button class="rounded px-2 font-mono underline {csrFmt.underline ? twActiveButton : ''}">

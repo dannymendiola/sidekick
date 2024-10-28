@@ -9,6 +9,6 @@
 	<a href="/test" class=" text-2xl text-donkey-500">hewwo</a>
 </div> -->
 
-<div class="mt-16 h-32 px-64">
+<div class="mt-16 h-96 px-64">
 	<QLEditor toolbar />
 </div>
