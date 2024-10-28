@@ -1,7 +1,10 @@
+@import './styles/quill.css';
+
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-.ql-editor-wrapper::-webkit-scrollbar {
+.ql-editor-wrapper::-webkit-scrollbar,
+.ql-editor::-webkit-scrollbar {
 	display: none;
 }

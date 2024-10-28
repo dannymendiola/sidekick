@@ -7,7 +7,7 @@ import { type Delta } from 'quill/core';
  * @param delta
  * @returns the serialized delta as JSON
  */
-export const serializeDelta = (delta: Delta) => {
+const serializeDelta = (delta: Delta) => {
 	return JSON.stringify(delta).replace(/\\/g, '\\\\');
 };
 
@@ -16,47 +16,8 @@ export const serializeDelta = (delta: Delta) => {
  *
  * @param quill Reference to the Quill instance
  */
-export const addKeybinds = (quill: Quill) => {
-	quill.keyboard.addBinding({
-		key: ']',
-		shortKey: true,
-		handler: () => {
-			quill.format('indent', '+1');
-		}
-	});
-	quill.keyboard.addBinding({
-		key: '[',
-		shortKey: true,
-		handler: () => {
-			quill.format('indent', '-1');
-		}
-	});
-	quill.keyboard.addBinding({
-		key: 'l',
-		shortKey: true,
-		handler: () => {
-			quill.format('align', false);
-		}
-	});
-	quill.keyboard.addBinding({
-		key: 'e',
-		shortKey: true,
-		handler: () => {
-			quill.format('align', 'center');
-		}
-	});
-	quill.keyboard.addBinding({
-		key: 'r',
-		shortKey: true,
-		handler: () => {
-			quill.format('align', 'right');
-		}
-	});
-	quill.keyboard.addBinding({
-		key: 'j',
-		shortKey: true,
-		handler: () => {
-			quill.format('align', 'justify');
-		}
-	});
-};
+const addKeybinds = (quill: Quill) => {};
+
+type IconName = 'indent' | 'outdent';
+
+export { type IconName, addKeybinds, serializeDelta };
