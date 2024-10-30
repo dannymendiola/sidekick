@@ -1,7 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie';
 
 interface IMoment {
-	momentId: number;
+	id: number;
 	name: string;
 	attr: string;
 	order: number;
@@ -11,34 +11,43 @@ interface IMoment {
 }
 
 interface ILocation {
-	locationId: number;
+	id: number;
 	name: string;
 	attr: string;
 }
 
 interface ICharacter {
-	characterId: number;
+	id: number;
 	name: string;
 	attr: string;
 }
 
+interface IChararacterRelationship {
+	id: number;
+	charAId: number;
+	charBId: number;
+	attr: string;
+}
+
 interface ITheme {
-	themeId: number;
+	id: number;
 	name: string;
 	attr: string;
 }
 
 const db = new Dexie('sidekick') as Dexie & {
-	moments: EntityTable<IMoment, 'momentId'>;
-	locations: EntityTable<ILocation, 'locationId'>;
-	characters: EntityTable<ICharacter, 'characterId'>;
-	themes: EntityTable<ITheme, 'themeId'>;
+	moments: EntityTable<IMoment, 'id'>;
+	locations: EntityTable<ILocation, 'id'>;
+	characters: EntityTable<ICharacter, 'id'>;
+	character_relationships: EntityTable<IChararacterRelationship, 'id'>;
+	themes: EntityTable<ITheme, 'id'>;
 };
 
 db.version(1).stores({
 	moments: '++momentId, name, order, *locations, *characters, *themes',
 	locations: '++locationId, name',
 	characters: '++characterId, name',
+	character_relationships: '++id, &[aId+bId], aId, bId',
 	themes: '++themeId, name'
 });
 
