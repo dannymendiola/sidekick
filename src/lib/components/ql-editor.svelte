@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Quill, { type QuillOptions } from 'quill';
 	import { Delta } from 'quill/core';
-	import { uuid, type IconName, skstate } from '$lib';
+	import { uuid, type IconName, skstate, addKeybinds } from '$lib';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -49,23 +49,42 @@
 	};
 
 	let quill: Quill | undefined = $state();
-	const id = `ql-${uuid()}`;
+	const ID = `ql-${uuid()}`;
 
-	const qlOpts: QuillOptions = {
+	const KEYBINDS = [
+		{
+			key: ']',
+			shortKey: true,
+			handler: () => {
+				quill?.format('indent', '+1');
+			}
+		}
+	];
+
+	const QL_OPTS: QuillOptions = {
 		placeholder: placeholder,
-		formats: ALLOWED_FMTS
+		formats: ALLOWED_FMTS,
+		modules: {
+			keyboard: {
+				bindings: KEYBINDS
+			}
+		}
 	};
 
 	onMount(() => {
-		quill = new Quill(`#${id}`, qlOpts);
+		quill = new Quill(`#${ID}`, QL_OPTS);
 		quill!.on('text-change', () => {
 			text = quill!.getContents();
 		});
-		// addKeybinds(quill);
+		const keybindCleanup = addKeybinds(quill!);
 
 		if (initText) {
 			quill!.setContents(initText);
 		}
+
+		return () => {
+			keybindCleanup();
+		};
 	});
 </script>
 
@@ -76,7 +95,7 @@
 	<div
 		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none bg-donkey-100 px-2 text-[1rem] text-donkey-950 outline-none selection:bg-genie-400 selection:text-genie-50 dark:bg-donkey-200 [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
         {toolbar ? 'rounded-b-xl' : 'rounded-xl'}"
-		{id}
+		id={ID}
 		{spellcheck}
 		role="textbox"
 		tabindex="0"
