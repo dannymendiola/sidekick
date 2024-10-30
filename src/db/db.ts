@@ -114,14 +114,4 @@ class Theme {
 
 db.themes.mapToClass(Theme);
 
-const a = async () => {
-	const l = await db.locations.get(3);
-	if (!l) return;
-	console.log(l);
-	l.test();
-	console.log(l.id);
-	console.log(JSON.parse(l.attr || '{}'));
-};
-a();
-
 export { db };
