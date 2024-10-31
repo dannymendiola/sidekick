@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable, type PromiseExtended } from 'dexie';
 
-const MOMENT_ORDER_STEP = 1000;
+const MOMENT_ORDER_STEP = 128;
+const MOMENT_MIN_ORDER_FRAC = 0.00001;
 
 /**
  * The main database for Sidekick
@@ -31,17 +32,15 @@ class Moment {
 	characters?: number[];
 	themes?: number[];
 
-	getLocations(targetDB = db): Promise<Location[]> {
-		return targetDB.locations
+	getLocations(): Promise<Location[]> {
+		return db.locations
 			.where('id')
 			.anyOf(this.locations || [])
 			.toArray();
 	}
 
-	getNext(targetDB = db): Promise<Moment | undefined> {
-		const subsequentMoments = targetDB.moments
-			.orderBy('order')
-			.filter((m) => m.order! > this.order!);
+	getNext(): Promise<Moment | undefined> {
+		const subsequentMoments = db.moments.orderBy('order').filter((m) => m.order! > this.order!);
 		return subsequentMoments.first();
 	}
 
@@ -50,9 +49,9 @@ class Moment {
 	 *
 	 * @param preceding The preceding element, if undefined, insert this at root
 	 */
-	async orderAfter(preceding: Moment | 'root' | 'tail', targetDB = db) {
+	async orderAfter(preceding: Moment | 'root' | 'tail') {
 		const rebalance = async () => {
-			const moments = await targetDB.moments.orderBy('order').toArray();
+			const moments = await db.moments.orderBy('order').toArray();
 			const update = moments.map((m, i) => {
 				const order = i * MOMENT_ORDER_STEP;
 				return {
@@ -62,60 +61,64 @@ class Moment {
 					}
 				};
 			});
-			await targetDB.moments.bulkUpdate(update);
+			await db.moments.bulkUpdate(update);
+		};
+
+		const getFrac = (num: number) => {
+			return Math.min(num - Math.floor(num), Math.ceil(num) - num);
 		};
 
 		if (preceding === 'root') {
-			const currRoot = await targetDB.moments.where('order').equals(0).first();
+			const currRoot = await db.moments.where('order').equals(0).first();
 
-			await targetDB.moments.update(this.id, { order: 0 });
+			await db.moments.update(this.id, { order: 0 });
 			this.order = 0;
 
 			if (currRoot) {
-				const afterRoot = await currRoot.getNext(targetDB);
+				const afterRoot = await currRoot.getNext();
 				if (afterRoot) {
 					const currRootOrder = afterRoot.order! / 2;
-					await targetDB.moments.update(currRoot.id, { order: currRootOrder });
+					await db.moments.update(currRoot.id, { order: currRootOrder });
 					currRoot.order = currRootOrder;
-					const frac = currRoot.order - Math.floor(currRoot.order);
-					if (frac <= 0.001 && frac > 0) {
+					const frac = getFrac(currRoot.order!);
+					if (frac <= MOMENT_MIN_ORDER_FRAC && frac > 0) {
 						await rebalance();
 					}
 				} else {
-					await targetDB.moments.update(currRoot.id, { order: MOMENT_ORDER_STEP });
+					await db.moments.update(currRoot.id, { order: MOMENT_ORDER_STEP });
 					currRoot.order = MOMENT_ORDER_STEP;
 				}
 			}
 		} else if (preceding === 'tail') {
-			const currTail = await targetDB.moments.orderBy('order').last();
+			const currTail = await db.moments.orderBy('order').last();
 			if (currTail) {
 				const order = currTail.order! + MOMENT_ORDER_STEP;
-				await targetDB.moments.update(this.id, { order: order });
+				await db.moments.update(this.id, { order: order });
 				this.order = order;
 			} else {
 				this.order = 0;
-				await targetDB.moments.update(this.id, { order: 0 });
+				await db.moments.update(this.id, { order: 0 });
 			}
 		} else {
-			const next = await preceding.getNext(targetDB);
+			const next = await preceding.getNext();
 			if (next) {
 				const order = (next.order! + preceding.order!) / 2;
-				await targetDB.moments.update(this.id, { order: order });
+				await db.moments.update(this.id, { order: order });
 				this.order = order;
-				const frac = order - Math.floor(order);
-				if (frac <= 0.001 && frac > 0) {
+				const frac = getFrac(order);
+				if (frac <= MOMENT_MIN_ORDER_FRAC && frac > 0) {
 					await rebalance();
 				}
 			} else {
 				const order = preceding.order! + MOMENT_ORDER_STEP;
-				await targetDB.moments.update(this.id, { order: order });
+				await db.moments.update(this.id, { order: order });
 				this.order = order;
 			}
 		}
 	}
 
-	async delete(targetDB = db) {
-		await targetDB.moments.delete(this.id);
+	async delete() {
+		await db.moments.delete(this.id);
 	}
 }
 
@@ -126,8 +129,8 @@ class Location {
 	name?: string;
 	attr?: string;
 
-	moments(targetDB = db): Promise<Moment[]> {
-		return targetDB.moments.where('locations').anyOf(this.id).toArray();
+	moments(): Promise<Moment[]> {
+		return db.moments.where('locations').anyOf(this.id).toArray();
 	}
 }
 
@@ -138,8 +141,8 @@ class Character {
 	name?: string;
 	attr?: string;
 
-	relationships(targetDB = db): Promise<CharacterRelationship[]> {
-		return targetDB.character_relationships.where('[aCharId+bCharId]').anyOf([this.id]).toArray();
+	relationships(): Promise<CharacterRelationship[]> {
+		return db.character_relationships.where('[aCharId+bCharId]').anyOf([this.id]).toArray();
 	}
 
 	async relatedCharacters(): Promise<Character[]> {
@@ -172,4 +175,4 @@ class Theme {
 
 db.themes.mapToClass(Theme);
 
-export { db, MOMENT_ORDER_STEP, Moment, Location, Character, CharacterRelationship, Theme };
+export { db, Moment, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC };

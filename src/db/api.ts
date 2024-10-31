@@ -6,12 +6,13 @@ import { serializeDelta } from '$lib';
  * Add a moment to the database
  *
  * @param insertAfter the Moment this one follows, or 'head' or 'tail'
- * @param name name of the moment
+ *
+ * Vals:
+ * @param name name of the Moment
  * @param attr moment attributes (JSON)
  * @param locations location id array
  * @param characters character id array
  * @param themes theme id array
- * @param targetDB if not provided, defaults to the `sidekick` database. Generally only provided during testing
  */
 const addMomentAfter = async (
 	insertAfter: Moment | 'root' | 'tail',
@@ -22,11 +23,10 @@ const addMomentAfter = async (
 		locations?: number[];
 		characters?: number[];
 		themes?: number[];
-	},
-	targetDB = db
+	}
 ): Promise<Moment | undefined> => {
 	const { name, body, attr, locations, characters, themes } = vals;
-	const id = await targetDB.moments.add({
+	const id = await db.moments.add({
 		name: name,
 		body: serializeDelta(body),
 		attr: JSON.stringify(attr),
@@ -34,9 +34,9 @@ const addMomentAfter = async (
 		characters: characters,
 		themes: themes
 	});
-	const moment = await targetDB.moments.get(id);
+	const moment = await db.moments.get(id);
 
-	await moment!.orderAfter(insertAfter, targetDB);
+	await moment!.orderAfter(insertAfter);
 
 	return moment;
 };
