@@ -1,40 +1,10 @@
 import Dexie, { type EntityTable, type PromiseExtended } from 'dexie';
 
-// interface IMoment {
-// 	id: number;
-// 	name: string;
-// 	attr: string;
-// 	order: number;
-// 	locations: number[];
-// 	characters: number[];
-// 	themes: number[];
-// }
+const MOMENT_ORDER_STEP = 100;
 
-// interface ILocation {
-// 	id: number;
-// 	name: string;
-// 	attr: string;
-// }
-
-// interface ICharacter {
-// 	id: number;
-// 	name: string;
-// 	attr: string;
-// }
-
-// interface ICharacterRelationship {
-// 	id: number;
-// 	aCharId: number;
-// 	bCharId: number;
-// 	attr: string;
-// }
-
-// interface ITheme {
-// 	id: number;
-// 	name: string;
-// 	attr: string;
-// }
-
+/**
+ * The main database for Sidekick
+ */
 const db = new Dexie('sidekick') as Dexie & {
 	moments: EntityTable<Moment, 'id'>;
 	locations: EntityTable<Location, 'id'>;
@@ -53,12 +23,96 @@ db.version(1).stores({
 
 class Moment {
 	id!: number;
-	name?: string;
-	attr?: string;
 	order?: number;
+	name?: string;
+	body?: string;
+	attr?: string;
 	locations?: number[];
 	characters?: number[];
 	themes?: number[];
+
+	getLocations(targetDB = db): Promise<Location[]> {
+		return targetDB.locations
+			.where('id')
+			.anyOf(this.locations || [])
+			.toArray();
+	}
+
+	getNext(targetDB = db): Promise<Moment | undefined> {
+		const subsequentMoments = targetDB.moments
+			.orderBy('order')
+			.filter((m) => m.order! > this.order!);
+		return subsequentMoments.first();
+	}
+
+	/**
+	 * Set the order of the element from the given preceding element
+	 *
+	 * @param preceding The preceding element, if undefined, insert this at root
+	 */
+	async orderAfter(preceding: Moment | 'root' | 'tail', targetDB = db) {
+		const rebalance = async () => {
+			const moments = await targetDB.moments.orderBy('order').toArray();
+			const update = moments.map((m, i) => {
+				const order = i * MOMENT_ORDER_STEP;
+				return {
+					key: m.id,
+					changes: {
+						order: order
+					}
+				};
+			});
+			await targetDB.moments.bulkUpdate(update);
+		};
+
+		if (preceding === 'root') {
+			const currRoot = await targetDB.moments.where('order').equals(0).first();
+
+			await targetDB.moments.update(this.id, { order: 0 });
+			this.order = 0;
+
+			if (currRoot) {
+				const afterRoot = await currRoot.getNext(targetDB);
+				if (afterRoot) {
+					const currRootOrder = afterRoot.order! / 2;
+					await targetDB.moments.update(currRoot.id, { order: currRootOrder });
+					currRoot.order = currRootOrder;
+					const frac = currRoot.order - Math.floor(currRoot.order);
+					if (frac <= 0.001 && frac > 0) {
+						await rebalance();
+					}
+				} else {
+					await targetDB.moments.update(currRoot.id, { order: MOMENT_ORDER_STEP });
+					currRoot.order = MOMENT_ORDER_STEP;
+				}
+			}
+		} else if (preceding === 'tail') {
+			const currTail = await targetDB.moments.orderBy('order').last();
+			if (currTail) {
+				const order = currTail.order! + MOMENT_ORDER_STEP;
+				await targetDB.moments.update(this.id, { order: order });
+				this.order = order;
+			} else {
+				this.order = 0;
+				await targetDB.moments.update(this.id, { order: 0 });
+			}
+		} else {
+			const next = await preceding.getNext(targetDB);
+			if (next) {
+				const order = (next.order! + preceding.order!) / 2;
+				await targetDB.moments.update(this.id, { order: order });
+				this.order = order;
+				const frac = order - Math.floor(order);
+				if (frac <= 0.001 && frac > 0) {
+					await rebalance();
+				}
+			} else {
+				const order = preceding.order! + MOMENT_ORDER_STEP;
+				await targetDB.moments.update(this.id, { order: order });
+				this.order = order;
+			}
+		}
+	}
 }
 
 db.moments.mapToClass(Moment);
@@ -68,8 +122,8 @@ class Location {
 	name?: string;
 	attr?: string;
 
-	test() {
-		console.log('hello hello');
+	moments(targetDB = db): Promise<Moment[]> {
+		return targetDB.moments.where('locations').anyOf(this.id).toArray();
 	}
 }
 
@@ -80,8 +134,8 @@ class Character {
 	name?: string;
 	attr?: string;
 
-	relationships(): PromiseExtended<CharacterRelationship[]> {
-		return db.character_relationships.where('[aCharId+bCharId]').anyOf([this.id]).toArray();
+	relationships(targetDB = db): Promise<CharacterRelationship[]> {
+		return targetDB.character_relationships.where('[aCharId+bCharId]').anyOf([this.id]).toArray();
 	}
 
 	async relatedCharacters(): Promise<Character[]> {
@@ -99,7 +153,7 @@ class CharacterRelationship {
 	bCharId!: number;
 	attr?: string;
 
-	getCharacters(): Promise<[Character | undefined, Character | undefined]> {
+	characters(): Promise<[Character | undefined, Character | undefined]> {
 		return Promise.all([db.characters.get(this.aCharId), db.characters.get(this.bCharId)]);
 	}
 }
@@ -114,4 +168,4 @@ class Theme {
 
 db.themes.mapToClass(Theme);
 
-export { db };
+export { db, MOMENT_ORDER_STEP, Moment, Location, Character, CharacterRelationship, Theme };

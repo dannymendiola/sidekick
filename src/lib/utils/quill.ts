@@ -7,8 +7,8 @@ import { type Delta } from 'quill/core';
  * @param delta
  * @returns the serialized delta as JSON
  */
-const serializeDelta = (delta: Delta) => {
-	return JSON.stringify(delta).replace(/\\/g, '\\\\');
+const serializeDelta = (delta: Delta | undefined) => {
+	return delta ? JSON.stringify(delta).replace(/\\/g, '\\\\') : '';
 };
 
 /**

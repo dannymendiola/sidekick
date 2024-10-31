@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { QLEditor } from '$lib';
-	import { db } from '../db/db';
 </script>
 
 <!-- <div class="flex h-screen w-screen flex-col items-center justify-center gap-2">
