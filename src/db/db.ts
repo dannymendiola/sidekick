@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable, type PromiseExtended } from 'dexie';
 
-const MOMENT_ORDER_STEP = 100;
+const MOMENT_ORDER_STEP = 1000;
 
 /**
  * The main database for Sidekick
@@ -112,6 +112,10 @@ class Moment {
 				this.order = order;
 			}
 		}
+	}
+
+	async delete(targetDB = db) {
+		await targetDB.moments.delete(this.id);
 	}
 }
 

@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
-import { describe, it, expect, beforeAll, afterAll, vi, test } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi, test, afterEach } from 'vitest';
 
 // WARNING: pass the test db into EVERY api call, or it will run on the default db
 import { addMomentAfter } from './api';
@@ -27,7 +27,11 @@ testDB.characters.mapToClass(Character);
 testDB.character_relationships.mapToClass(CharacterRelationship);
 testDB.themes.mapToClass(Theme);
 
-describe('db API', () => {
+describe('Moment entities', () => {
+	afterEach(async () => {
+		console.log('afterEach');
+		await testDB.moments.clear();
+	});
 	it('Moment ordering', async () => {
 		let momentA = await addMomentAfter('root', { name: 'Moment A' }, testDB);
 
@@ -39,6 +43,9 @@ describe('db API', () => {
 
 		expect(momentA!.order).toBe(0);
 		expect(momentB!.order).toEqual(MOMENT_ORDER_STEP);
+
+		let aNext = await (await testDB.moments.get(momentA!.id))!.getNext(testDB);
+		expect(aNext!.name).toBe('Moment B');
 
 		let momentC = await addMomentAfter('root', { name: 'Moment C' }, testDB);
 		expect(momentC!.order).toBe(0);
@@ -52,7 +59,11 @@ describe('db API', () => {
 		let momentE = await addMomentAfter('tail', { name: 'Moment E' }, testDB);
 		expect(momentE!.order).toBe(MOMENT_ORDER_STEP * 3);
 
-		testDB.moments.clear();
+		await momentD!.delete(testDB);
+
+		let bNext = await (await testDB.moments.get(momentB!.id))!.getNext(testDB);
+		await testDB.moments.orderBy('order').each((m) => console.log(m.name, m.order));
+		expect(bNext!.name).toBe('Moment E');
 	});
 
 	it('Moment rebalancing', async () => {
