@@ -1,4 +1,4 @@
-import Dexie, { type EntityTable, type PromiseExtended } from 'dexie';
+import Dexie, { type EntityTable, type PromiseExtended, liveQuery } from 'dexie';
 
 const MOMENT_ORDER_STEP = 128;
 const MOMENT_MIN_ORDER_FRAC = 0.00001;
@@ -32,16 +32,69 @@ class Moment {
 	characters?: number[];
 	themes?: number[];
 
-	getLocations(): Promise<Location[]> {
-		return db.locations
+	async getLocations(): Promise<Location[]> {
+		return await db.locations
 			.where('id')
 			.anyOf(this.locations || [])
+			.sortBy('name');
+	}
+
+	getCharacters(): Promise<Character[]> {
+		return db.characters
+			.where('id')
+			.anyOf(this.characters || [])
 			.toArray();
+	}
+
+	async link(other: Location | Character | Theme) {
+		if (other instanceof Location) {
+			const newLocations = [...(this.locations || []), other.id];
+			await db.moments.update(this.id, { locations: newLocations });
+			this.locations = newLocations;
+		} else if (other instanceof Character) {
+			const newCharacters = [...(this.characters || []), other.id];
+			await db.moments.update(this.id, { characters: newCharacters });
+			this.characters = newCharacters;
+		} else if (other instanceof Theme) {
+			const newThemes = [...(this.themes || []), other.id];
+			await db.moments.update(this.id, { themes: newThemes });
+			this.themes = newThemes;
+		}
+
+		return this;
+	}
+
+	/**
+	 * Unlinks the given element from this Moment, if it's linked
+	 *
+	 * @param other Location, Character, or Theme
+	 */
+	async unlink(other: Location | Character | Theme) {
+		if (other instanceof Location) {
+			const newLocations = (this.locations || []).filter((id) => id !== other.id);
+			await db.moments.update(this.id, { locations: newLocations });
+			this.locations = newLocations;
+		} else if (other instanceof Character) {
+			const newCharacters = (this.characters || []).filter((id) => id !== other.id);
+			await db.moments.update(this.id, { characters: newCharacters });
+			this.characters = newCharacters;
+		} else if (other instanceof Theme) {
+			const newThemes = (this.themes || []).filter((id) => id !== other.id);
+			await db.moments.update(this.id, { themes: newThemes });
+			this.themes = newThemes;
+		}
+
+		return this;
 	}
 
 	getNext(): Promise<Moment | undefined> {
 		const subsequentMoments = db.moments.orderBy('order').filter((m) => m.order! > this.order!);
 		return subsequentMoments.first();
+	}
+
+	getPrev(): Promise<Moment | undefined> {
+		const precedingMoments = db.moments.orderBy('order').filter((m) => m.order! < this.order!);
+		return precedingMoments.last();
 	}
 
 	/**
@@ -119,6 +172,7 @@ class Moment {
 
 	async delete() {
 		await db.moments.delete(this.id);
+		this.id = -1;
 	}
 }
 
@@ -129,8 +183,19 @@ class Location {
 	name?: string;
 	attr?: string;
 
-	moments(): Promise<Moment[]> {
+	getMoments(): Promise<Moment[]> {
 		return db.moments.where('locations').anyOf(this.id).toArray();
+	}
+
+	/**
+	 * Remove this location from all moments
+	 */
+	async delete() {
+		await db.moments.each((m) => {
+			m.unlink(this);
+		});
+		await db.locations.delete(this.id);
+		this.id = -1;
 	}
 }
 
@@ -141,14 +206,18 @@ class Character {
 	name?: string;
 	attr?: string;
 
-	relationships(): Promise<CharacterRelationship[]> {
+	getRelationships(): Promise<CharacterRelationship[]> {
 		return db.character_relationships.where('[aCharId+bCharId]').anyOf([this.id]).toArray();
 	}
 
 	async relatedCharacters(): Promise<Character[]> {
-		const relationships = await this.relationships();
+		const relationships = await this.getRelationships();
 		const otherIds = relationships.map((r) => (r.aCharId === this.id ? r.bCharId : r.aCharId));
 		return db.characters.where('id').anyOf(otherIds).toArray();
+	}
+
+	getMoments(): Promise<Moment[]> {
+		return db.moments.where('characters').anyOf(this.id).toArray();
 	}
 }
 
@@ -160,7 +229,7 @@ class CharacterRelationship {
 	bCharId!: number;
 	attr?: string;
 
-	characters(): Promise<[Character | undefined, Character | undefined]> {
+	getCharacters(): Promise<[Character | undefined, Character | undefined]> {
 		return Promise.all([db.characters.get(this.aCharId), db.characters.get(this.bCharId)]);
 	}
 }

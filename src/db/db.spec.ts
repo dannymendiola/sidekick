@@ -90,4 +90,17 @@ describe('Moment entities', () => {
 
 		expect(lastFrac).toEqual(0);
 	});
+
+	it('Moment links to other entities', async () => {
+		let moment1 = await addMomentAfter('root', { name: 'Moment 1' });
+		const moment2 = await addMomentAfter(moment1!, { name: 'Moment 2' });
+
+		const location1Id = await db.locations.add({ name: 'Location 1' });
+		moment1 = await moment1!.link((await db.locations.get(location1Id))!);
+
+		expect((await moment1!.getLocations()).length).toBe(1);
+		expect((await moment1!.getLocations())[0].name).toBe('Location 1');
+		const location1 = await db.locations.get(location1Id);
+		expect((await location1!.getMoments())[0].id).toBe(moment1!.id);
+	});
 });

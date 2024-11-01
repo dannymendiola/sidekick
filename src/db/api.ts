@@ -3,7 +3,7 @@ import { db, type Moment } from './db';
 import { serializeDelta } from '$lib';
 
 /**
- * Add a moment to the database
+ * Add a Moment to the database and insert it in the order after the given Moment
  *
  * @param insertAfter the Moment this one follows, or 'head' or 'tail'
  *
