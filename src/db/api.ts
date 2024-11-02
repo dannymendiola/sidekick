@@ -36,9 +36,7 @@ const addMomentAfter = async (
 	});
 	const moment = await db.moments.get(id);
 
-	await moment!.orderAfter(insertAfter);
-
-	return moment;
+	return moment ? await moment.orderAfter(insertAfter) : undefined;
 };
 
 export { addMomentAfter };
