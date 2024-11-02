@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { skstate, DEFAULT_SETTINGS } from '$lib';
+	import { skstate, DEFAULT_SETTINGS, Navbar } from '$lib';
 	import { onMount } from 'svelte';
 	import '../app.css';
 
@@ -19,4 +19,5 @@
 	});
 </script>
 
+<Navbar />
 {@render children()}

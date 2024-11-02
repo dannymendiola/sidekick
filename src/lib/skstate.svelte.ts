@@ -1,4 +1,5 @@
 import { DEFAULT_SETTINGS, type SKSettings } from '$lib';
+import { page } from '$app/stores';
 
 class SKState {
 	#settings = $state(DEFAULT_SETTINGS);
