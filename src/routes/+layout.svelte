@@ -5,17 +5,15 @@
 
 	let { children } = $props();
 
-	$effect(() => {
-		const pageColor: TWColor = skstate.darkMode ? 'bg-zinc-950' : 'bg-zinc-100';
+	const storedSettings = localStorage.getItem('sk-settings');
+	skstate.settings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS;
 
+	const pageColor: TWColor = skstate.darkMode ? 'bg-donkey-950' : 'bg-donkey-100';
+
+	onMount(() => {
 		if (document.body && !document.body.classList.contains(pageColor)) {
 			document.body.className = `${skstate.darkMode ? 'dark ' : ''}${pageColor}`;
 		}
-	});
-
-	onMount(() => {
-		const storedSettings = localStorage.getItem('sk-settings');
-		skstate.settings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS;
 	});
 </script>
 
