@@ -4,26 +4,30 @@
 
 	const elemName = ['characters', 'relationships', 'moments', 'locations'] as const;
 
-	let elem: (typeof elemName)[number] | undefined = $state();
+	// let elem: (typeof elemName)[number] | undefined = $state();
 
 	// @ts-ignore
-	if (elemName.includes($page.params.elem)) {
-		elem = $page.params.elem as (typeof elemName)[number];
-	} else {
-		goto('/');
-	}
+	// if (elemName.includes($page.params.elem)) {
+	// 	elem = $page.params.elem as (typeof elemName)[number];
+	// } else {
+	// 	goto('/');
+	// }
 
-	switch (elem) {
-		case 'characters':
-			break;
-		case 'relationships':
-			break;
-		case 'moments':
-			break;
-		case 'locations':
-			break;
-	}
+	const elem = $derived($page.params.elem);
+
+	// switch (elem) {
+	// 	case 'characters':
+	// 		break;
+	// 	case 'relationships':
+	// 		break;
+	// 	case 'moments':
+	// 		break;
+	// 	case 'locations':
+	// 		break;
+	// }
 </script>
+
+{elem}
 
 <svelte:head>
 	<title>🦸 Sidekick</title>

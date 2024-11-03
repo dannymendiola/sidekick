@@ -5,6 +5,9 @@ export default {
 	darkMode: 'class',
 	theme: {
 		extend: {
+			fontFamily: {
+				title: ['Castoro', 'Georgia', 'serif']
+			},
 			colors: {
 				// https://coolors.co/ffe900-d62828-28536b-b4c1c9-18181b
 				donkey: {
