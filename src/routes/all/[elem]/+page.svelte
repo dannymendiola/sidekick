@@ -4,30 +4,64 @@
 
 	const elemName = ['characters', 'relationships', 'moments', 'locations'] as const;
 
-	// let elem: (typeof elemName)[number] | undefined = $state();
-
-	// @ts-ignore
-	// if (elemName.includes($page.params.elem)) {
-	// 	elem = $page.params.elem as (typeof elemName)[number];
-	// } else {
-	// 	goto('/');
-	// }
-
 	const elem = $derived($page.params.elem);
-
-	// switch (elem) {
-	// 	case 'characters':
-	// 		break;
-	// 	case 'relationships':
-	// 		break;
-	// 	case 'moments':
-	// 		break;
-	// 	case 'locations':
-	// 		break;
-	// }
 </script>
 
-{elem}
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
+<div class="text-donkey-200">{elem}</div>
 
 <svelte:head>
 	<title>🦸 Sidekick</title>
