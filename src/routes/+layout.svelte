@@ -26,9 +26,9 @@
 		<Navbar />
 	</div>
 	<div class="flex grow justify-center overflow-auto">
-		<div class="app-area mt-20 flex-1 md:mt-0 skinny:px-[1vw]">
-			{@render children()}
-		</div>
+		<!-- <div class="mt-20 flex-1 md:mt-0 skinny:px-[1vw]"> -->
+		{@render children()}
+		<!-- </div> -->
 	</div>
 </div>
 
