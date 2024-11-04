@@ -21,18 +21,20 @@
 
 {@render SkinnyTopbar()}
 
-<div class="flex h-screen flex-col-reverse md:flex-row">
-	<div>
+<div class="wrapper flex h-screen flex-col-reverse md:flex-row">
+	<div class="navbar">
 		<Navbar />
 	</div>
-	<div class="flex-1 grow overflow-auto">
-		{@render children()}
+	<div class="flex grow justify-center overflow-auto">
+		<div class="app-area mt-20 flex-1 md:mt-0 skinny:px-[1vw]">
+			{@render children()}
+		</div>
 	</div>
 </div>
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="fixed flex w-screen items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:bg-transparent md:pr-8 dark:md:bg-transparent"
+		class="fixed flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
 	>
 		<button
 			class="rounded-xl bg-donkey-100 drop-shadow-lg hover:bg-donkey-200 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
@@ -92,3 +94,16 @@
 		</svg>
 	{/if}
 {/snippet}
+
+<style>
+	.wrapper {
+		padding-bottom: env(safe-area-inset-bottom);
+		padding-top: env(safe-area-inset-top);
+	}
+
+	.navbar {
+		position: sticky;
+		padding-bottom: env(safe-area-inset-bottom);
+		bottom: 0;
+	}
+</style>

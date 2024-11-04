@@ -1,5 +1,7 @@
 @import './styles/quill.css';
 
+@import url('https://fonts.googleapis.com/css2?family=Castoro:ital@0;1&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Shrikhand&display=swap');
+
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
@@ -10,23 +12,25 @@
 }
 
 @layer components {
-	/* width */
-	::-webkit-scrollbar {
-		@apply w-3;
-	}
+	@media not (pointer: coarse) {
+		/* width */
+		::-webkit-scrollbar {
+			@apply w-3;
+		}
 
-	/* Track */
-	::-webkit-scrollbar-track {
-		@apply bg-donkey-200 dark:bg-donkey-900;
-	}
+		/* Track */
+		::-webkit-scrollbar-track {
+			@apply bg-donkey-200 dark:bg-donkey-900;
+		}
 
-	/* Handle */
-	::-webkit-scrollbar-thumb {
-		@apply bg-donkey-300 dark:bg-donkey-800;
-	}
+		/* Handle */
+		::-webkit-scrollbar-thumb {
+			@apply bg-donkey-300 dark:bg-donkey-800;
+		}
 
-	/* Handle on hover */
-	::-webkit-scrollbar-thumb:hover {
-		@apply bg-donkey-400 dark:bg-donkey-600;
+		/* Handle on hover */
+		::-webkit-scrollbar-thumb:hover {
+			@apply bg-donkey-400 dark:bg-donkey-600;
+		}
 	}
 }
