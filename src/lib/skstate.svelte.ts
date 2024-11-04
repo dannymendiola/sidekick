@@ -1,5 +1,4 @@
 import { DEFAULT_SETTINGS, type SKSettings } from '$lib';
-import { page } from '$app/stores';
 
 class SKState {
 	#settings: typeof DEFAULT_SETTINGS | undefined = $state();
@@ -8,7 +7,7 @@ class SKState {
 		return this.#settings ? this.#settings : DEFAULT_SETTINGS;
 	}
 
-	set settings(vals: Partial<typeof DEFAULT_SETTINGS>) {
+	updateSettings(vals: Partial<typeof DEFAULT_SETTINGS>) {
 		this.#settings = this.#settings
 			? { ...this.#settings, ...vals }
 			: { ...DEFAULT_SETTINGS, ...vals };
@@ -21,9 +20,3 @@ class SKState {
 }
 
 export const skstate = new SKState();
-
-page.subscribe((val) => {
-	if (val.url) {
-		skstate.settings = { currPath: val.url.pathname };
-	}
-});

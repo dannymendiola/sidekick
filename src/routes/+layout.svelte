@@ -2,19 +2,25 @@
 	import { skstate, DEFAULT_SETTINGS, Navbar } from '$lib';
 	import { goto } from '$app/navigation';
 	import { vibrate } from '$lib';
-	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import '../app.css';
 
 	let { children } = $props();
 
 	const storedSettings = localStorage.getItem('sk-settings');
-	skstate.settings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS;
+	skstate.updateSettings(storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS);
 
 	let pageColor: TWColor = $derived(skstate.darkMode ? 'bg-donkey-950' : 'bg-donkey-100');
 
 	$effect(() => {
 		if (document.body && !document.body.classList.contains(pageColor)) {
 			document.body.className = `${skstate.darkMode ? 'dark ' : ''}${pageColor}`;
+		}
+	});
+
+	page.subscribe((val) => {
+		if (val.url) {
+			skstate.updateSettings({ currPath: val.url.pathname });
 		}
 	});
 </script>
@@ -26,9 +32,7 @@
 		<Navbar />
 	</div>
 	<div class="flex grow justify-center overflow-auto">
-		<!-- <div class="mt-20 flex-1 md:mt-0 skinny:px-[1vw]"> -->
 		{@render children()}
-		<!-- </div> -->
 	</div>
 </div>
 
@@ -37,7 +41,7 @@
 		class="fixed flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
 	>
 		<button
-			class="rounded-xl bg-donkey-100 drop-shadow-lg hover:bg-donkey-200 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
+			class="rounded-xl bg-donkey-200 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
 			onpointerup={() => {
 				vibrate();
 				goto('/');
@@ -51,9 +55,9 @@
 		</button>
 		<div class="hidden md:block"></div>
 		<button
-			class="rounded-full bg-donkey-100 p-2 hover:bg-donkey-200 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
+			class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
 			onpointerup={() => {
-				skstate.settings = { theme: skstate.darkMode ? 'light' : 'dark' };
+				skstate.updateSettings({ theme: skstate.darkMode ? 'light' : 'dark' });
 			}}
 		>
 			{@render ThemeIcon(skstate.darkMode ? 'sun' : 'moon')}

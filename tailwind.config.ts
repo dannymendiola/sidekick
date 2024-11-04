@@ -8,7 +8,7 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				title: ['Castoro', ...defaultTheme.fontFamily.serif],
+				title: ['Noto Serif', ...defaultTheme.fontFamily.serif],
 				sans: ['Noto Sans', ...defaultTheme.fontFamily.sans]
 			},
 			colors: {

@@ -8,15 +8,11 @@
 	});
 </script>
 
-<!-- <div
-	class="flex h-screen w-screen flex-col-reverse items-center justify-center md:flex md:flex-row md:justify-start"
-> -->
-<!-- <div class="flex-1 grow bg-emerald-500 bg-opacity-30"></div> -->
 <span
 	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-200 p-2 dark:bg-donkey-900 md:h-screen md:w-20 md:flex-col md:justify-start md:gap-8"
 >
 	<button
-		class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:block"
+		class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
 		onpointerup={() => {
 			vibrate();
 			goto('/');
@@ -33,7 +29,6 @@
 	{@render IndexButton('relationships')}
 	{@render IndexButton('locations')}
 </span>
-<!-- </div> -->
 
 {#snippet IndexButton(buttonName: 'moments' | 'characters' | 'relationships' | 'locations')}
 	<button
