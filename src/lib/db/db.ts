@@ -1,4 +1,4 @@
-import { CharacterAttr, CharacterRelationshipAttr, LocationAttr, MomentAttr } from '$lib/types/db';
+import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
 
 const MOMENT_ORDER_STEP = 128;
@@ -11,16 +11,14 @@ const db = new Dexie('sidekick') as Dexie & {
 	moments: EntityTable<Moment, 'id'>;
 	locations: EntityTable<Location, 'id'>;
 	characters: EntityTable<Character, 'id'>;
-	character_relationships: EntityTable<CharacterRelationship, 'id'>;
-	themes: EntityTable<Theme, 'id'>;
+	dynamics: EntityTable<Dynamic, 'id'>;
 };
 
 db.version(1).stores({
 	moments: '++id, name, order, *locations, *characters, *themes',
 	locations: '++id, name',
 	characters: '++id, name',
-	character_relationships: '++id, &[aCharId+bCharId], aCharId, bCharId',
-	themes: '++id, name'
+	dynamics: '++id, &[aCharId+bCharId], aCharId, bCharId'
 });
 
 class Moment {
@@ -31,7 +29,6 @@ class Moment {
 	attr?: string;
 	locations?: number[];
 	characters?: number[];
-	themes?: number[];
 
 	async getLocations(): Promise<Location[]> {
 		return await db.locations
@@ -52,7 +49,7 @@ class Moment {
 	 *
 	 * @param other a Location, Character, or Theme
 	 */
-	async link(other: Location | Character | Theme) {
+	async link(other: Location | Character) {
 		if (other instanceof Location) {
 			const newLocations = [...new Set([...(this.locations || []), other.id])];
 			await db.moments.update(this.id, { locations: newLocations });
@@ -61,10 +58,6 @@ class Moment {
 			const newCharacters = [...new Set([...(this.characters || []), other.id])];
 			await db.moments.update(this.id, { characters: newCharacters });
 			this.characters = newCharacters;
-		} else if (other instanceof Theme) {
-			const newThemes = [...new Set([...(this.themes || []), other.id])];
-			await db.moments.update(this.id, { themes: newThemes });
-			this.themes = newThemes;
 		}
 	}
 
@@ -73,7 +66,7 @@ class Moment {
 	 *
 	 * @param other Location, Character, or Theme
 	 */
-	async unlink(other: Location | Character | Theme) {
+	async unlink(other: Location | Character) {
 		if (other instanceof Location) {
 			const newLocations = (this.locations || []).filter((id) => id !== other.id);
 			await db.moments.update(this.id, { locations: newLocations });
@@ -82,10 +75,6 @@ class Moment {
 			const newCharacters = (this.characters || []).filter((id) => id !== other.id);
 			this.characters = newCharacters;
 			await db.moments.update(this.id, { characters: newCharacters });
-		} else if (other instanceof Theme) {
-			const newThemes = (this.themes || []).filter((id) => id !== other.id);
-			await db.moments.update(this.id, { themes: newThemes });
-			this.themes = newThemes;
 		}
 	}
 
@@ -232,55 +221,44 @@ class Character {
 	name?: string;
 	attr?: string;
 
-	getRelationships(): Promise<CharacterRelationship[]> {
-		return db.character_relationships
-			.where('aCharId')
-			.equals(this.id)
-			.or('bCharId')
-			.equals(this.id)
-			.toArray();
+	getDynamics(): Promise<Dynamic[]> {
+		return db.dynamics.where('aCharId').equals(this.id).or('bCharId').equals(this.id).toArray();
 	}
 
 	async relatedCharacters(): Promise<Character[]> {
-		const relationships = await this.getRelationships();
-		const otherIds = relationships.map((r) => (r.aCharId === this.id ? r.bCharId : r.aCharId));
+		const dynamics = await this.getDynamics();
+		const otherIds = dynamics.map((d) => (d.aCharId === this.id ? d.bCharId : d.aCharId));
 		return db.characters.where('id').anyOf(otherIds).toArray();
 	}
 
-	async getRelationshipTo(otherId: number) {
+	async getDynamicWith(otherId: number) {
 		if (this.id === otherId) return;
 		const [aId, bId] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
-		return await db.character_relationships.where('[aCharId+bCharId]').equals([aId, bId]).first();
+		return await db.dynamics.where('[aCharId+bCharId]').equals([aId, bId]).first();
 	}
 
 	getMoments(): Promise<Moment[]> {
 		return db.moments.where('characters').anyOf(this.id).toArray();
 	}
 
-	async createRelationship(otherId: number) {
+	async createDynamic(otherId: number) {
 		if (this.id === otherId) return undefined;
 
 		const [idA, idB] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
 
-		const existing = await db.character_relationships
-			.where('[aCharId+bCharId]')
-			.equals([idA, idB])
-			.first();
+		const existing = await db.dynamics.where('[aCharId+bCharId]').equals([idA, idB]).first();
 		if (existing) return existing;
 
-		const relationshipId = await db.character_relationships.add({ aCharId: idA, bCharId: idB });
+		const dynamicId = await db.dynamics.add({ aCharId: idA, bCharId: idB });
 
-		return db.character_relationships.get(relationshipId);
+		return db.dynamics.get(dynamicId);
 	}
 
-	async removeRelationship(otherId: number) {
+	async removeDynamic(otherId: number) {
 		const [idA, idB] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
-		const relationship = await db.character_relationships
-			.where('[aCharId+bCharId]')
-			.equals([idA, idB])
-			.first();
+		const dynamic = await db.dynamics.where('[aCharId+bCharId]').equals([idA, idB]).first();
 
-		if (relationship) await relationship.delete();
+		if (dynamic) await dynamic.delete();
 	}
 
 	getAttr() {
@@ -297,8 +275,8 @@ class Character {
 	async delete() {
 		// const moments = await db.moments.where('characters').anyOf(this.id).toArray();
 		await Promise.all((await db.moments.toArray()).map((m) => m.unlink(this)));
-		const relationships = await this.getRelationships();
-		await Promise.all(relationships.map((r) => r.delete()));
+		const dynamics = await this.getDynamics();
+		await Promise.all(dynamics.map((d) => d.delete()));
 		await db.characters.delete(this.id);
 		this.id = -1;
 	}
@@ -306,7 +284,7 @@ class Character {
 
 db.characters.mapToClass(Character);
 
-class CharacterRelationship {
+class Dynamic {
 	id!: number;
 	aCharId!: number;
 	bCharId!: number;
@@ -326,32 +304,23 @@ class CharacterRelationship {
 	}
 
 	getAttr() {
-		return JSON.parse(this.attr || '{}') as CharacterRelationshipAttr;
+		return JSON.parse(this.attr || '{}') as DynamicAttr;
 	}
 
-	async updateAttr(attr: CharacterRelationshipAttr) {
+	async updateAttr(attr: DynamicAttr) {
 		let currAttr = JSON.parse(this.attr || '{}');
 		let newAttr = { ...currAttr, ...attr };
 		this.attr = JSON.stringify(newAttr);
-		await db.character_relationships.update(this.id, { attr: this.attr });
+		await db.dynamics.update(this.id, { attr: this.attr });
 	}
 
 	async delete() {
-		await db.character_relationships.delete(this.id);
+		await db.dynamics.delete(this.id);
 		this.id = -1;
 	}
 }
 
-db.character_relationships.mapToClass(CharacterRelationship);
-
-// TODO not implemented
-class Theme {
-	id!: number;
-	name?: string;
-	attr?: string;
-}
-
-db.themes.mapToClass(Theme);
+db.dynamics.mapToClass(Dynamic);
 
 export { db, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC };
-export type { Location, Character, CharacterRelationship, Theme, Moment };
+export type { Location, Character, Dynamic, Moment };

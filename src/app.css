@@ -1,6 +1,6 @@
 @import './styles/quill.css';
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Shrikhand&display=swap');
 
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
@@ -38,6 +38,6 @@
 
 	/* Width for content (as passed into layout, contained in a flex row w/ justify: center) */
 	.sk-content-w {
-		@apply w-[80%] pt-24 md:w-[48rem] md:pt-0 skinny:w-[90%];
+		@apply w-[70%] pt-24 md:pt-0 lg:w-[48rem] midskinny:w-[80%] skinny:w-[90%];
 	}
 }

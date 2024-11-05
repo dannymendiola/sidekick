@@ -69,7 +69,7 @@ export interface CharacterAttr {
 	optimist_pessimist?: string;
 }
 
-export interface CharacterRelationshipAttr {
+export interface DynamicAttr {
 	// (i) type
 	/**
 	 * Enforce as Set
@@ -113,7 +113,7 @@ export interface CharacterRelationshipAttr {
 	intensity?: 'fiery' | 'passionate' | 'lukewarm' | 'neutral' | 'unfeeling';
 	attraction?: string;
 
-	// (i) relationship fundamentals
+	// (i) dynamic/relationship fundamentals
 	respect?: string;
 	trust?: 'none' | 'low' | 'medium' | 'high' | 'absolute';
 	faith?: 'none' | 'low' | 'medium' | 'high' | 'absolute';

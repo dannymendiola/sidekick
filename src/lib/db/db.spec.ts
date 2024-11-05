@@ -154,7 +154,7 @@ describe('Characters', () => {
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
 
-	it('Create relationship', async () => {
+	it('Create dynamic', async () => {
 		const aliceId = await db.characters.add({ name: 'Alice' });
 		let alice = await db.characters.get(aliceId);
 		const bobId = await db.characters.add({ name: 'Bob' });
@@ -162,59 +162,56 @@ describe('Characters', () => {
 		const charlieId = await db.characters.add({ name: 'Charlie' });
 		let charlie = await db.characters.get(charlieId);
 
-		await alice!.createRelationship(bobId);
-		let relationshipAC = await alice!.createRelationship(charlieId);
+		await alice!.createDynamic(bobId);
+		let dynamicAC = await alice!.createDynamic(charlieId);
 
 		// Alice -> Bob, Charlie
 		// Bob -> Alice
 		// Charlie -> Alice
 
-		expect((await alice!.getRelationships()).length).toBe(2);
-		expect((await bob!.getRelationships()).length).toBe(1);
-		expect((await charlie!.getRelationships()).length).toBe(1);
+		expect((await alice!.getDynamics()).length).toBe(2);
+		expect((await bob!.getDynamics()).length).toBe(1);
+		expect((await charlie!.getDynamics()).length).toBe(1);
 
 		expect((await bob!.relatedCharacters())[0].name === 'Alice');
 
-		relationshipAC!.updateAttr({
+		dynamicAC!.updateAttr({
 			shared_goals: 'Defeat Bob'
 		});
 
-		expect(await db.character_relationships.count()).toBe(2);
-		await bob!.createRelationship(alice!.id);
-		expect(await db.character_relationships.count()).toBe(2);
-
-		// expect((await relationship?.getOther(character1Id))?.name).toBe('Bob');
-		// expect((await relationship?.getOther(character2Id))?.name).toBe('Alice');
+		expect(await db.dynamics.count()).toBe(2);
+		await bob!.createDynamic(alice!.id);
+		expect(await db.dynamics.count()).toBe(2);
 	});
 
-	it('Get relationship to', async () => {
+	it('Get dynamic with', async () => {
 		const alice = await db.characters.where('name').equals('Alice').first();
 		const charlie = await db.characters.where('name').equals('Charlie').first();
 
 		expect(alice).toBeTruthy();
 		expect(charlie).toBeTruthy();
 
-		const relationship = await alice?.getRelationshipTo(charlie!.id);
-		expect(relationship).toBeTruthy();
-		const relFromCharlie = await charlie?.getRelationshipTo(alice!.id);
-		expect(relFromCharlie).toBeTruthy();
+		const dynamic = await alice?.getDynamicWith(charlie!.id);
+		expect(dynamic).toBeTruthy();
+		const dynFromCharlie = await charlie?.getDynamicWith(alice!.id);
+		expect(dynFromCharlie).toBeTruthy();
 
-		expect(relationship).toEqual(relFromCharlie);
+		expect(dynamic).toEqual(dynFromCharlie);
 
-		expect(relationship?.getAttr().shared_goals).toBe('Defeat Bob');
+		expect(dynamic?.getAttr().shared_goals).toBe('Defeat Bob');
 	});
 
-	it('Remove relationship', async () => {
-		expect(await db.character_relationships.count()).toBe(2);
+	it('Remove dynamic', async () => {
+		expect(await db.dynamics.count()).toBe(2);
 		const alice = await db.characters.where('name').equals('Alice').first();
 		const bob = await db.characters.where('name').equals('Bob').first();
 
-		await alice!.removeRelationship(bob!.id);
-		expect(await db.character_relationships.count()).toBe(1);
-		expect((await alice!.getRelationships()).length).toBe(1);
-		expect((await bob!.getRelationships()).length).toBe(0);
+		await alice!.removeDynamic(bob!.id);
+		expect(await db.dynamics.count()).toBe(1);
+		expect((await alice!.getDynamics()).length).toBe(1);
+		expect((await bob!.getDynamics()).length).toBe(0);
 
-		await bob!.createRelationship(alice!.id);
+		await bob!.createDynamic(alice!.id);
 	});
 
 	it('Remove character and cascade', async () => {
@@ -231,12 +228,12 @@ describe('Characters', () => {
 		await moment!.link(alice!);
 		await moment!.link(charlie!);
 
-		expect((await alice!.getRelationships()).length).toBe(2);
+		expect((await alice!.getDynamics()).length).toBe(2);
 		expect(moment!.characters!.length).toBe(3);
 
 		await bob!.delete();
 
-		expect((await alice!.getRelationships()).length).toBe(1);
+		expect((await alice!.getDynamics()).length).toBe(1);
 
 		moment = await db.moments.get(momentId);
 		expect(moment!.characters!.length).toBe(2);

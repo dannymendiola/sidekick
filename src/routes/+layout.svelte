@@ -16,10 +16,13 @@
 		if (document.body && !document.body.classList.contains(pageColor)) {
 			document.body.className = `${skstate.darkMode ? 'dark ' : ''}${pageColor}`;
 		}
+
+		const metaTheme = document.querySelector('meta[name="theme-color"]');
+		metaTheme?.setAttribute('content', skstate.darkMode ? '#161619' : '#ced1d3');
 	});
 
 	page.subscribe((val) => {
-		if (val.url) {
+		if (val.url && val.url.pathname !== '/') {
 			skstate.updateSettings({ currPath: val.url.pathname });
 		}
 	});
@@ -44,12 +47,12 @@
 			class="rounded-xl bg-donkey-200 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
 			onpointerup={() => {
 				vibrate();
-				goto('/');
+				goto('/welcome');
 			}}
 		>
 			<img
 				class="h-auto w-16 drop-shadow-lg"
-				src="/logo-square.png"
+				src="/logo-square-sm.png"
 				alt="The word 'Sidekick' in yellow serif font over a red oval"
 			/>
 		</button>
