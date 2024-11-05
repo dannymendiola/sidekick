@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { vibrate } from '$lib';
 	import { onMount } from 'svelte';
 	import { elasticOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
@@ -8,7 +9,7 @@
 	});
 </script>
 
-<div class="sk-content-w">
+<div class="sk-content">
 	{#if mounted}
 		<h1
 			in:scale={{ duration: 600, easing: elasticOut }}
@@ -23,7 +24,10 @@
 		</p>
 		<button
 			class="flex items-center gap-2 rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-			onpointerup={() => {}}
+			onpointerup={() => {
+				vibrate();
+				console.log('tour not implemented');
+			}}
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

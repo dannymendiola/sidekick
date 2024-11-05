@@ -14,7 +14,7 @@ interface LocationAttr {
 	significance?: string;
 }
 
-export interface CharacterAttr {
+export class CharacterAttr {
 	// (i) basic qualities
 	last_name?: string;
 	nickname?: string;

@@ -37,7 +37,7 @@
 	}
 
 	/* Width for content (as passed into layout, contained in a flex row w/ justify: center) */
-	.sk-content-w {
+	.sk-content {
 		@apply w-[70%] pt-24 md:pt-0 lg:w-[48rem] midskinny:w-[80%] skinny:w-[90%];
 	}
 }

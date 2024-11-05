@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import type { Character, Location, Moment, Dynamic } from '$lib/db';
-	import { db, addMomentAfter } from '$lib/db';
+	import type { Character, Location, Moment } from '$lib/db';
+	import { db } from '$lib/db';
 	import { vibrate } from '$lib';
 
 	// Capitalize the
@@ -32,14 +31,14 @@
 	});
 </script>
 
-<div class="sk-content-w md:mt-28">
+<div class="sk-content md:mt-28">
 	<div class="flex w-full items-center justify-between">
-		<h1 class="max-w-[80%] font-title text-3xl font-bold md:text-4xl">{name}</h1>
+		<h1 class="max-w-[90%] font-title text-3xl font-bold md:text-4xl">{name}</h1>
 		{#if name !== 'Character Dynamics' && elemCount !== 0}
 			<a
 				class="rounded-full bg-genie-600 p-2 dark:bg-genie-950"
 				aria-label="Add {name.toLowerCase().slice(0, -1)}"
-				href={`/new/${name.toLowerCase().slice(0, -1)}`}
+				href={`/edit/${name.toLowerCase().slice(0, -1)}?id=new`}
 				data-sveltekit-replacestate
 			>
 				{@render Plus()}
@@ -62,7 +61,7 @@
 				{#if name !== 'Character Dynamics'}
 					<a
 						class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-						href="/new/{name.toLowerCase().slice(0, -1)}"
+						href="/edit/{name.toLowerCase().slice(0, -1)}?id=new"
 						onpointerup={() => vibrate()}
 					>
 						{@render Plus()}
