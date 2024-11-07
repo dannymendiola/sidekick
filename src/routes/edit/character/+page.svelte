@@ -22,10 +22,6 @@
 				goto('/welcome');
 				break;
 			default:
-				// if ()
-				// character = await db.characters.get(charId);
-				// if (await db.characters.get(charId)) {
-				// }
 				const char = await db.characters.get(charId);
 				if (char) {
 				} else {
