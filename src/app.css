@@ -40,4 +40,8 @@
 	.sk-content {
 		@apply w-[70%] pt-24 md:pt-0 lg:w-[48rem] midskinny:w-[80%] skinny:w-[90%];
 	}
+
+	.ql-editor * {
+		@apply font-sans text-donkey-700;
+	}
 }

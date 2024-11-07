@@ -1,5 +1,6 @@
 import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
+import { ulid } from 'ulidx';
 
 const MOMENT_ORDER_STEP = 128;
 const MOMENT_MIN_ORDER_FRAC = 0.00001;
@@ -15,20 +16,20 @@ const db = new Dexie('sidekick') as Dexie & {
 };
 
 db.version(1).stores({
-	moments: '++id, name, order, *locations, *characters, *themes',
-	locations: '++id, name',
-	characters: '++id, name',
-	dynamics: '++id, &[aCharId+bCharId], aCharId, bCharId'
+	moments: 'id, name, order, *locations, *characters, *themes',
+	locations: 'id, name',
+	characters: 'id, name',
+	dynamics: 'id, &[aCharId+bCharId], aCharId, bCharId'
 });
 
 class Moment {
-	id!: number;
+	id!: string;
 	order?: number;
 	name?: string;
 	body?: string;
 	attr?: string;
-	locations?: number[];
-	characters?: number[];
+	locations?: string[];
+	characters?: string[];
 
 	async getLocations(): Promise<Location[]> {
 		return await db.locations
@@ -175,15 +176,20 @@ class Moment {
 
 	async delete() {
 		const id = this.id;
-		this.id = -1;
+		this.id = '';
 		await db.moments.delete(id);
 	}
 }
 
 db.moments.mapToClass(Moment);
+db.moments.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
 
 class Location {
-	id!: number;
+	id!: string;
 	name?: string;
 	attr?: string;
 
@@ -210,14 +216,19 @@ class Location {
 			m.unlink(this);
 		});
 		await db.locations.delete(this.id);
-		this.id = -1;
+		this.id = '';
 	}
 }
 
 db.locations.mapToClass(Location);
+db.locations.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
 
 class Character {
-	id!: number;
+	id!: string;
 	name?: string;
 	attr?: string;
 
@@ -231,7 +242,7 @@ class Character {
 		return db.characters.where('id').anyOf(otherIds).toArray();
 	}
 
-	async getDynamicWith(otherId: number) {
+	async getDynamicWith(otherId: string) {
 		if (this.id === otherId) return;
 		const [aId, bId] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
 		return await db.dynamics.where('[aCharId+bCharId]').equals([aId, bId]).first();
@@ -241,7 +252,7 @@ class Character {
 		return db.moments.where('characters').anyOf(this.id).toArray();
 	}
 
-	async createDynamic(otherId: number) {
+	async createDynamic(otherId: string) {
 		if (this.id === otherId) return undefined;
 
 		const [idA, idB] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
@@ -254,7 +265,7 @@ class Character {
 		return db.dynamics.get(dynamicId);
 	}
 
-	async removeDynamic(otherId: number) {
+	async removeDynamic(otherId: string) {
 		const [idA, idB] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
 		const dynamic = await db.dynamics.where('[aCharId+bCharId]').equals([idA, idB]).first();
 
@@ -278,23 +289,28 @@ class Character {
 		const dynamics = await this.getDynamics();
 		await Promise.all(dynamics.map((d) => d.delete()));
 		await db.characters.delete(this.id);
-		this.id = -1;
+		this.id = '';
 	}
 }
 
 db.characters.mapToClass(Character);
+db.characters.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
 
 class Dynamic {
-	id!: number;
-	aCharId!: number;
-	bCharId!: number;
+	id!: string;
+	aCharId!: string;
+	bCharId!: string;
 	attr?: string;
 
 	getCharacters(): Promise<[Character | undefined, Character | undefined]> {
 		return Promise.all([db.characters.get(this.aCharId), db.characters.get(this.bCharId)]);
 	}
 
-	async getOther(fromCharId: number) {
+	async getOther(fromCharId: string) {
 		if (fromCharId === this.aCharId) {
 			return db.characters.get(this.bCharId);
 		} else if (fromCharId === this.bCharId) {
@@ -316,11 +332,16 @@ class Dynamic {
 
 	async delete() {
 		await db.dynamics.delete(this.id);
-		this.id = -1;
+		this.id = '';
 	}
 }
 
 db.dynamics.mapToClass(Dynamic);
+db.dynamics.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
 
 export { db, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC };
 export type { Location, Character, Dynamic, Moment };

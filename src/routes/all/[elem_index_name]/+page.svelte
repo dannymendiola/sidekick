@@ -33,7 +33,9 @@
 
 <div class="sk-content md:mt-28">
 	<div class="flex w-full items-center justify-between">
-		<h1 class="max-w-[90%] font-title text-3xl font-bold md:text-4xl">{name}</h1>
+		<h1 class="w-full text-center font-title text-3xl font-bold md:text-left md:text-4xl">
+			{name}
+		</h1>
 		{#if name !== 'Character Dynamics' && elemCount !== 0}
 			<a
 				class="rounded-full bg-genie-600 p-2 dark:bg-genie-950"
@@ -55,7 +57,9 @@
 			{/each}
 		{:else}
 			<div class="flex w-full flex-col items-center justify-center">
-				<div class="mb-6 mt-[20vh] font-title text-lg font-bold italic dark:text-donkey-400">
+				<div
+					class="mb-6 mt-[20vh] font-title text-xl font-bold italic dark:text-donkey-400 md:text-2xl"
+				>
 					No {name.toLowerCase()} yet
 				</div>
 				{#if name !== 'Character Dynamics'}
@@ -71,7 +75,8 @@
 					</a>
 				{:else}
 					<div class="text-donkey-700 dark:text-donkey-400">
-						Create one from within a character sheet
+						Create one from within a
+						<a href="/all/characters" class="text-genie-500 hover:underline"> character sheet </a>
 					</div>
 				{/if}
 			</div>

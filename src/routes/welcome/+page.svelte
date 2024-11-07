@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { vibrate } from '$lib';
+	import { vibrate, QLEditor } from '$lib';
 	import { onMount } from 'svelte';
 	import { elasticOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
