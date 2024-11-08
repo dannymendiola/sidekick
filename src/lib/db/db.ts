@@ -1,4 +1,4 @@
-import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr } from '$lib/types/db';
+import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr, ThemeAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
 import { ulid } from 'ulidx';
 
@@ -215,6 +215,36 @@ class Theme {
 	name?: string;
 	desc?: string;
 	attr?: string;
+
+	getMoments(): Promise<Moment[]> {
+		return db.moments
+			.orderBy('order')
+			.filter((m) => (m.themes ? m.themes.includes(this.id) : false))
+			.toArray();
+	}
+
+	getLocations(): Promise<Location[]> {
+		return db.locations.where('themes').anyOf(this.id).toArray();
+	}
+
+	getCharacters(): Promise<Character[]> {
+		return db.characters.where('themes').anyOf(this.id).toArray();
+	}
+
+	getDynamics(): Promise<Dynamic[]> {
+		return db.dynamics.where('themes').anyOf(this.id).toArray();
+	}
+
+	getAttr() {
+		return JSON.parse(this.attr || '{}') as ThemeAttr;
+	}
+
+	async updateAttr(attr: ThemeAttr) {
+		const currAttr = JSON.parse(this.attr || '{}');
+		const newAttr = { ...currAttr, ...attr };
+		this.attr = JSON.stringify(newAttr);
+		await db.themes.update(this.id, { attr: this.attr });
+	}
 
 	refresh(): Promise<Theme> {
 		return db.themes.get(this.id) as Promise<Theme>;

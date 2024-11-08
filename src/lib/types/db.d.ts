@@ -1,4 +1,4 @@
-interface MomentAttr {
+export interface MomentAttr {
 	conflict?: string;
 	significance?: string;
 	start_point?: string;
@@ -8,7 +8,7 @@ interface MomentAttr {
 	notes?: string;
 }
 
-interface ThemeAttr {
+export interface ThemeAttr {
 	thesis?: string;
 	conflict?: string;
 	journey?: string;
@@ -16,13 +16,13 @@ interface ThemeAttr {
 	conclusion_reason?: string;
 }
 
-interface LocationAttr {
+export interface LocationAttr {
 	description?: string;
 	history?: string;
 	significance?: string;
 }
 
-export class CharacterAttr {
+export interface CharacterAttr {
 	// (i) basic qualities
 	last_name?: string;
 	nickname?: string;

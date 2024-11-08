@@ -20,9 +20,9 @@ const addMomentAfter = async (
 		name?: string;
 		body?: Delta;
 		attr?: JSON;
-		locations?: number[];
-		characters?: number[];
-		themes?: number[];
+		locations?: string[];
+		characters?: string[];
+		themes?: string[];
 	}
 ): Promise<Moment | undefined> => {
 	const { name, body, attr, locations, characters, themes } = vals;

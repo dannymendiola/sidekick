@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, vi, test, afterEach } from 'vitest';
 
 import { addMomentAfter } from './api';
-import { db, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC, type Character } from './db';
+import { db, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC } from './db';
 
 describe('Moments', () => {
 	afterEach(async () => {
@@ -271,5 +271,74 @@ describe('Characters', () => {
 		});
 
 		expect(character?.getAttr().flaws).toBe('Smells bad');
+	});
+});
+
+describe('Themes', () => {
+	afterAll(async () => {
+		await Promise.all(db.tables.map((table) => table.clear()));
+	});
+
+	let themeId1: string;
+	let characterId1: string;
+
+	it('Theme <-> Location', async () => {
+		const locationId = await db.locations.add({ name: 'This app' });
+		let location = await db.locations.get(locationId);
+		themeId1 = await db.themes.add({ name: 'Dark mode' });
+		let theme = await db.themes.get(themeId1);
+
+		location?.addTheme(theme!);
+		const themeFromLocation = (await location!.getThemes())[0];
+
+		expect(themeFromLocation.name).toBe('Dark mode');
+
+		const locationFromTheme = (await theme!.getLocations())[0];
+		expect(locationFromTheme.id).toBe(locationId);
+
+		expect((await location!.getThemes()).length).toBe(1);
+		location?.removeTheme(theme!);
+		location = await location?.refresh();
+		expect((await location!.getThemes()).length).toBe(0);
+	});
+
+	it('Theme <-> Character', async () => {
+		let theme = (await db.themes.get(themeId1))!;
+		expect(theme.name).toBe('Dark mode');
+
+		characterId1 = await db.characters.add({ name: 'Dr. Jekyll' });
+		let character = (await db.characters.get(characterId1))!;
+
+		character.addTheme(theme);
+
+		const themeFromChar = (await character.getThemes())[0];
+		expect(themeFromChar.name).toBe('Dark mode');
+
+		const charFromTheme = (await theme.getCharacters())[0];
+		expect(charFromTheme.name).toBe('Dr. Jekyll');
+	});
+
+	it('Theme <-> Dynamic', async () => {
+		let theme = (await db.themes.get(themeId1))!;
+
+		let jekyll = (await db.characters.get(characterId1))!;
+		expect(jekyll.name).toBe('Dr. Jekyll');
+
+		let dynamic = (await jekyll.createDynamic(await db.characters.add({ name: 'Mr. Hyde' })))!;
+
+		dynamic.addTheme(theme);
+
+		const themeFromDynamic = (await dynamic.getThemes())[0];
+		expect(themeFromDynamic.name).toBe('Dark mode');
+
+		const dynamicFromTheme = (await theme.getDynamics())[0];
+		expect(dynamicFromTheme.id).toBe(dynamic.id);
+	});
+
+	it('Theme <-> Moment', async () => {
+		let theme = (await db.themes.get(themeId1))!;
+		let momentId = await db.moments.add({ name: 'Transformation' });
+
+		// TODO
 	});
 });
