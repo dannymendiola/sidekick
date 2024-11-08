@@ -54,14 +54,14 @@ describe('Moments', () => {
 
 		let orderBefore = (await db.moments.orderBy('order').toArray()).map((m) => m.name);
 
-		await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
+		// await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
 
 		await addMomentAfter('root', { name: `${slices}` });
 		secondMoment = (await db.moments.orderBy('order').toArray())[1];
 
 		expect(secondMoment.order).equals(MOMENT_ORDER_STEP);
 
-		await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
+		// await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
 
 		let orderAfter = (await db.moments.orderBy('order').toArray()).map((m) => m.name).slice(1);
 
@@ -117,6 +117,21 @@ describe('Moments', () => {
 
 		expect((await moment2!.getCharacters())[0].name).toBe('Character 1');
 		expect((await character1!.getMoments())[0].id).toBe(moment2!.id);
+
+		const themeId = await db.themes.add({
+			name: 'Media',
+			desc: 'The perilous glory of unlimited information'
+		});
+		const theme = await db.themes.get(themeId);
+
+		expect((await moment2!.getThemes()).length).toBe(0);
+
+		moment2!.link(theme!);
+		moment2 = await moment2?.refresh();
+
+		expect((await moment2!.getThemes())[0].desc).toBe(
+			'The perilous glory of unlimited information'
+		);
 	});
 
 	it('Moment attr', async () => {

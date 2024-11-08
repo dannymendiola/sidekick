@@ -6,7 +6,6 @@
 
 	$effect(() => {
 		if (skstate.settings) {
-			console.log(skstate.settings.currPath.split('/')[1]);
 			const pathLevel1 = skstate.settings.currPath.split('/')[1];
 			goto(unsavedPaths.has(pathLevel1) ? '/welcome' : skstate.settings.currPath);
 		}

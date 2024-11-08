@@ -8,6 +8,14 @@ interface MomentAttr {
 	notes?: string;
 }
 
+interface ThemeAttr {
+	thesis?: string;
+	conflict?: string;
+	journey?: string;
+	conclusion?: string;
+	conclusion_reason?: string;
+}
+
 interface LocationAttr {
 	description?: string;
 	history?: string;

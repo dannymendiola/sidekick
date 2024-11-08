@@ -1,6 +1,6 @@
 export const DEFAULT_SETTINGS: SKSettings = {
 	theme: 'dark',
-	currPath: '/'
+	currPath: '/welcome'
 };
 
 export interface SKSettings {

@@ -26,6 +26,13 @@
 			skstate.updateSettings({ currPath: val.url.pathname });
 		}
 	});
+
+	const requestPersistence = async () => {
+		if (navigator.storage && !(await navigator.storage.persisted())) {
+			const granted = await navigator.storage.persist();
+		}
+	};
+	requestPersistence();
 </script>
 
 {@render SkinnyTopbar()}

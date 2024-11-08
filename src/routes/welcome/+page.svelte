@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { elasticOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
+	import { version } from '$app/environment';
 	let mounted = false;
 	onMount(() => {
 		mounted = true;
@@ -46,6 +47,10 @@
 			<p class="text-genie-100 dark:text-genie-300">Take a quick tour</p>
 		</button>
 	</div>
+</div>
+
+<div class="fixed bottom-0 right-0 mb-20 mr-3 text-sm font-bold dark:text-donkey-600 md:mb-3">
+	{version}
 </div>
 
 <svelte:head>
