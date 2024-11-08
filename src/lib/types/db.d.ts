@@ -8,13 +8,21 @@ interface MomentAttr {
 	notes?: string;
 }
 
+interface ThemeAttr {
+	thesis?: string;
+	conflict?: string;
+	journey?: string;
+	conclusion?: string;
+	conclusion_reason?: string;
+}
+
 interface LocationAttr {
 	description?: string;
 	history?: string;
 	significance?: string;
 }
 
-export interface CharacterAttr {
+export class CharacterAttr {
 	// (i) basic qualities
 	last_name?: string;
 	nickname?: string;
@@ -69,7 +77,7 @@ export interface CharacterAttr {
 	optimist_pessimist?: string;
 }
 
-export interface CharacterRelationshipAttr {
+export interface DynamicAttr {
 	// (i) type
 	/**
 	 * Enforce as Set
@@ -113,7 +121,7 @@ export interface CharacterRelationshipAttr {
 	intensity?: 'fiery' | 'passionate' | 'lukewarm' | 'neutral' | 'unfeeling';
 	attraction?: string;
 
-	// (i) relationship fundamentals
+	// (i) dynamic/relationship fundamentals
 	respect?: string;
 	trust?: 'none' | 'low' | 'medium' | 'high' | 'absolute';
 	faith?: 'none' | 'low' | 'medium' | 'high' | 'absolute';

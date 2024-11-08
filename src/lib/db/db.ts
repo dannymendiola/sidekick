@@ -1,5 +1,6 @@
-import { CharacterAttr, CharacterRelationshipAttr, LocationAttr, MomentAttr } from '$lib/types/db';
+import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
+import { ulid } from 'ulidx';
 
 const MOMENT_ORDER_STEP = 128;
 const MOMENT_MIN_ORDER_FRAC = 0.00001;
@@ -9,32 +10,32 @@ const MOMENT_MIN_ORDER_FRAC = 0.00001;
  */
 const db = new Dexie('sidekick') as Dexie & {
 	moments: EntityTable<Moment, 'id'>;
+	themes: EntityTable<Theme, 'id'>;
 	locations: EntityTable<Location, 'id'>;
 	characters: EntityTable<Character, 'id'>;
-	character_relationships: EntityTable<CharacterRelationship, 'id'>;
-	themes: EntityTable<Theme, 'id'>;
+	dynamics: EntityTable<Dynamic, 'id'>;
 };
 
 db.version(1).stores({
-	moments: '++id, name, order, *locations, *characters, *themes',
-	locations: '++id, name',
-	characters: '++id, name',
-	character_relationships: '++id, &[aCharId+bCharId], aCharId, bCharId',
-	themes: '++id, name'
+	moments: 'id, name, order, *locations, *characters, *themes',
+	themes: 'id, name',
+	locations: 'id, name, *themes',
+	characters: 'id, name, *locations, *themes',
+	dynamics: 'id, &[aCharId+bCharId], aCharId, bCharId, *themes'
 });
 
 class Moment {
-	id!: number;
+	id!: string;
 	order?: number;
 	name?: string;
 	body?: string;
 	attr?: string;
-	locations?: number[];
-	characters?: number[];
-	themes?: number[];
+	locations?: string[];
+	characters?: string[];
+	themes?: string[];
 
-	async getLocations(): Promise<Location[]> {
-		return await db.locations
+	getLocations(): Promise<Location[]> {
+		return db.locations
 			.where('id')
 			.anyOf(this.locations || [])
 			.sortBy('name');
@@ -45,6 +46,17 @@ class Moment {
 			.where('id')
 			.anyOf(this.characters || [])
 			.toArray();
+	}
+
+	getThemes(): Promise<Theme[]> {
+		return db.themes
+			.where('id')
+			.anyOf(this.themes || [])
+			.toArray();
+	}
+
+	refresh(): Promise<Moment> {
+		return db.moments.get(this.id) as Promise<Moment>;
 	}
 
 	/**
@@ -186,20 +198,86 @@ class Moment {
 
 	async delete() {
 		const id = this.id;
-		this.id = -1;
+		this.id = '';
 		await db.moments.delete(id);
 	}
 }
 
 db.moments.mapToClass(Moment);
+db.moments.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
+
+class Theme {
+	id!: string;
+	name?: string;
+	desc?: string;
+	attr?: string;
+
+	refresh(): Promise<Theme> {
+		return db.themes.get(this.id) as Promise<Theme>;
+	}
+
+	async delete() {
+		await Promise.all([
+			db.moments
+				.where('themes')
+				.anyOf(this.id)
+				.each((m) => m.unlink(this)),
+			db.locations
+				.where('themes')
+				.anyOf(this.id)
+				.each((l) => l.removeTheme(this)),
+			db.characters
+				.where('themes')
+				.anyOf(this.id)
+				.each((c) => c.removeTheme(this)),
+			db.dynamics
+				.where('themes')
+				.anyOf(this.id)
+				.each((d) => d.removeTheme(this))
+		]);
+		await db.themes.delete(this.id);
+		this.id = '';
+	}
+}
+
+db.themes.mapToClass(Theme);
+db.themes.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
 
 class Location {
-	id!: number;
+	id!: string;
 	name?: string;
 	attr?: string;
+	themes?: string[];
 
 	getMoments(): Promise<Moment[]> {
 		return db.moments.where('locations').anyOf(this.id).toArray();
+	}
+
+	getThemes(): Promise<Theme[]> {
+		return db.themes
+			.where('id')
+			.anyOf(this.themes || [])
+			.toArray();
+	}
+
+	async addTheme(theme: Theme) {
+		const newThemes = [...new Set([...(this.themes || []), theme.id])];
+		this.themes = newThemes;
+		await db.locations.update(this.id, { themes: newThemes });
+	}
+
+	async removeTheme(theme: Theme) {
+		const newThemes = (this.themes || []).filter((t) => t !== theme.id);
+		this.themes = newThemes;
+		await db.locations.update(this.id, { themes: newThemes });
 	}
 
 	getAttr() {
@@ -213,6 +291,10 @@ class Location {
 		await db.locations.update(this.id, { attr: this.attr });
 	}
 
+	refresh(): Promise<Location> {
+		return db.locations.get(this.id) as Promise<Location>;
+	}
+
 	/**
 	 * Remove this location from all moments and then from the db
 	 */
@@ -221,66 +303,81 @@ class Location {
 			m.unlink(this);
 		});
 		await db.locations.delete(this.id);
-		this.id = -1;
+		this.id = '';
 	}
 }
 
 db.locations.mapToClass(Location);
+db.locations.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
 
 class Character {
-	id!: number;
+	id!: string;
 	name?: string;
 	attr?: string;
+	locations?: string[];
+	themes?: string[];
 
-	getRelationships(): Promise<CharacterRelationship[]> {
-		return db.character_relationships
-			.where('aCharId')
-			.equals(this.id)
-			.or('bCharId')
-			.equals(this.id)
-			.toArray();
+	getDynamics(): Promise<Dynamic[]> {
+		return db.dynamics.where('aCharId').equals(this.id).or('bCharId').equals(this.id).toArray();
 	}
 
 	async relatedCharacters(): Promise<Character[]> {
-		const relationships = await this.getRelationships();
-		const otherIds = relationships.map((r) => (r.aCharId === this.id ? r.bCharId : r.aCharId));
+		const dynamics = await this.getDynamics();
+		const otherIds = dynamics.map((d) => (d.aCharId === this.id ? d.bCharId : d.aCharId));
 		return db.characters.where('id').anyOf(otherIds).toArray();
 	}
 
-	async getRelationshipTo(otherId: number) {
+	async getDynamicWith(otherId: string) {
 		if (this.id === otherId) return;
 		const [aId, bId] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
-		return await db.character_relationships.where('[aCharId+bCharId]').equals([aId, bId]).first();
+		return await db.dynamics.where('[aCharId+bCharId]').equals([aId, bId]).first();
 	}
 
 	getMoments(): Promise<Moment[]> {
 		return db.moments.where('characters').anyOf(this.id).toArray();
 	}
 
-	async createRelationship(otherId: number) {
+	async createDynamic(otherId: string) {
 		if (this.id === otherId) return undefined;
 
 		const [idA, idB] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
 
-		const existing = await db.character_relationships
-			.where('[aCharId+bCharId]')
-			.equals([idA, idB])
-			.first();
+		const existing = await db.dynamics.where('[aCharId+bCharId]').equals([idA, idB]).first();
 		if (existing) return existing;
 
-		const relationshipId = await db.character_relationships.add({ aCharId: idA, bCharId: idB });
+		const dynamicId = await db.dynamics.add({ aCharId: idA, bCharId: idB });
 
-		return db.character_relationships.get(relationshipId);
+		return db.dynamics.get(dynamicId);
 	}
 
-	async removeRelationship(otherId: number) {
+	async removeDynamic(otherId: string) {
 		const [idA, idB] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
-		const relationship = await db.character_relationships
-			.where('[aCharId+bCharId]')
-			.equals([idA, idB])
-			.first();
+		const dynamic = await db.dynamics.where('[aCharId+bCharId]').equals([idA, idB]).first();
 
-		if (relationship) await relationship.delete();
+		if (dynamic) await dynamic.delete();
+	}
+
+	getThemes(): Promise<Theme[]> {
+		return db.themes
+			.where('id')
+			.anyOf(this.themes || [])
+			.toArray();
+	}
+
+	async addTheme(theme: Theme) {
+		const newThemes = [...new Set([...(this.themes || []), theme.id])];
+		this.themes = newThemes;
+		await db.characters.update(this.id, { themes: newThemes });
+	}
+
+	async removeTheme(theme: Theme) {
+		const newThemes = (this.themes || []).filter((t) => t !== theme.id);
+		this.themes = newThemes;
+		await db.characters.update(this.id, { themes: newThemes });
 	}
 
 	getAttr() {
@@ -294,29 +391,38 @@ class Character {
 		await db.characters.update(this.id, { attr: this.attr });
 	}
 
+	refresh(): Promise<Character> {
+		return db.characters.get(this.id) as Promise<Character>;
+	}
+
 	async delete() {
-		// const moments = await db.moments.where('characters').anyOf(this.id).toArray();
 		await Promise.all((await db.moments.toArray()).map((m) => m.unlink(this)));
-		const relationships = await this.getRelationships();
-		await Promise.all(relationships.map((r) => r.delete()));
+		const dynamics = await this.getDynamics();
+		await Promise.all(dynamics.map((d) => d.delete()));
 		await db.characters.delete(this.id);
-		this.id = -1;
+		this.id = '';
 	}
 }
 
 db.characters.mapToClass(Character);
+db.characters.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
 
-class CharacterRelationship {
-	id!: number;
-	aCharId!: number;
-	bCharId!: number;
+class Dynamic {
+	id!: string;
+	aCharId!: string;
+	bCharId!: string;
 	attr?: string;
+	themes?: string[];
 
 	getCharacters(): Promise<[Character | undefined, Character | undefined]> {
 		return Promise.all([db.characters.get(this.aCharId), db.characters.get(this.bCharId)]);
 	}
 
-	async getOther(fromCharId: number) {
+	async getOther(fromCharId: string) {
 		if (fromCharId === this.aCharId) {
 			return db.characters.get(this.bCharId);
 		} else if (fromCharId === this.bCharId) {
@@ -325,33 +431,52 @@ class CharacterRelationship {
 		return undefined;
 	}
 
-	getAttr() {
-		return JSON.parse(this.attr || '{}') as CharacterRelationshipAttr;
+	getThemes(): Promise<Theme[]> {
+		return db.themes
+			.where('id')
+			.anyOf(this.themes || [])
+			.toArray();
 	}
 
-	async updateAttr(attr: CharacterRelationshipAttr) {
+	async addTheme(theme: Theme) {
+		const newThemes = [...new Set([...(this.themes || []), theme.id])];
+		this.themes = newThemes;
+		await db.dynamics.update(this.id, { themes: newThemes });
+	}
+
+	async removeTheme(theme: Theme) {
+		const newThemes = (this.themes || []).filter((t) => t !== theme.id);
+		this.themes = newThemes;
+		await db.dynamics.update(this.id, { themes: newThemes });
+	}
+
+	getAttr() {
+		return JSON.parse(this.attr || '{}') as DynamicAttr;
+	}
+
+	async updateAttr(attr: DynamicAttr) {
 		let currAttr = JSON.parse(this.attr || '{}');
 		let newAttr = { ...currAttr, ...attr };
 		this.attr = JSON.stringify(newAttr);
-		await db.character_relationships.update(this.id, { attr: this.attr });
+		await db.dynamics.update(this.id, { attr: this.attr });
+	}
+
+	refresh(): Promise<Dynamic> {
+		return db.dynamics.get(this.id) as Promise<Dynamic>;
 	}
 
 	async delete() {
-		await db.character_relationships.delete(this.id);
-		this.id = -1;
+		await db.dynamics.delete(this.id);
+		this.id = '';
 	}
 }
 
-db.character_relationships.mapToClass(CharacterRelationship);
-
-// TODO not implemented
-class Theme {
-	id!: number;
-	name?: string;
-	attr?: string;
-}
-
-db.themes.mapToClass(Theme);
+db.dynamics.mapToClass(Dynamic);
+db.dynamics.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
 
 export { db, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC };
-export type { Location, Character, CharacterRelationship, Theme, Moment };
+export type { Location, Character, Dynamic, Moment, Theme };

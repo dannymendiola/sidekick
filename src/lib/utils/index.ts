@@ -1,2 +1,2 @@
-export { uuid } from './misc';
+export * from './misc';
 export * from './quill';

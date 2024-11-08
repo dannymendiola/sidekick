@@ -1,10 +1,11 @@
 <script lang="ts">
 	import Quill, { type QuillOptions } from 'quill';
 	import { Delta } from 'quill/core';
-	import { uuid, type IconName, skstate, addKeybinds } from '$lib';
+	import { type IconName, addKeybinds } from '$lib';
 	import { onMount } from 'svelte';
 
 	interface Props {
+		id: number | string;
 		placeholder?: string;
 		text?: Delta;
 		initText?: Delta;
@@ -14,6 +15,7 @@
 	}
 
 	let {
+		id,
 		placeholder = ' ',
 		initText = undefined,
 		text = $bindable(),
@@ -49,17 +51,41 @@
 	};
 
 	let quill: Quill | undefined = $state();
-	const ID = `ql-${uuid()}`;
+	const ID = `ql${id ? `-${id}` : ''}`;
 
-	const KEYBINDS = [
-		{
-			key: ']',
-			shortKey: true,
-			handler: () => {
-				quill?.format('indent', '+1');
-			}
-		}
-	];
+	const KEYBINDS =
+		inputMode === 'full'
+			? [
+					{
+						key: ']',
+						shortKey: true,
+						handler: () => {
+							quill?.format('indent', '+1');
+						}
+					}
+				]
+			: [
+					// disable quill-default keybindings
+					{
+						key: 'i',
+						shortKey: true,
+						handler: () => {}
+					},
+					{
+						key: 'u',
+						shortKey: true,
+						handler: () => {}
+					},
+					{
+						key: 'b',
+						shortKey: true,
+						handler: () => {}
+					},
+					{
+						key: 'Enter',
+						handler: () => {}
+					}
+				];
 
 	const QL_OPTS: QuillOptions = {
 		placeholder: placeholder,
@@ -76,7 +102,7 @@
 		quill!.on('text-change', () => {
 			text = quill!.getContents();
 		});
-		const keybindCleanup = addKeybinds(quill!);
+		const keybindCleanup = inputMode === 'full' ? addKeybinds(quill!) : () => {};
 
 		if (initText) {
 			quill!.setContents(initText);
@@ -93,7 +119,7 @@
 		{@render Toolbar()}
 	{/if}
 	<div
-		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none bg-donkey-100 px-2 text-[1rem] text-donkey-950 outline-none selection:bg-genie-400 selection:text-genie-50 dark:bg-donkey-200 [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
+		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none bg-donkey-50 px-2 text-[1rem] text-donkey-950 outline-none drop-shadow-md selection:bg-genie-800 selection:text-genie-300 dark:bg-donkey-300 dark:drop-shadow-none [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
         {toolbar ? 'rounded-b-xl' : 'rounded-xl'}"
 		id={ID}
 		{spellcheck}
@@ -106,10 +132,10 @@
 
 {#snippet Toolbar()}
 	<div
-		class="flex min-h-14 flex-wrap content-start justify-end gap-2 rounded-t-xl bg-donkey-200 px-4 pb-6 pt-4 dark:bg-donkey-200 [&>button]:text-xl"
+		class="flex min-h-14 flex-wrap content-start justify-end gap-2 rounded-t-xl bg-donkey-50 px-4 pb-6 pt-4 drop-shadow-md dark:bg-donkey-300 dark:drop-shadow-none [&>button]:select-none [&>button]:text-xl"
 	>
 		<button
-			class="rounded px-2 font-mono font-bold {csrFmt.bold ? twActiveButton : ''}"
+			class="rounded px-2 font-mono font-bold {csrFmt.bold ? twActiveButton : 'text-donkey-700'}"
 			onpointerup={() => {
 				quill!.format('bold', !csrFmt.bold);
 				updateCsrFmt();
@@ -118,8 +144,16 @@
 			B
 		</button>
 
-		<button class="rounded px-2 font-mono italic {csrFmt.italic ? twActiveButton : ''}"> I </button>
-		<button class="rounded px-2 font-mono underline {csrFmt.underline ? twActiveButton : ''}">
+		<button
+			class="rounded px-2 font-mono italic {csrFmt.italic ? twActiveButton : 'text-donkey-700'}"
+		>
+			I
+		</button>
+		<button
+			class="rounded px-2 font-mono underline {csrFmt.underline
+				? twActiveButton
+				: 'text-donkey-700'}"
+		>
 			U
 		</button>
 		<button

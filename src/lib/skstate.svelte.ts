@@ -1,19 +1,21 @@
 import { DEFAULT_SETTINGS, type SKSettings } from '$lib';
 
 class SKState {
-	#settings = $state(DEFAULT_SETTINGS);
+	#settings: typeof DEFAULT_SETTINGS | undefined = $state();
 
 	get settings() {
-		return this.#settings;
+		return this.#settings ? this.#settings : DEFAULT_SETTINGS;
 	}
 
-	set settings(vals: Partial<typeof DEFAULT_SETTINGS>) {
-		this.#settings = { ...this.#settings, ...vals };
+	updateSettings(vals: Partial<typeof DEFAULT_SETTINGS>) {
+		this.#settings = this.#settings
+			? { ...this.#settings, ...vals }
+			: { ...DEFAULT_SETTINGS, ...vals };
 		localStorage.setItem('sk-settings', JSON.stringify(this.#settings));
 	}
 
 	get darkMode() {
-		return this.#settings.theme === 'dark';
+		return this.#settings ? this.#settings.theme === 'dark' : DEFAULT_SETTINGS.theme === 'dark';
 	}
 }
 
