@@ -1,7 +1,9 @@
 import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
-import { addMomentAfter } from './api';
-import { db, ORDER_STEP, ORDER_MIN_FRAC } from './db';
+import { addMomentAfter, addLocationAfter } from './api';
+import { db, ORDER_STEP, ORDER_MIN_FRAC, Character } from './db';
+
+const slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
 
 describe('Moments', () => {
 	afterEach(async () => {
@@ -41,10 +43,9 @@ describe('Moments', () => {
 		expect(bNext!.name).toBe('Moment E');
 	});
 
-	it('Moment rebalancing', async () => {
+	it('Rebalancing', async () => {
 		/* slices = number of times to divide MOMENT_ORDER_STEP before an index
             goes below 0.001 */
-		let slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
 		for (let i = 0; i < slices; i++) {
 			await addMomentAfter('root', { name: `${i}` });
 		}
@@ -152,6 +153,39 @@ describe('Locations', () => {
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
 
+	it('Location ordering and deletion', async () => {
+		// const alcatrazId = await db.locations.add({ name: 'Alcatraz' });
+		// let alcatraz = (await db.locations.get(alcatrazId))!;
+		// await alcatraz.orderAfter('root');
+		let alcatraz = (await addLocationAfter('root', { name: 'Alcatraz' }))!;
+
+		// TODO
+
+		const berlinId = await db.locations.add({ name: 'Berlin' });
+		let berlin = (await db.locations.get(berlinId))!;
+		await berlin.orderAfter(alcatraz);
+
+		expect(alcatraz!.order).toBe(0);
+		expect(berlin!.order).toEqual(ORDER_STEP);
+
+		// let aNext = await (await db.locations.get(momentA!.id))!.getNext();
+		let bFromA = await alcatraz!.getNext();
+		expect(bFromA!.name).toBe('Berlin');
+
+		let aFromB = await berlin!.getPrev();
+		expect(aFromB!.name).toBe('Alcatraz');
+
+		const costcoId = await db.locations.add({ name: 'Costco' });
+		let costco = (await db.locations.get(costcoId))!;
+		await costco.orderAfter('tail');
+		expect((await costco.getPrev())!.name).toBe('Berlin');
+
+		berlin.delete();
+		costco = await costco.refresh();
+
+		expect((await costco.getPrev())!.name).toBe('Alcatraz');
+	});
+
 	it('Location attr', async () => {
 		let location1Id = await db.locations.add({
 			name: 'Location 1',
@@ -237,8 +271,7 @@ describe('Characters', () => {
 
 	it('Remove character and cascade', async () => {
 		const momentId = await db.moments.add({
-			name: 'Moment 1',
-			body: "{'ops':[{'insert':'Alice and Charlie vanquish the dark lord'}]}"
+			name: 'Moment 1'
 		});
 		let moment = await db.moments.get(momentId);
 		const bob = await db.characters.where('name').equals('Bob').first();

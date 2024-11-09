@@ -1,5 +1,6 @@
 import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr, ThemeAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
+import { Delta } from 'quill/core';
 import { ulid } from 'ulidx';
 
 const ORDER_STEP = 128;
@@ -24,11 +25,97 @@ db.version(1).stores({
 	dynamics: 'id, order, &[aCharId+bCharId], aCharId, bCharId, *themes'
 });
 
+type Entity = Moment | Theme | Location | Character | Dynamic;
+
+const orderAfter = async <T extends Entity>(
+	elem: T,
+	preceding: T | 'root' | 'tail',
+	table: EntityTable<T, 'id'>
+) => {
+	// TODO get rid of these ts-ignores if possible
+	const rebalance = async () => {
+		const elements = await table.orderBy('order').toArray();
+		const update = elements.map((m, i) => {
+			const order = i * ORDER_STEP;
+			return {
+				key: m.id,
+				changes: {
+					order: order
+				}
+			};
+		});
+		// @ts-ignore
+		await table.bulkUpdate(update);
+	};
+
+	const getFrac = (num: number) => {
+		return Math.min(num - Math.floor(num), Math.ceil(num) - num);
+	};
+
+	if (preceding === 'root') {
+		const currRoot = await table.where('order').equals(0).first();
+		// @ts-ignore
+		await table.update(elem.id, { order: 0 });
+		elem.order = 0;
+
+		if (currRoot) {
+			const afterRoot = await currRoot.getNext();
+			if (afterRoot) {
+				const currRootOrder = afterRoot.order! / 2;
+				// @ts-ignore
+				await table.update(currRoot.id, { order: currRootOrder });
+				currRoot.order = currRootOrder;
+				const frac = getFrac(currRoot.order!);
+				if (frac <= ORDER_MIN_FRAC && frac > 0) {
+					await rebalance();
+				}
+			} else {
+				// @ts-ignore
+				await table.update(currRoot.id, { order: ORDER_STEP });
+				currRoot.order = ORDER_STEP;
+			}
+		}
+	}
+	// @ts-ignore
+	else if (preceding === 'tail') {
+		const currTail = await table.orderBy('order').last();
+		if (currTail) {
+			const order = currTail.order! + ORDER_STEP;
+			// @ts-ignore
+			await table.update(elem.id, { order: order });
+			elem.order = order;
+		} else {
+			elem.order = 0;
+			// @ts-ignore
+			await table.update(elem.id, { order: 0 });
+		}
+	} else {
+		const next = await preceding.getNext();
+		if (next) {
+			const order = (next.order! + preceding.order!) / 2;
+			// @ts-ignore
+			await table.update(elem.id, { order: order });
+			elem.order = order;
+			const frac = getFrac(order);
+			if (frac <= ORDER_MIN_FRAC && frac > 0) {
+				await rebalance();
+			}
+		} else {
+			const order = preceding.order! + ORDER_STEP;
+			// @ts-ignore
+			await table.update(elem.id, { order: order });
+			elem.order = order;
+		}
+	}
+
+	return elem;
+};
+
 class Moment {
 	id!: string;
 	order?: number;
 	name?: string;
-	body?: string;
+	body?: Delta;
 	attr?: MomentAttr;
 	locations?: string[];
 	characters?: string[];
@@ -117,72 +204,7 @@ class Moment {
 	 * @param preceding The preceding element, or 'root' or 'tail'
 	 */
 	async orderAfter(preceding: Moment | 'root' | 'tail') {
-		const rebalance = async () => {
-			const moments = await db.moments.orderBy('order').toArray();
-			const update = moments.map((m, i) => {
-				const order = i * ORDER_STEP;
-				return {
-					key: m.id,
-					changes: {
-						order: order
-					}
-				};
-			});
-			await db.moments.bulkUpdate(update);
-		};
-
-		const getFrac = (num: number) => {
-			return Math.min(num - Math.floor(num), Math.ceil(num) - num);
-		};
-
-		if (preceding === 'root') {
-			const currRoot = await db.moments.where('order').equals(0).first();
-
-			await db.moments.update(this.id, { order: 0 });
-			this.order = 0;
-
-			if (currRoot) {
-				const afterRoot = await currRoot.getNext();
-				if (afterRoot) {
-					const currRootOrder = afterRoot.order! / 2;
-					await db.moments.update(currRoot.id, { order: currRootOrder });
-					currRoot.order = currRootOrder;
-					const frac = getFrac(currRoot.order!);
-					if (frac <= ORDER_MIN_FRAC && frac > 0) {
-						await rebalance();
-					}
-				} else {
-					await db.moments.update(currRoot.id, { order: ORDER_STEP });
-					currRoot.order = ORDER_STEP;
-				}
-			}
-		} else if (preceding === 'tail') {
-			const currTail = await db.moments.orderBy('order').last();
-			if (currTail) {
-				const order = currTail.order! + ORDER_STEP;
-				await db.moments.update(this.id, { order: order });
-				this.order = order;
-			} else {
-				this.order = 0;
-				await db.moments.update(this.id, { order: 0 });
-			}
-		} else {
-			const next = await preceding.getNext();
-			if (next) {
-				const order = (next.order! + preceding.order!) / 2;
-				await db.moments.update(this.id, { order: order });
-				this.order = order;
-				const frac = getFrac(order);
-				if (frac <= ORDER_MIN_FRAC && frac > 0) {
-					await rebalance();
-				}
-			} else {
-				const order = preceding.order! + ORDER_STEP;
-				await db.moments.update(this.id, { order: order });
-				this.order = order;
-			}
-		}
-		return this;
+		return orderAfter(this, preceding, db.moments);
 	}
 
 	// use a partial just in case the interface ever gets a field that isn't optional
@@ -205,18 +227,28 @@ db.moments.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
 	}
-	if (!obj.order) {
-		obj.orderAfter('tail');
-	}
-	// if (!obj.order) {
-	// }
 });
 
 class Theme {
 	id!: string;
 	name?: string;
+	order?: number;
 	desc?: string;
 	attr?: ThemeAttr;
+
+	orderAfter(preceding: Theme | 'root' | 'tail'): Promise<Theme> {
+		return orderAfter(this, preceding, db.themes);
+	}
+
+	getNext(): Promise<Theme | undefined> {
+		const themesAfter = db.themes.orderBy('order').filter((m) => m.order! > this.order!);
+		return themesAfter.first();
+	}
+
+	getPrev(): Promise<Theme | undefined> {
+		const themesBefore = db.themes.orderBy('order').filter((m) => m.order! < this.order!);
+		return themesBefore.last();
+	}
 
 	getMoments(): Promise<Moment[]> {
 		return db.moments.where('themes').anyOf(this.id).sortBy('order');
@@ -279,8 +311,23 @@ db.themes.hook('creating', (pk, obj, _) => {
 class Location {
 	id!: string;
 	name?: string;
+	order?: number;
 	attr?: LocationAttr;
 	themes?: string[];
+
+	orderAfter(preceding: Location | 'root' | 'tail'): Promise<Location> {
+		return orderAfter(this, preceding, db.locations);
+	}
+
+	getNext(): Promise<Location | undefined> {
+		const locsAfter = db.locations.orderBy('order').filter((m) => m.order! > this.order!);
+		return locsAfter.first();
+	}
+
+	getPrev(): Promise<Location | undefined> {
+		const locsBefore = db.locations.orderBy('order').filter((m) => m.order! < this.order!);
+		return locsBefore.last();
+	}
 
 	getMoments(): Promise<Moment[]> {
 		return db.moments.where('locations').anyOf(this.id).toArray();
@@ -330,17 +377,30 @@ class Location {
 
 db.locations.mapToClass(Location);
 db.locations.hook('creating', (pk, obj, _) => {
-	if (!pk) {
-		obj.id = ulid();
-	}
+	obj.id = pk || ulid();
 });
 
 class Character {
 	id!: string;
 	name?: string;
+	order?: number;
 	attr?: CharacterAttr;
 	locations?: string[];
 	themes?: string[];
+
+	orderAfter(preceding: Character | 'root' | 'tail'): Promise<Character> {
+		return orderAfter(this, preceding, db.characters);
+	}
+
+	getNext(): Promise<Character | undefined> {
+		const charsAfter = db.characters.orderBy('order').filter((m) => m.order! > this.order!);
+		return charsAfter.first();
+	}
+
+	getPrev(): Promise<Character | undefined> {
+		const charsBefore = db.characters.orderBy('order').filter((m) => m.order! < this.order!);
+		return charsBefore.last();
+	}
 
 	getDynamics(): Promise<Dynamic[]> {
 		return db.dynamics.where('aCharId').equals(this.id).or('bCharId').equals(this.id).toArray();
@@ -430,10 +490,25 @@ db.characters.hook('creating', (pk, obj, _) => {
 
 class Dynamic {
 	id!: string;
+	order?: number;
 	aCharId!: string;
 	bCharId!: string;
 	attr?: DynamicAttr;
 	themes?: string[];
+
+	orderAfter(preceding: Dynamic | 'root' | 'tail') {
+		return orderAfter(this, preceding, db.dynamics);
+	}
+
+	getNext(): Promise<Dynamic | undefined> {
+		const dynsAfter = db.dynamics.orderBy('order').filter((m) => m.order! > this.order!);
+		return dynsAfter.first();
+	}
+
+	getPrev(): Promise<Dynamic | undefined> {
+		const dynsBefore = db.dynamics.orderBy('order').filter((m) => m.order! < this.order!);
+		return dynsBefore.last();
+	}
 
 	getCharacters(): Promise<[Character | undefined, Character | undefined]> {
 		return Promise.all([db.characters.get(this.aCharId), db.characters.get(this.bCharId)]);
@@ -490,6 +565,31 @@ db.dynamics.hook('creating', (pk, obj, _) => {
 		obj.id = ulid();
 	}
 });
+
+// export async function addAfter<T extends Entity>(after: T | 'root' | 'tail', elem: T): Promise<T | undefined> {
+//     if (elem instanceof Character && after instanceof Character) {
+//         const id = await db.characters.add(elem);
+//         const character = await db.characters.get(id);
+//         return character ? await character.orderAfter(after) as T : undefined;
+//     } else if (elem instanceof Dynamic && after instanceof Dynamic) {
+//         const id = await db.dynamics.add(elem);
+//         const dynamic = await db.dynamics.get(id);
+//         return dynamic ? await dynamic.orderAfter(after) as T : undefined;
+//     } else if (elem instanceof Moment && after instanceof Moment) {
+//         const id = await db.moments.add(elem);
+//         const moment = await db.moments.get(id);
+//         return moment ? await moment.orderAfter(after) as T : undefined;
+//     } else if (elem instanceof Location && after instanceof Location) {
+//         const id = await db.locations.add(elem);
+//         const location = await db.locations.get(id);
+//         return location ? await location.orderAfter(after) as T : undefined;
+//     } else if (elem instanceof Theme && after instanceof Theme) {
+//         const id = await db.themes.add(elem);
+//         const theme = await db.themes.get(id);
+//         return theme ? await theme.orderAfter(after) as T : undefined;
+//     }
+//     return undefined;
+// }
 
 export { db, ORDER_STEP, ORDER_MIN_FRAC };
 export type { Location, Character, Dynamic, Moment, Theme };
