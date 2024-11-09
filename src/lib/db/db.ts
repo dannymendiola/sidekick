@@ -121,6 +121,27 @@ class Moment {
 	characters?: string[];
 	themes?: string[];
 
+	/**
+	 * Set the order of the element from the given preceding element
+	 *
+	 * @param preceding The preceding element, or 'root' or 'tail'
+	 */
+	async orderAfter(preceding: Moment | 'root' | 'tail') {
+		return orderAfter(this, preceding, db.moments);
+	}
+
+	async getNext(): Promise<Moment | undefined> {
+		const curr = await this.refresh();
+		const subsequentMoments = db.moments.orderBy('order').filter((m) => m.order! > curr.order!);
+		return subsequentMoments.first();
+	}
+
+	async getPrev(): Promise<Moment | undefined> {
+		const curr = await this.refresh();
+		const precedingMoments = db.moments.orderBy('order').filter((m) => m.order! < curr.order!);
+		return precedingMoments.last();
+	}
+
 	getLocations(): Promise<Location[]> {
 		return db.locations
 			.where('id')
@@ -135,10 +156,11 @@ class Moment {
 			.toArray();
 	}
 
-	getThemes(): Promise<Theme[]> {
+	async getThemes(): Promise<Theme[]> {
+		const curr = await this.refresh();
 		return db.themes
 			.where('id')
-			.anyOf(this.themes || [])
+			.anyOf(curr.themes || [])
 			.toArray();
 	}
 
@@ -188,25 +210,6 @@ class Moment {
 		}
 	}
 
-	getNext(): Promise<Moment | undefined> {
-		const subsequentMoments = db.moments.orderBy('order').filter((m) => m.order! > this.order!);
-		return subsequentMoments.first();
-	}
-
-	getPrev(): Promise<Moment | undefined> {
-		const precedingMoments = db.moments.orderBy('order').filter((m) => m.order! < this.order!);
-		return precedingMoments.last();
-	}
-
-	/**
-	 * Set the order of the element from the given preceding element
-	 *
-	 * @param preceding The preceding element, or 'root' or 'tail'
-	 */
-	async orderAfter(preceding: Moment | 'root' | 'tail') {
-		return orderAfter(this, preceding, db.moments);
-	}
-
 	// use a partial just in case the interface ever gets a field that isn't optional
 	async updateAttr(attr: Partial<MomentAttr>) {
 		const currAttr = this.attr || {};
@@ -242,7 +245,7 @@ class Theme {
 
 	async getNext(): Promise<Theme | undefined> {
 		const curr = await this.refresh();
-		const themesAfter = db.themes.orderBy('order').filter((m) => m.order! > this.order!);
+		const themesAfter = db.themes.orderBy('order').filter((m) => m.order! > curr.order!);
 		return themesAfter.first();
 	}
 
@@ -321,13 +324,15 @@ class Location {
 		return orderAfter(this, preceding, db.locations);
 	}
 
-	getNext(): Promise<Location | undefined> {
-		const locsAfter = db.locations.orderBy('order').filter((m) => m.order! > this.order!);
+	async getNext(): Promise<Location | undefined> {
+		const curr = await this.refresh();
+		const locsAfter = db.locations.orderBy('order').filter((m) => m.order! > curr.order!);
 		return locsAfter.first();
 	}
 
-	getPrev(): Promise<Location | undefined> {
-		const locsBefore = db.locations.orderBy('order').filter((m) => m.order! < this.order!);
+	async getPrev(): Promise<Location | undefined> {
+		const curr = await this.refresh();
+		const locsBefore = db.locations.orderBy('order').filter((m) => m.order! < curr.order!);
 		return locsBefore.last();
 	}
 
@@ -394,13 +399,15 @@ class Character {
 		return orderAfter(this, preceding, db.characters);
 	}
 
-	getNext(): Promise<Character | undefined> {
-		const charsAfter = db.characters.orderBy('order').filter((m) => m.order! > this.order!);
+	async getNext(): Promise<Character | undefined> {
+		const curr = await this.refresh();
+		const charsAfter = db.characters.orderBy('order').filter((m) => m.order! > curr.order!);
 		return charsAfter.first();
 	}
 
-	getPrev(): Promise<Character | undefined> {
-		const charsBefore = db.characters.orderBy('order').filter((m) => m.order! < this.order!);
+	async getPrev(): Promise<Character | undefined> {
+		const curr = await this.refresh();
+		const charsBefore = db.characters.orderBy('order').filter((m) => m.order! < curr.order!);
 		return charsBefore.last();
 	}
 
@@ -502,13 +509,15 @@ class Dynamic {
 		return orderAfter(this, preceding, db.dynamics);
 	}
 
-	getNext(): Promise<Dynamic | undefined> {
-		const dynsAfter = db.dynamics.orderBy('order').filter((m) => m.order! > this.order!);
+	async getNext(): Promise<Dynamic | undefined> {
+		const curr = await this.refresh();
+		const dynsAfter = db.dynamics.orderBy('order').filter((m) => m.order! > curr.order!);
 		return dynsAfter.first();
 	}
 
-	getPrev(): Promise<Dynamic | undefined> {
-		const dynsBefore = db.dynamics.orderBy('order').filter((m) => m.order! < this.order!);
+	async getPrev(): Promise<Dynamic | undefined> {
+		const curr = await this.refresh();
+		const dynsBefore = db.dynamics.orderBy('order').filter((m) => m.order! < curr.order!);
 		return dynsBefore.last();
 	}
 

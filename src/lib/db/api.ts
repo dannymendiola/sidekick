@@ -1,7 +1,4 @@
-import type { Delta } from 'quill/core';
 import { db, Moment, Theme, Character, Dynamic, Location } from './db';
-import { serializeDelta } from '$lib';
-import { MomentAttr, LocationAttr } from '$lib/types/db';
 import { type EntityTable } from 'dexie';
 
 type Entity = Moment | Theme | Character | Dynamic | Location;

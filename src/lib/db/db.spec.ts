@@ -128,7 +128,6 @@ describe('Moments', () => {
 		expect((await moment2!.getThemes()).length).toBe(0);
 
 		moment2!.link(theme!);
-		moment2 = await moment2?.refresh();
 
 		expect((await moment2!.getThemes())[0].desc).toBe('Earth tone!');
 	});
@@ -170,7 +169,6 @@ describe('Locations', () => {
 		expect((await costco.getPrev())!.name).toBe('Berlin');
 
 		berlin.delete();
-		costco = await costco.refresh();
 
 		expect((await costco.getPrev())!.name).toBe('Alcatraz');
 	});
@@ -208,6 +206,12 @@ describe('Characters', () => {
 
 		expect((await charlie.getPrev())!.name).toEqual('Alice');
 		expect((await charlie.getNext())!.name).toEqual('Bob');
+
+		expect((await alice.getNext())!.name).toEqual('Charlie');
+
+		await charlie.delete();
+
+		expect((await bob.getPrev())!.name).toEqual('Alice');
 
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
@@ -346,8 +350,23 @@ describe('Themes', () => {
 		let light = (await addThemeAfter('root', { name: 'Light mode' }))!;
 
 		expect((await light.getNext())!.name).toBe('Dark mode');
-		// dark = await dark.refresh();
 		expect((await dark.getPrev())!.name).toBe('Light mode');
+
+		let gruvbox = (await addThemeAfter(light, { name: 'Gruvbox' }))!;
+
+		expect((await gruvbox.getPrev())!.name).toBe('Light mode');
+		expect((await gruvbox.getNext())!.name).toBe('Dark mode');
+		expect((await light.getNext())!.name).toBe('Gruvbox');
+
+		await gruvbox.orderAfter('root');
+
+		expect((await gruvbox.getNext())!.name).toBe('Light mode');
+		expect((await light.getNext())!.name).toBe('Dark mode');
+		expect((await dark.getPrev())!.name).toBe('Light mode');
+
+		await dark.delete();
+
+		expect((await gruvbox.getNext())!.name).toBe('Light mode');
 
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
@@ -368,7 +387,6 @@ describe('Themes', () => {
 
 		expect((await location!.getThemes()).length).toBe(1);
 		location?.removeTheme(theme!);
-		location = await location?.refresh();
 		expect((await location!.getThemes()).length).toBe(0);
 	});
 
@@ -411,8 +429,6 @@ describe('Themes', () => {
 		let moment = (await db.moments.get(momentId))!;
 
 		moment.link(theme);
-		moment = await moment.refresh();
-		theme = await theme.refresh();
 
 		const themeFromMoment = (await moment.getThemes())[0];
 		expect(themeFromMoment.name).toBe('Dark mode');
@@ -421,7 +437,7 @@ describe('Themes', () => {
 		expect(momentFromTheme.id).toBe(moment.id);
 
 		moment.unlink(theme);
-		expect((await (await moment.refresh()).getThemes()).length).toBe(0);
+		expect((await moment.getThemes()).length).toBe(0);
 	});
 
 	it('Theme attr', async () => {
@@ -431,9 +447,9 @@ describe('Themes', () => {
 		let theme = (await db.themes.get(themeId))!;
 
 		theme.updateAttr({
-			thesis: '42'
+			conclusion: '42'
 		});
 
-		expect(theme.attr!.thesis).toBe('42');
+		expect(theme.attr!.conclusion).toBe('42');
 	});
 });

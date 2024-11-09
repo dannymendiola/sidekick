@@ -27,7 +27,7 @@ This app is early in its journey. Here's the plan:
 
 ## 🤔 Why?
 
-Sidekick aims to provide an intuitive way for writers to plan important elements of their story, and to encourage users to think about how these elements work together and the with story as a whole.
+Sidekick aims to provide an intuitive way for writers to plan important elements of their story, and to encourage users to think about how these elements work together and with the story as a whole.
 
 ## ✨ Getting started
 
