@@ -240,13 +240,15 @@ class Theme {
 		return orderAfter(this, preceding, db.themes);
 	}
 
-	getNext(): Promise<Theme | undefined> {
+	async getNext(): Promise<Theme | undefined> {
+		const curr = await this.refresh();
 		const themesAfter = db.themes.orderBy('order').filter((m) => m.order! > this.order!);
 		return themesAfter.first();
 	}
 
-	getPrev(): Promise<Theme | undefined> {
-		const themesBefore = db.themes.orderBy('order').filter((m) => m.order! < this.order!);
+	async getPrev(): Promise<Theme | undefined> {
+		const curr = await this.refresh();
+		const themesBefore = db.themes.orderBy('order').filter((m) => m.order! < curr.order!);
 		return themesBefore.last();
 	}
 

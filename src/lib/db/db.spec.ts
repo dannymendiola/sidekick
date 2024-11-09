@@ -1,6 +1,6 @@
 import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
-import { addMomentAfter, addLocationAfter } from './api';
+import { addMomentAfter, addLocationAfter, addCharacterAfter, addThemeAfter } from './api';
 import { db, ORDER_STEP, ORDER_MIN_FRAC, Character } from './db';
 
 const slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
@@ -154,30 +154,19 @@ describe('Locations', () => {
 	});
 
 	it('Location ordering and deletion', async () => {
-		// const alcatrazId = await db.locations.add({ name: 'Alcatraz' });
-		// let alcatraz = (await db.locations.get(alcatrazId))!;
-		// await alcatraz.orderAfter('root');
 		let alcatraz = (await addLocationAfter('root', { name: 'Alcatraz' }))!;
-
-		// TODO
-
-		const berlinId = await db.locations.add({ name: 'Berlin' });
-		let berlin = (await db.locations.get(berlinId))!;
-		await berlin.orderAfter(alcatraz);
+		let berlin = (await addLocationAfter(alcatraz, { name: 'Berlin' }))!;
 
 		expect(alcatraz!.order).toBe(0);
 		expect(berlin!.order).toEqual(ORDER_STEP);
 
-		// let aNext = await (await db.locations.get(momentA!.id))!.getNext();
 		let bFromA = await alcatraz!.getNext();
 		expect(bFromA!.name).toBe('Berlin');
 
 		let aFromB = await berlin!.getPrev();
 		expect(aFromB!.name).toBe('Alcatraz');
 
-		const costcoId = await db.locations.add({ name: 'Costco' });
-		let costco = (await db.locations.get(costcoId))!;
-		await costco.orderAfter('tail');
+		let costco = (await addLocationAfter('tail', { name: 'Costco' }))!;
 		expect((await costco.getPrev())!.name).toBe('Berlin');
 
 		berlin.delete();
@@ -205,6 +194,21 @@ describe('Locations', () => {
 
 describe('Characters', () => {
 	afterAll(async () => {
+		await Promise.all(db.tables.map((table) => table.clear()));
+	});
+
+	it('Order', async () => {
+		let alice = (await addCharacterAfter('root', { name: 'Alice' }))!;
+		let bob = (await addCharacterAfter(alice, { name: 'Bob' }))!;
+
+		expect(alice!.order).toBe(0);
+		expect(bob!.order).toEqual(ORDER_STEP);
+
+		let charlie = (await addCharacterAfter(alice, { name: 'Charlie' }))!;
+
+		expect((await charlie.getPrev())!.name).toEqual('Alice');
+		expect((await charlie.getNext())!.name).toEqual('Bob');
+
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
 
@@ -336,6 +340,17 @@ describe('Themes', () => {
 
 	let themeId1: string;
 	let characterId1: string;
+
+	it('Order', async () => {
+		let dark = (await addThemeAfter('root', { name: 'Dark mode' }))!;
+		let light = (await addThemeAfter('root', { name: 'Light mode' }))!;
+
+		expect((await light.getNext())!.name).toBe('Dark mode');
+		// dark = await dark.refresh();
+		expect((await dark.getPrev())!.name).toBe('Light mode');
+
+		await Promise.all(db.tables.map((table) => table.clear()));
+	});
 
 	it('Theme <-> Location', async () => {
 		const locationId = await db.locations.add({ name: 'This app' });
