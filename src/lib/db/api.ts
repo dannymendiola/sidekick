@@ -1,45 +1,70 @@
-import type { Delta } from 'quill/core';
-import { db, type Moment } from './db';
-import { serializeDelta } from '$lib';
-import { MomentAttr } from '$lib/types/db';
+import { db, Moment, Theme, Character, Dynamic, Location } from './db';
+import { type EntityTable } from 'dexie';
+
+type Entity = Moment | Theme | Character | Dynamic | Location;
+
+type PropsOf<T extends Entity> = Partial<{
+	[K in keyof T as T[K] extends Function ? never : K]: T[K];
+}>;
+
+const addAfter = async <T extends Entity>(
+	after: T | 'root' | 'tail',
+	params: any,
+	table: EntityTable<T, 'id'>
+): Promise<T | undefined> => {
+	const id = await table.add(params);
+	const entity = await table.get(id);
+
+	// @ts-ignore
+	return entity ? await entity.orderAfter(after) : undefined;
+};
 
 /**
  * Add a Moment to the database and insert it in the order after the given Moment
- *
- * @param insertAfter the Moment this one follows, or 'head' or 'tail'
- *
- * Vals:
- * @param name name of the Moment
- * @param attr moment attributes (JSON)
- * @param locations location id array
- * @param characters character id array
- * @param themes theme id array
  */
 export const addMomentAfter = async (
-	insertAfter: Moment | 'root' | 'tail',
-	vals: {
-		name?: string;
-		body?: Delta;
-		attr?: Partial<MomentAttr>;
-		locations?: string[];
-		characters?: string[];
-		themes?: string[];
-	}
+	after: Moment | 'root' | 'tail',
+	params: PropsOf<Moment>
 ): Promise<Moment | undefined> => {
-	const { name, body, attr, locations, characters, themes } = vals;
-	const id = await db.moments.add({
-		name: name,
-		body: serializeDelta(body),
-		attr: attr,
-		locations: locations,
-		characters: characters,
-		themes: themes
-	});
-	const moment = await db.moments.get(id);
-
-	return moment ? await moment.orderAfter(insertAfter) : undefined;
+	return await addAfter(after, params, db.moments);
 };
 
-// export const addCharacterAfter
+/**
+ * Add a Location to the database and insert it in the order after the given one
+ */
+export const addLocationAfter = async (
+	after: Location | 'root' | 'tail',
+	params: PropsOf<Location>
+): Promise<Location | undefined> => {
+	return await addAfter(after, params, db.locations);
+};
 
-// export { addMomentAfter };
+/**
+ * Add a Theme to the database and insert it in the order after the given one
+ */
+export const addThemeAfter = async (
+	after: Theme | 'root' | 'tail',
+	params: PropsOf<Theme>
+): Promise<Theme | undefined> => {
+	return await addAfter(after, params, db.themes);
+};
+
+/**
+ * Add a Character to the database and insert it in the order after the given one
+ */
+export const addCharacterAfter = async (
+	after: Character | 'root' | 'tail',
+	params: PropsOf<Character>
+): Promise<Character | undefined> => {
+	return await addAfter(after, params, db.characters);
+};
+
+/**
+ * Add a Dynamic to the database and insert it in the order after the given one
+ */
+export const addDynamicAfter = async (
+	after: Dynamic | 'root' | 'tail',
+	params: PropsOf<Dynamic>
+): Promise<Dynamic | undefined> => {
+	return await addAfter(after, params, db.dynamics);
+};

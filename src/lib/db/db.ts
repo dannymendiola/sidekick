@@ -1,5 +1,6 @@
 import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr, ThemeAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
+import { Delta } from 'quill/core';
 import { ulid } from 'ulidx';
 
 const ORDER_STEP = 128;
@@ -24,15 +25,122 @@ db.version(1).stores({
 	dynamics: 'id, order, &[aCharId+bCharId], aCharId, bCharId, *themes'
 });
 
+type Entity = Moment | Theme | Location | Character | Dynamic;
+
+const orderAfter = async <T extends Entity>(
+	elem: T,
+	preceding: T | 'root' | 'tail',
+	table: EntityTable<T, 'id'>
+) => {
+	// TODO get rid of these ts-ignores if possible
+	const rebalance = async () => {
+		const elements = await table.orderBy('order').toArray();
+		const update = elements.map((m, i) => {
+			const order = i * ORDER_STEP;
+			return {
+				key: m.id,
+				changes: {
+					order: order
+				}
+			};
+		});
+		// @ts-ignore
+		await table.bulkUpdate(update);
+	};
+
+	const getFrac = (num: number) => {
+		return Math.min(num - Math.floor(num), Math.ceil(num) - num);
+	};
+
+	if (preceding === 'root') {
+		const currRoot = await table.where('order').equals(0).first();
+		// @ts-ignore
+		await table.update(elem.id, { order: 0 });
+		elem.order = 0;
+
+		if (currRoot) {
+			const afterRoot = await currRoot.getNext();
+			if (afterRoot) {
+				const currRootOrder = afterRoot.order! / 2;
+				// @ts-ignore
+				await table.update(currRoot.id, { order: currRootOrder });
+				currRoot.order = currRootOrder;
+				const frac = getFrac(currRoot.order!);
+				if (frac <= ORDER_MIN_FRAC && frac > 0) {
+					await rebalance();
+				}
+			} else {
+				// @ts-ignore
+				await table.update(currRoot.id, { order: ORDER_STEP });
+				currRoot.order = ORDER_STEP;
+			}
+		}
+	}
+	// @ts-ignore
+	else if (preceding === 'tail') {
+		const currTail = await table.orderBy('order').last();
+		if (currTail) {
+			const order = currTail.order! + ORDER_STEP;
+			// @ts-ignore
+			await table.update(elem.id, { order: order });
+			elem.order = order;
+		} else {
+			elem.order = 0;
+			// @ts-ignore
+			await table.update(elem.id, { order: 0 });
+		}
+	} else {
+		const next = await preceding.getNext();
+		if (next) {
+			const order = (next.order! + preceding.order!) / 2;
+			// @ts-ignore
+			await table.update(elem.id, { order: order });
+			elem.order = order;
+			const frac = getFrac(order);
+			if (frac <= ORDER_MIN_FRAC && frac > 0) {
+				await rebalance();
+			}
+		} else {
+			const order = preceding.order! + ORDER_STEP;
+			// @ts-ignore
+			await table.update(elem.id, { order: order });
+			elem.order = order;
+		}
+	}
+
+	return elem;
+};
+
 class Moment {
 	id!: string;
 	order?: number;
 	name?: string;
-	body?: string;
+	body?: Delta;
 	attr?: MomentAttr;
 	locations?: string[];
 	characters?: string[];
 	themes?: string[];
+
+	/**
+	 * Set the order of the element from the given preceding element
+	 *
+	 * @param preceding The preceding element, or 'root' or 'tail'
+	 */
+	async orderAfter(preceding: Moment | 'root' | 'tail') {
+		return orderAfter(this, preceding, db.moments);
+	}
+
+	async getNext(): Promise<Moment | undefined> {
+		const curr = await this.refresh();
+		const subsequentMoments = db.moments.orderBy('order').filter((m) => m.order! > curr.order!);
+		return subsequentMoments.first();
+	}
+
+	async getPrev(): Promise<Moment | undefined> {
+		const curr = await this.refresh();
+		const precedingMoments = db.moments.orderBy('order').filter((m) => m.order! < curr.order!);
+		return precedingMoments.last();
+	}
 
 	getLocations(): Promise<Location[]> {
 		return db.locations
@@ -48,10 +156,11 @@ class Moment {
 			.toArray();
 	}
 
-	getThemes(): Promise<Theme[]> {
+	async getThemes(): Promise<Theme[]> {
+		const curr = await this.refresh();
 		return db.themes
 			.where('id')
-			.anyOf(this.themes || [])
+			.anyOf(curr.themes || [])
 			.toArray();
 	}
 
@@ -101,90 +210,6 @@ class Moment {
 		}
 	}
 
-	getNext(): Promise<Moment | undefined> {
-		const subsequentMoments = db.moments.orderBy('order').filter((m) => m.order! > this.order!);
-		return subsequentMoments.first();
-	}
-
-	getPrev(): Promise<Moment | undefined> {
-		const precedingMoments = db.moments.orderBy('order').filter((m) => m.order! < this.order!);
-		return precedingMoments.last();
-	}
-
-	/**
-	 * Set the order of the element from the given preceding element
-	 *
-	 * @param preceding The preceding element, or 'root' or 'tail'
-	 */
-	async orderAfter(preceding: Moment | 'root' | 'tail') {
-		const rebalance = async () => {
-			const moments = await db.moments.orderBy('order').toArray();
-			const update = moments.map((m, i) => {
-				const order = i * ORDER_STEP;
-				return {
-					key: m.id,
-					changes: {
-						order: order
-					}
-				};
-			});
-			await db.moments.bulkUpdate(update);
-		};
-
-		const getFrac = (num: number) => {
-			return Math.min(num - Math.floor(num), Math.ceil(num) - num);
-		};
-
-		if (preceding === 'root') {
-			const currRoot = await db.moments.where('order').equals(0).first();
-
-			await db.moments.update(this.id, { order: 0 });
-			this.order = 0;
-
-			if (currRoot) {
-				const afterRoot = await currRoot.getNext();
-				if (afterRoot) {
-					const currRootOrder = afterRoot.order! / 2;
-					await db.moments.update(currRoot.id, { order: currRootOrder });
-					currRoot.order = currRootOrder;
-					const frac = getFrac(currRoot.order!);
-					if (frac <= ORDER_MIN_FRAC && frac > 0) {
-						await rebalance();
-					}
-				} else {
-					await db.moments.update(currRoot.id, { order: ORDER_STEP });
-					currRoot.order = ORDER_STEP;
-				}
-			}
-		} else if (preceding === 'tail') {
-			const currTail = await db.moments.orderBy('order').last();
-			if (currTail) {
-				const order = currTail.order! + ORDER_STEP;
-				await db.moments.update(this.id, { order: order });
-				this.order = order;
-			} else {
-				this.order = 0;
-				await db.moments.update(this.id, { order: 0 });
-			}
-		} else {
-			const next = await preceding.getNext();
-			if (next) {
-				const order = (next.order! + preceding.order!) / 2;
-				await db.moments.update(this.id, { order: order });
-				this.order = order;
-				const frac = getFrac(order);
-				if (frac <= ORDER_MIN_FRAC && frac > 0) {
-					await rebalance();
-				}
-			} else {
-				const order = preceding.order! + ORDER_STEP;
-				await db.moments.update(this.id, { order: order });
-				this.order = order;
-			}
-		}
-		return this;
-	}
-
 	// use a partial just in case the interface ever gets a field that isn't optional
 	async updateAttr(attr: Partial<MomentAttr>) {
 		const currAttr = this.attr || {};
@@ -205,18 +230,30 @@ db.moments.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
 	}
-	if (!obj.order) {
-		obj.orderAfter('tail');
-	}
-	// if (!obj.order) {
-	// }
 });
 
 class Theme {
 	id!: string;
 	name?: string;
+	order?: number;
 	desc?: string;
 	attr?: ThemeAttr;
+
+	orderAfter(preceding: Theme | 'root' | 'tail'): Promise<Theme> {
+		return orderAfter(this, preceding, db.themes);
+	}
+
+	async getNext(): Promise<Theme | undefined> {
+		const curr = await this.refresh();
+		const themesAfter = db.themes.orderBy('order').filter((m) => m.order! > curr.order!);
+		return themesAfter.first();
+	}
+
+	async getPrev(): Promise<Theme | undefined> {
+		const curr = await this.refresh();
+		const themesBefore = db.themes.orderBy('order').filter((m) => m.order! < curr.order!);
+		return themesBefore.last();
+	}
 
 	getMoments(): Promise<Moment[]> {
 		return db.moments.where('themes').anyOf(this.id).sortBy('order');
@@ -279,8 +316,25 @@ db.themes.hook('creating', (pk, obj, _) => {
 class Location {
 	id!: string;
 	name?: string;
+	order?: number;
 	attr?: LocationAttr;
 	themes?: string[];
+
+	orderAfter(preceding: Location | 'root' | 'tail'): Promise<Location> {
+		return orderAfter(this, preceding, db.locations);
+	}
+
+	async getNext(): Promise<Location | undefined> {
+		const curr = await this.refresh();
+		const locsAfter = db.locations.orderBy('order').filter((m) => m.order! > curr.order!);
+		return locsAfter.first();
+	}
+
+	async getPrev(): Promise<Location | undefined> {
+		const curr = await this.refresh();
+		const locsBefore = db.locations.orderBy('order').filter((m) => m.order! < curr.order!);
+		return locsBefore.last();
+	}
 
 	getMoments(): Promise<Moment[]> {
 		return db.moments.where('locations').anyOf(this.id).toArray();
@@ -330,17 +384,32 @@ class Location {
 
 db.locations.mapToClass(Location);
 db.locations.hook('creating', (pk, obj, _) => {
-	if (!pk) {
-		obj.id = ulid();
-	}
+	obj.id = pk || ulid();
 });
 
 class Character {
 	id!: string;
 	name?: string;
+	order?: number;
 	attr?: CharacterAttr;
 	locations?: string[];
 	themes?: string[];
+
+	orderAfter(preceding: Character | 'root' | 'tail'): Promise<Character> {
+		return orderAfter(this, preceding, db.characters);
+	}
+
+	async getNext(): Promise<Character | undefined> {
+		const curr = await this.refresh();
+		const charsAfter = db.characters.orderBy('order').filter((m) => m.order! > curr.order!);
+		return charsAfter.first();
+	}
+
+	async getPrev(): Promise<Character | undefined> {
+		const curr = await this.refresh();
+		const charsBefore = db.characters.orderBy('order').filter((m) => m.order! < curr.order!);
+		return charsBefore.last();
+	}
 
 	getDynamics(): Promise<Dynamic[]> {
 		return db.dynamics.where('aCharId').equals(this.id).or('bCharId').equals(this.id).toArray();
@@ -430,10 +499,27 @@ db.characters.hook('creating', (pk, obj, _) => {
 
 class Dynamic {
 	id!: string;
+	order?: number;
 	aCharId!: string;
 	bCharId!: string;
 	attr?: DynamicAttr;
 	themes?: string[];
+
+	orderAfter(preceding: Dynamic | 'root' | 'tail') {
+		return orderAfter(this, preceding, db.dynamics);
+	}
+
+	async getNext(): Promise<Dynamic | undefined> {
+		const curr = await this.refresh();
+		const dynsAfter = db.dynamics.orderBy('order').filter((m) => m.order! > curr.order!);
+		return dynsAfter.first();
+	}
+
+	async getPrev(): Promise<Dynamic | undefined> {
+		const curr = await this.refresh();
+		const dynsBefore = db.dynamics.orderBy('order').filter((m) => m.order! < curr.order!);
+		return dynsBefore.last();
+	}
 
 	getCharacters(): Promise<[Character | undefined, Character | undefined]> {
 		return Promise.all([db.characters.get(this.aCharId), db.characters.get(this.bCharId)]);

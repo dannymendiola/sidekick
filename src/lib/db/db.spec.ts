@@ -1,7 +1,9 @@
 import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
-import { addMomentAfter } from './api';
-import { db, ORDER_STEP, ORDER_MIN_FRAC } from './db';
+import { addMomentAfter, addLocationAfter, addCharacterAfter, addThemeAfter } from './api';
+import { db, ORDER_STEP, ORDER_MIN_FRAC, Character } from './db';
+
+const slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
 
 describe('Moments', () => {
 	afterEach(async () => {
@@ -41,10 +43,9 @@ describe('Moments', () => {
 		expect(bNext!.name).toBe('Moment E');
 	});
 
-	it('Moment rebalancing', async () => {
+	it('Rebalancing', async () => {
 		/* slices = number of times to divide MOMENT_ORDER_STEP before an index
             goes below 0.001 */
-		let slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
 		for (let i = 0; i < slices; i++) {
 			await addMomentAfter('root', { name: `${i}` });
 		}
@@ -54,14 +55,10 @@ describe('Moments', () => {
 
 		let orderBefore = (await db.moments.orderBy('order').toArray()).map((m) => m.name);
 
-		// await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
-
 		await addMomentAfter('root', { name: `${slices}` });
 		secondMoment = (await db.moments.orderBy('order').toArray())[1];
 
 		expect(secondMoment.order).equals(ORDER_STEP);
-
-		// await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
 
 		let orderAfter = (await db.moments.orderBy('order').toArray()).map((m) => m.name).slice(1);
 
@@ -127,7 +124,6 @@ describe('Moments', () => {
 		expect((await moment2!.getThemes()).length).toBe(0);
 
 		moment2!.link(theme!);
-		moment2 = await moment2?.refresh();
 
 		expect((await moment2!.getThemes())[0].desc).toBe('Earth tone!');
 	});
@@ -152,6 +148,27 @@ describe('Locations', () => {
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
 
+	it('Location ordering and deletion', async () => {
+		let alcatraz = (await addLocationAfter('root', { name: 'Alcatraz' }))!;
+		let berlin = (await addLocationAfter(alcatraz, { name: 'Berlin' }))!;
+
+		expect(alcatraz!.order).toBe(0);
+		expect(berlin!.order).toEqual(ORDER_STEP);
+
+		let bFromA = await alcatraz!.getNext();
+		expect(bFromA!.name).toBe('Berlin');
+
+		let aFromB = await berlin!.getPrev();
+		expect(aFromB!.name).toBe('Alcatraz');
+
+		let costco = (await addLocationAfter('tail', { name: 'Costco' }))!;
+		expect((await costco.getPrev())!.name).toBe('Berlin');
+
+		berlin.delete();
+
+		expect((await costco.getPrev())!.name).toBe('Alcatraz');
+	});
+
 	it('Location attr', async () => {
 		let location1Id = await db.locations.add({
 			name: 'Location 1',
@@ -171,6 +188,27 @@ describe('Locations', () => {
 
 describe('Characters', () => {
 	afterAll(async () => {
+		await Promise.all(db.tables.map((table) => table.clear()));
+	});
+
+	it('Order', async () => {
+		let alice = (await addCharacterAfter('root', { name: 'Alice' }))!;
+		let bob = (await addCharacterAfter(alice, { name: 'Bob' }))!;
+
+		expect(alice!.order).toBe(0);
+		expect(bob!.order).toEqual(ORDER_STEP);
+
+		let charlie = (await addCharacterAfter(alice, { name: 'Charlie' }))!;
+
+		expect((await charlie.getPrev())!.name).toEqual('Alice');
+		expect((await charlie.getNext())!.name).toEqual('Bob');
+
+		expect((await alice.getNext())!.name).toEqual('Charlie');
+
+		await charlie.delete();
+
+		expect((await bob.getPrev())!.name).toEqual('Alice');
+
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
 
@@ -237,8 +275,7 @@ describe('Characters', () => {
 
 	it('Remove character and cascade', async () => {
 		const momentId = await db.moments.add({
-			name: 'Moment 1',
-			body: "{'ops':[{'insert':'Alice and Charlie vanquish the dark lord'}]}"
+			name: 'Moment 1'
 		});
 		let moment = await db.moments.get(momentId);
 		const bob = await db.characters.where('name').equals('Bob').first();
@@ -304,6 +341,32 @@ describe('Themes', () => {
 	let themeId1: string;
 	let characterId1: string;
 
+	it('Order', async () => {
+		let dark = (await addThemeAfter('root', { name: 'Dark mode' }))!;
+		let light = (await addThemeAfter('root', { name: 'Light mode' }))!;
+
+		expect((await light.getNext())!.name).toBe('Dark mode');
+		expect((await dark.getPrev())!.name).toBe('Light mode');
+
+		let gruvbox = (await addThemeAfter(light, { name: 'Gruvbox' }))!;
+
+		expect((await gruvbox.getPrev())!.name).toBe('Light mode');
+		expect((await gruvbox.getNext())!.name).toBe('Dark mode');
+		expect((await light.getNext())!.name).toBe('Gruvbox');
+
+		await gruvbox.orderAfter('root');
+
+		expect((await gruvbox.getNext())!.name).toBe('Light mode');
+		expect((await light.getNext())!.name).toBe('Dark mode');
+		expect((await dark.getPrev())!.name).toBe('Light mode');
+
+		await dark.delete();
+
+		expect((await gruvbox.getNext())!.name).toBe('Light mode');
+
+		await Promise.all(db.tables.map((table) => table.clear()));
+	});
+
 	it('Theme <-> Location', async () => {
 		const locationId = await db.locations.add({ name: 'This app' });
 		let location = await db.locations.get(locationId);
@@ -320,7 +383,6 @@ describe('Themes', () => {
 
 		expect((await location!.getThemes()).length).toBe(1);
 		location?.removeTheme(theme!);
-		location = await location?.refresh();
 		expect((await location!.getThemes()).length).toBe(0);
 	});
 
@@ -363,8 +425,6 @@ describe('Themes', () => {
 		let moment = (await db.moments.get(momentId))!;
 
 		moment.link(theme);
-		moment = await moment.refresh();
-		theme = await theme.refresh();
 
 		const themeFromMoment = (await moment.getThemes())[0];
 		expect(themeFromMoment.name).toBe('Dark mode');
@@ -373,7 +433,7 @@ describe('Themes', () => {
 		expect(momentFromTheme.id).toBe(moment.id);
 
 		moment.unlink(theme);
-		expect((await (await moment.refresh()).getThemes()).length).toBe(0);
+		expect((await moment.getThemes()).length).toBe(0);
 	});
 
 	it('Theme attr', async () => {
@@ -383,9 +443,9 @@ describe('Themes', () => {
 		let theme = (await db.themes.get(themeId))!;
 
 		theme.updateAttr({
-			thesis: '42'
+			conclusion: '42'
 		});
 
-		expect(theme.attr!.thesis).toBe('42');
+		expect(theme.attr!.conclusion).toBe('42');
 	});
 });
