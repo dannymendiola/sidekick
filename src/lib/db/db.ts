@@ -2,8 +2,8 @@ import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr, ThemeAttr } from 
 import Dexie, { type EntityTable } from 'dexie';
 import { ulid } from 'ulidx';
 
-const MOMENT_ORDER_STEP = 128;
-const MOMENT_MIN_ORDER_FRAC = 0.00001;
+const ORDER_STEP = 128;
+const ORDER_MIN_FRAC = 0.00001;
 
 /**
  * The main database for Sidekick
@@ -18,10 +18,10 @@ const db = new Dexie('sidekick') as Dexie & {
 
 db.version(1).stores({
 	moments: 'id, name, order, *locations, *characters, *themes',
-	themes: 'id, name',
-	locations: 'id, name, *themes',
-	characters: 'id, name, *locations, *themes',
-	dynamics: 'id, &[aCharId+bCharId], aCharId, bCharId, *themes'
+	themes: 'id, name, order',
+	locations: 'id, name, order, *themes',
+	characters: 'id, name, order, *locations, *themes',
+	dynamics: 'id, order, &[aCharId+bCharId], aCharId, bCharId, *themes'
 });
 
 class Moment {
@@ -120,7 +120,7 @@ class Moment {
 		const rebalance = async () => {
 			const moments = await db.moments.orderBy('order').toArray();
 			const update = moments.map((m, i) => {
-				const order = i * MOMENT_ORDER_STEP;
+				const order = i * ORDER_STEP;
 				return {
 					key: m.id,
 					changes: {
@@ -148,18 +148,18 @@ class Moment {
 					await db.moments.update(currRoot.id, { order: currRootOrder });
 					currRoot.order = currRootOrder;
 					const frac = getFrac(currRoot.order!);
-					if (frac <= MOMENT_MIN_ORDER_FRAC && frac > 0) {
+					if (frac <= ORDER_MIN_FRAC && frac > 0) {
 						await rebalance();
 					}
 				} else {
-					await db.moments.update(currRoot.id, { order: MOMENT_ORDER_STEP });
-					currRoot.order = MOMENT_ORDER_STEP;
+					await db.moments.update(currRoot.id, { order: ORDER_STEP });
+					currRoot.order = ORDER_STEP;
 				}
 			}
 		} else if (preceding === 'tail') {
 			const currTail = await db.moments.orderBy('order').last();
 			if (currTail) {
-				const order = currTail.order! + MOMENT_ORDER_STEP;
+				const order = currTail.order! + ORDER_STEP;
 				await db.moments.update(this.id, { order: order });
 				this.order = order;
 			} else {
@@ -173,11 +173,11 @@ class Moment {
 				await db.moments.update(this.id, { order: order });
 				this.order = order;
 				const frac = getFrac(order);
-				if (frac <= MOMENT_MIN_ORDER_FRAC && frac > 0) {
+				if (frac <= ORDER_MIN_FRAC && frac > 0) {
 					await rebalance();
 				}
 			} else {
-				const order = preceding.order! + MOMENT_ORDER_STEP;
+				const order = preceding.order! + ORDER_STEP;
 				await db.moments.update(this.id, { order: order });
 				this.order = order;
 			}
@@ -205,6 +205,11 @@ db.moments.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
 	}
+	if (!obj.order) {
+		obj.orderAfter('tail');
+	}
+	// if (!obj.order) {
+	// }
 });
 
 class Theme {
@@ -486,5 +491,5 @@ db.dynamics.hook('creating', (pk, obj, _) => {
 	}
 });
 
-export { db, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC };
+export { db, ORDER_STEP, ORDER_MIN_FRAC };
 export type { Location, Character, Dynamic, Moment, Theme };

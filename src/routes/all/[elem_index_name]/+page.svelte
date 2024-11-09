@@ -4,7 +4,7 @@
 	import { db } from '$lib/db';
 	import { vibrate } from '$lib';
 
-	// Capitalize the
+	// Capitalize
 	const name = $derived(
 		$page.params.elem_index_name
 			.replace(/-/g, ' ')
@@ -18,6 +18,9 @@
 			case 'Moments':
 				elemCount = await db.moments.count();
 				return await db.moments.orderBy('order').toArray();
+			case 'Themes':
+				elemCount = await db.themes.count();
+				return await db.themes.toArray();
 			case 'Characters':
 				elemCount = await db.characters.count();
 				return await db.characters.orderBy('name').toArray();
@@ -33,7 +36,7 @@
 
 <div class="sk-content md:mt-28">
 	<div class="flex w-full items-center justify-between">
-		<h1 class="w-full text-center font-title text-3xl font-bold md:text-left md:text-4xl">
+		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
 			{name}
 		</h1>
 		{#if name !== 'Character Dynamics' && elemCount !== 0}
@@ -70,7 +73,7 @@
 					>
 						{@render Plus()}
 						<p class="text-genie-100 dark:text-genie-300">
-							Create a new {name.toLowerCase().slice(0, -1)}
+							Add a new {name.toLowerCase().slice(0, -1)}
 						</p>
 					</a>
 				{:else}

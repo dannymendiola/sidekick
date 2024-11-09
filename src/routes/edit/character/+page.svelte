@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { CharacterAttr } from '$lib/types/db.d';
+	import { type CharacterAttr } from '$lib/types/db.d';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { db, type Character } from '$lib/db';
 
-	let charState: CharacterAttr & {
-		name: string;
-	} = $state(new CharacterAttr() as typeof charState);
+	// let charState: CharacterAttr & {
+	// 	name: string;
+	// } = $state(new CharacterAttr() as typeof charState);
 
 	const charId = $page.url.searchParams.get('id');
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
 import { addMomentAfter } from './api';
-import { db, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC } from './db';
+import { db, ORDER_STEP, ORDER_MIN_FRAC } from './db';
 
 describe('Moments', () => {
 	afterEach(async () => {
@@ -18,7 +18,7 @@ describe('Moments', () => {
 		expect(await db.moments.count()).toBe(2);
 
 		expect(momentA!.order).toBe(0);
-		expect(momentB!.order).toEqual(MOMENT_ORDER_STEP);
+		expect(momentB!.order).toEqual(ORDER_STEP);
 
 		let aNext = await (await db.moments.get(momentA!.id))!.getNext();
 		expect(aNext!.name).toBe('Moment B');
@@ -27,13 +27,13 @@ describe('Moments', () => {
 		expect(momentC!.order).toBe(0);
 
 		momentA = await db.moments.get(momentA!.id);
-		expect(momentA!.order).toEqual(MOMENT_ORDER_STEP / 2);
+		expect(momentA!.order).toEqual(ORDER_STEP / 2);
 
 		let momentD = await addMomentAfter('tail', { name: 'Moment D' });
-		expect(momentD!.order).toBe(MOMENT_ORDER_STEP * 2);
+		expect(momentD!.order).toBe(ORDER_STEP * 2);
 
 		let momentE = await addMomentAfter('tail', { name: 'Moment E' });
-		expect(momentE!.order).toBe(MOMENT_ORDER_STEP * 3);
+		expect(momentE!.order).toBe(ORDER_STEP * 3);
 
 		await momentD!.delete();
 
@@ -44,13 +44,13 @@ describe('Moments', () => {
 	it('Moment rebalancing', async () => {
 		/* slices = number of times to divide MOMENT_ORDER_STEP before an index
             goes below 0.001 */
-		let slices = Math.ceil(Math.log2(MOMENT_ORDER_STEP / MOMENT_MIN_ORDER_FRAC)) + 1;
+		let slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
 		for (let i = 0; i < slices; i++) {
 			await addMomentAfter('root', { name: `${i}` });
 		}
 		let secondMoment = (await db.moments.orderBy('order').toArray())[1];
 
-		expect(secondMoment.order).within(MOMENT_MIN_ORDER_FRAC, 1);
+		expect(secondMoment.order).within(ORDER_MIN_FRAC, 1);
 
 		let orderBefore = (await db.moments.orderBy('order').toArray()).map((m) => m.name);
 
@@ -59,7 +59,7 @@ describe('Moments', () => {
 		await addMomentAfter('root', { name: `${slices}` });
 		secondMoment = (await db.moments.orderBy('order').toArray())[1];
 
-		expect(secondMoment.order).equals(MOMENT_ORDER_STEP);
+		expect(secondMoment.order).equals(ORDER_STEP);
 
 		// await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
 
@@ -119,8 +119,8 @@ describe('Moments', () => {
 		expect((await character1!.getMoments())[0].id).toBe(moment2!.id);
 
 		const themeId = await db.themes.add({
-			name: 'Media',
-			desc: 'The perilous glory of unlimited information'
+			name: 'Gruvbox',
+			desc: 'Earth tone!'
 		});
 		const theme = await db.themes.get(themeId);
 
@@ -129,9 +129,7 @@ describe('Moments', () => {
 		moment2!.link(theme!);
 		moment2 = await moment2?.refresh();
 
-		expect((await moment2!.getThemes())[0].desc).toBe(
-			'The perilous glory of unlimited information'
-		);
+		expect((await moment2!.getThemes())[0].desc).toBe('Earth tone!');
 	});
 
 	it('Moment attr', async () => {

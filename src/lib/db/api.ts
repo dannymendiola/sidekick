@@ -15,7 +15,7 @@ import { MomentAttr } from '$lib/types/db';
  * @param characters character id array
  * @param themes theme id array
  */
-const addMomentAfter = async (
+export const addMomentAfter = async (
 	insertAfter: Moment | 'root' | 'tail',
 	vals: {
 		name?: string;
@@ -40,4 +40,6 @@ const addMomentAfter = async (
 	return moment ? await moment.orderAfter(insertAfter) : undefined;
 };
 
-export { addMomentAfter };
+// export const addCharacterAfter
+
+// export { addMomentAfter };
