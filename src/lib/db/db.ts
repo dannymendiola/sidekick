@@ -577,30 +577,5 @@ db.dynamics.hook('creating', (pk, obj, _) => {
 	}
 });
 
-// export async function addAfter<T extends Entity>(after: T | 'root' | 'tail', elem: T): Promise<T | undefined> {
-//     if (elem instanceof Character && after instanceof Character) {
-//         const id = await db.characters.add(elem);
-//         const character = await db.characters.get(id);
-//         return character ? await character.orderAfter(after) as T : undefined;
-//     } else if (elem instanceof Dynamic && after instanceof Dynamic) {
-//         const id = await db.dynamics.add(elem);
-//         const dynamic = await db.dynamics.get(id);
-//         return dynamic ? await dynamic.orderAfter(after) as T : undefined;
-//     } else if (elem instanceof Moment && after instanceof Moment) {
-//         const id = await db.moments.add(elem);
-//         const moment = await db.moments.get(id);
-//         return moment ? await moment.orderAfter(after) as T : undefined;
-//     } else if (elem instanceof Location && after instanceof Location) {
-//         const id = await db.locations.add(elem);
-//         const location = await db.locations.get(id);
-//         return location ? await location.orderAfter(after) as T : undefined;
-//     } else if (elem instanceof Theme && after instanceof Theme) {
-//         const id = await db.themes.add(elem);
-//         const theme = await db.themes.get(id);
-//         return theme ? await theme.orderAfter(after) as T : undefined;
-//     }
-//     return undefined;
-// }
-
 export { db, ORDER_STEP, ORDER_MIN_FRAC };
 export type { Location, Character, Dynamic, Moment, Theme };

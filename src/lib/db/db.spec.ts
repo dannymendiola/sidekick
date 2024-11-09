@@ -55,14 +55,10 @@ describe('Moments', () => {
 
 		let orderBefore = (await db.moments.orderBy('order').toArray()).map((m) => m.name);
 
-		// await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
-
 		await addMomentAfter('root', { name: `${slices}` });
 		secondMoment = (await db.moments.orderBy('order').toArray())[1];
 
 		expect(secondMoment.order).equals(ORDER_STEP);
-
-		// await db.moments.orderBy('order').each((m) => console.log(m.id, m.order));
 
 		let orderAfter = (await db.moments.orderBy('order').toArray()).map((m) => m.name).slice(1);
 
