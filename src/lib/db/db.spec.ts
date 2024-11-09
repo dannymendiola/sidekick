@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, vi, test, afterEach } from 'vitest';
+import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
 import { addMomentAfter } from './api';
 import { db, MOMENT_ORDER_STEP, MOMENT_MIN_ORDER_FRAC } from './db';
@@ -137,16 +137,15 @@ describe('Moments', () => {
 	it('Moment attr', async () => {
 		let moment1Id = await db.moments.add({
 			name: 'Moment 1',
-			attr: JSON.stringify({
+			attr: {
 				significance: 'This is when he finds out who his father is'
-			})
+			}
 		});
-		let moment1 = await db.moments.get(moment1Id);
-		expect(moment1!.getAttr().significance).toBe('This is when he finds out who his father is');
-		await moment1!.updateAttr({
-			conflict: 'His father is not a great guy'
-		});
-		expect(moment1!.getAttr().conflict).toBe('His father is not a great guy');
+		let moment1 = (await db.moments.get(moment1Id))!;
+		expect(moment1.attr!.significance).toBe('This is when he finds out who his father is');
+		await moment1.updateAttr({ conflict: 'His father is not a great guy' });
+		expect(moment1.attr!.conflict).toBe('His father is not a great guy');
+		expect(moment1.attr!.significance).toBe('This is when he finds out who his father is');
 	});
 });
 
@@ -158,13 +157,17 @@ describe('Locations', () => {
 	it('Location attr', async () => {
 		let location1Id = await db.locations.add({
 			name: 'Location 1',
-			attr: JSON.stringify({
+			attr: {
 				description: 'This is a place in the story'
-			})
+			}
 		});
-		let location1 = await db.locations.get(location1Id);
+		let location1 = (await db.locations.get(location1Id))!;
 
-		expect(location1!.getAttr().description).toBe('This is a place in the story');
+		expect(location1.attr!.description).toBe('This is a place in the story');
+		await location1.updateAttr({ history: "This place's got history" });
+
+		expect(location1.attr!.description).toBe('This is a place in the story');
+		expect(location1.attr!.history).toBe("This place's got history");
 	});
 });
 
@@ -210,14 +213,15 @@ describe('Characters', () => {
 		expect(alice).toBeTruthy();
 		expect(charlie).toBeTruthy();
 
-		const dynamic = await alice?.getDynamicWith(charlie!.id);
+		let dynamic = await alice?.getDynamicWith(charlie!.id);
 		expect(dynamic).toBeTruthy();
+		dynamic = dynamic!;
 		const dynFromCharlie = await charlie?.getDynamicWith(alice!.id);
 		expect(dynFromCharlie).toBeTruthy();
 
 		expect(dynamic).toEqual(dynFromCharlie);
 
-		expect(dynamic?.getAttr().shared_goals).toBe('Defeat Bob');
+		expect(dynamic.attr!.shared_goals).toBe('Defeat Bob');
 	});
 
 	it('Remove dynamic', async () => {
@@ -264,13 +268,33 @@ describe('Characters', () => {
 		let characterId = await db.characters.add({
 			name: 'Character 1'
 		});
-		let character = await db.characters.get(characterId);
+		let character = (await db.characters.get(characterId))!;
 
 		await character?.updateAttr({
 			flaws: 'Smells bad'
 		});
 
-		expect(character?.getAttr().flaws).toBe('Smells bad');
+		expect(character.attr!.flaws).toBe('Smells bad');
+
+		await character.updateAttr({ moral_code: 'Does not include showering' });
+		expect(character.attr!.flaws).toBe('Smells bad');
+		expect(character.attr!.moral_code).toBe('Does not include showering');
+	});
+
+	it('Dynamic attr', async () => {
+		const aliceId = await db.characters.add({ name: 'Alice' });
+		let alice = (await db.characters.get(aliceId))!;
+		const charlieId = await db.characters.add({ name: 'Charlie' });
+		let charlie = (await db.characters.get(charlieId))!;
+
+		let dynamic = (await alice.createDynamic(charlie.id))!;
+		await dynamic.updateAttr({ conflict_sources: 'Alice wanted to be the one to defeat Bob' });
+
+		expect(dynamic.attr!.conflict_sources).toBe('Alice wanted to be the one to defeat Bob');
+
+		await dynamic.updateAttr({ shared_goals: 'Grieve Bob' });
+		expect(dynamic.attr!.conflict_sources).toBe('Alice wanted to be the one to defeat Bob');
+		expect(dynamic.attr!.shared_goals).toBe('Grieve Bob');
 	});
 });
 
@@ -337,8 +361,33 @@ describe('Themes', () => {
 
 	it('Theme <-> Moment', async () => {
 		let theme = (await db.themes.get(themeId1))!;
-		let momentId = await db.moments.add({ name: 'Transformation' });
+		const momentId = await db.moments.add({ name: 'Transformation' });
+		let moment = (await db.moments.get(momentId))!;
 
-		// TODO
+		moment.link(theme);
+		moment = await moment.refresh();
+		theme = await theme.refresh();
+
+		const themeFromMoment = (await moment.getThemes())[0];
+		expect(themeFromMoment.name).toBe('Dark mode');
+
+		const momentFromTheme = (await theme.getMoments())[0];
+		expect(momentFromTheme.id).toBe(moment.id);
+
+		moment.unlink(theme);
+		expect((await (await moment.refresh()).getThemes()).length).toBe(0);
+	});
+
+	it('Theme attr', async () => {
+		let themeId = await db.themes.add({
+			name: 'The meaning of life'
+		});
+		let theme = (await db.themes.get(themeId))!;
+
+		theme.updateAttr({
+			thesis: '42'
+		});
+
+		expect(theme.attr!.thesis).toBe('42');
 	});
 });

@@ -1,6 +1,7 @@
 import type { Delta } from 'quill/core';
 import { db, type Moment } from './db';
 import { serializeDelta } from '$lib';
+import { MomentAttr } from '$lib/types/db';
 
 /**
  * Add a Moment to the database and insert it in the order after the given Moment
@@ -19,7 +20,7 @@ const addMomentAfter = async (
 	vals: {
 		name?: string;
 		body?: Delta;
-		attr?: JSON;
+		attr?: Partial<MomentAttr>;
 		locations?: string[];
 		characters?: string[];
 		themes?: string[];
@@ -29,7 +30,7 @@ const addMomentAfter = async (
 	const id = await db.moments.add({
 		name: name,
 		body: serializeDelta(body),
-		attr: JSON.stringify(attr),
+		attr: attr,
 		locations: locations,
 		characters: characters,
 		themes: themes

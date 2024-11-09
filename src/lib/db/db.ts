@@ -29,7 +29,7 @@ class Moment {
 	order?: number;
 	name?: string;
 	body?: string;
-	attr?: string;
+	attr?: MomentAttr;
 	locations?: string[];
 	characters?: string[];
 	themes?: string[];
@@ -185,15 +185,12 @@ class Moment {
 		return this;
 	}
 
-	getAttr() {
-		return JSON.parse(this.attr || '{}') as MomentAttr;
-	}
-
-	async updateAttr(attr: MomentAttr) {
-		const currAttr = JSON.parse(this.attr || '{}');
+	// use a partial just in case the interface ever gets a field that isn't optional
+	async updateAttr(attr: Partial<MomentAttr>) {
+		const currAttr = this.attr || {};
 		const newAttr = { ...currAttr, ...attr };
-		this.attr = JSON.stringify(newAttr);
-		await db.moments.update(this.id, { attr: this.attr });
+		this.attr = newAttr;
+		await db.moments.update(this.id, { attr: newAttr as MomentAttr });
 	}
 
 	async delete() {
@@ -214,13 +211,10 @@ class Theme {
 	id!: string;
 	name?: string;
 	desc?: string;
-	attr?: string;
+	attr?: ThemeAttr;
 
 	getMoments(): Promise<Moment[]> {
-		return db.moments
-			.orderBy('order')
-			.filter((m) => (m.themes ? m.themes.includes(this.id) : false))
-			.toArray();
+		return db.moments.where('themes').anyOf(this.id).sortBy('order');
 	}
 
 	getLocations(): Promise<Location[]> {
@@ -235,14 +229,10 @@ class Theme {
 		return db.dynamics.where('themes').anyOf(this.id).toArray();
 	}
 
-	getAttr() {
-		return JSON.parse(this.attr || '{}') as ThemeAttr;
-	}
-
-	async updateAttr(attr: ThemeAttr) {
-		const currAttr = JSON.parse(this.attr || '{}');
+	async updateAttr(attr: Partial<ThemeAttr>) {
+		const currAttr = this.attr || {};
 		const newAttr = { ...currAttr, ...attr };
-		this.attr = JSON.stringify(newAttr);
+		this.attr = newAttr;
 		await db.themes.update(this.id, { attr: this.attr });
 	}
 
@@ -284,7 +274,7 @@ db.themes.hook('creating', (pk, obj, _) => {
 class Location {
 	id!: string;
 	name?: string;
-	attr?: string;
+	attr?: LocationAttr;
 	themes?: string[];
 
 	getMoments(): Promise<Moment[]> {
@@ -310,14 +300,10 @@ class Location {
 		await db.locations.update(this.id, { themes: newThemes });
 	}
 
-	getAttr() {
-		return JSON.parse(this.attr || '{}') as LocationAttr;
-	}
-
-	async updateAttr(attr: LocationAttr) {
-		const currAttr = JSON.parse(this.attr || '{}');
+	async updateAttr(attr: Partial<LocationAttr>) {
+		const currAttr = this.attr || {};
 		const newAttr = { ...currAttr, ...attr };
-		this.attr = JSON.stringify(newAttr);
+		this.attr = newAttr;
 		await db.locations.update(this.id, { attr: this.attr });
 	}
 
@@ -347,7 +333,7 @@ db.locations.hook('creating', (pk, obj, _) => {
 class Character {
 	id!: string;
 	name?: string;
-	attr?: string;
+	attr?: CharacterAttr;
 	locations?: string[];
 	themes?: string[];
 
@@ -410,14 +396,10 @@ class Character {
 		await db.characters.update(this.id, { themes: newThemes });
 	}
 
-	getAttr() {
-		return JSON.parse(this.attr || '{}') as CharacterAttr;
-	}
-
 	async updateAttr(attr: CharacterAttr) {
-		const currAttr = JSON.parse(this.attr || '{}');
+		const currAttr = this.attr || {};
 		const newAttr = { ...currAttr, ...attr };
-		this.attr = JSON.stringify(newAttr);
+		this.attr = newAttr;
 		await db.characters.update(this.id, { attr: this.attr });
 	}
 
@@ -445,7 +427,7 @@ class Dynamic {
 	id!: string;
 	aCharId!: string;
 	bCharId!: string;
-	attr?: string;
+	attr?: DynamicAttr;
 	themes?: string[];
 
 	getCharacters(): Promise<[Character | undefined, Character | undefined]> {
@@ -480,14 +462,10 @@ class Dynamic {
 		await db.dynamics.update(this.id, { themes: newThemes });
 	}
 
-	getAttr() {
-		return JSON.parse(this.attr || '{}') as DynamicAttr;
-	}
-
-	async updateAttr(attr: DynamicAttr) {
-		let currAttr = JSON.parse(this.attr || '{}');
+	async updateAttr(attr: Partial<DynamicAttr>) {
+		let currAttr = this.attr || {};
 		let newAttr = { ...currAttr, ...attr };
-		this.attr = JSON.stringify(newAttr);
+		this.attr = newAttr;
 		await db.dynamics.update(this.id, { attr: this.attr });
 	}
 
