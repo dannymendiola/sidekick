@@ -2,13 +2,13 @@
 
 ## 🦸 Holy plot points!
 
-**Sidekick** is an app that helps storytellers map out their worlds. Create, describe, and connect your story's moments, characters, themes, and locations.
+**Sidekick** is a creative storyteller's trusty companion!. Effortlessly map out the connections between characters, locations, themes, and moments.
 
 Currently under development for [SvelteHack 2024](https://hack.sveltesociety.dev/2024). This puts the target for release at January 10th, 2025
 
 ## 🌱 Project Status
 
-This app is early in its journey. Here's the plan:
+**Sidekick** is early in its journey. Here's the plan:
 
 ### **Core features**
 
@@ -23,17 +23,19 @@ This app is early in its journey. Here's the plan:
 
 ### **Feature backlog**
 
-- ⏹️ **Live link suggestions**: When editing a story element, if you type the name of another element that has not been linked yet, that name is automatically highlighted with the option to either confirm that link or dismiss
+- ⏹️ **Live link suggestions**: When editing, other mentioned and unlinked story elements automatically highlight, making it easy to create potentially useful connections
 
 ## 🤔 Why?
 
-Sidekick aims to provide an intuitive way for writers to plan important elements of their story, and to encourage users to think about how these elements work together and with the story as a whole.
+**Sidekick** aims to provide an intuitive way for writers to plan important elements of their story, and to encourage users to think about how these elements work together and with the story as a whole.
 
 ## ✨ Getting started
 
-Keep in mind this is a work in progress, and missing key features. If you're here for a functional app, please check again later
+⚠️ This is a work in progress, and missing key features. If you're here for a functional app, please check again later
 
-When core features are implemented, this app will be deployed and available online. If you'd prefer to run it on your own machine for any reason, you can always do so straight from the source:
+When core features are implemented, this app will be available for use in any modern browser. 
+
+If you'd prefer to run it on your own machine for any reason, you can always do so straight from the source:
 
 1. Install [Git](https://git-scm.com/downloads) and [Node](https://nodejs.org/en) if necessary
 2. Open a terminal in the folder where you'd like to download Sidekick, and run:

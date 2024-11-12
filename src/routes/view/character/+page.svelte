@@ -6,39 +6,33 @@
 
 	const charId = $page.url.searchParams.get('id');
 
-	let character: Character | 'unsaved' | undefined = $state();
+	let character: Character | undefined = $state();
+	const charName = $derived(character?.name || 'Character');
 
 	let exists = true;
 
 	const loadCharacterId = async () => {
-		switch (charId) {
-			case 'new':
-				character = 'unsaved';
-				break;
-			case null:
-			case undefined:
-				goto('/welcome');
-				break;
-			default:
-				let char = await db.characters.get(charId);
-				if (char) {
-					let next = await char.getNext();
-					character = char;
-				} else {
-					// goto('/welcome');
-					exists = false;
-				}
-
-				break;
+		if (!charId) {
+			goto('/welcome');
+		} else {
+			character = await db.characters.get(charId);
+			if (!character) {
+				exists = false;
+			}
 		}
 	};
 	loadCharacterId();
 </script>
 
-<div class="sk-content md:mt-16">
-	<!-- <div class="mb-6 -rotate-2 font-brand text-4xl uppercase">
-		{charId === 'new' ? 'New Character' : 'Edit Character'}
-	</div> -->
+<div class="sk-content md:my-16">
+	<h1 class="-rotate-2 font-brand text-3xl uppercase">{charName}</h1>
+	{#if character}
+		{#each Object.entries((character as Character).attr || {}) as [key, value]}
+			{#if key !== 'id' && key !== 'name'}
+				<p>{key}: {value}</p>
+			{/if}
+		{/each}
+	{/if}
 </div>
 
 <svelte:head>
@@ -46,7 +40,7 @@
 		>{charId === 'new'
 			? 'New Character'
 			: character
-				? `👤 ${(character as Character).name || 'Character'}`
+				? `${(character as Character).name || 'Character'}`
 				: 'Edit Character'}</title
 	>
 </svelte:head>

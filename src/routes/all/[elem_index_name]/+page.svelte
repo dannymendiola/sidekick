@@ -5,28 +5,6 @@
 	import { skstate, vibrate } from '$lib';
 	import { draggable } from '$lib';
 
-	// const asdf = async () => {
-	// 	await addCharacterAfter('root', { name: 'Alice' });
-	// 	await addCharacterAfter('tail', { name: 'Bob' });
-	// 	await addCharacterAfter('tail', { name: 'Charlie' });
-	// 	await addCharacterAfter('tail', { name: 'Doug' });
-	// };
-	// asdf();
-
-	// const asdf = async () => {
-	// 	const alice = await db.characters.where('name').equals('Alice').first();
-	// 	const bob = await db.characters.where('name').equals('Bob').first();
-
-	// 	if (bob && alice) {
-	// 		if ((await alice.getNext())!.name === 'Bob') {
-	// 			await alice.orderAfter(bob);
-	// 		} else {
-	// 			await bob.orderAfter(alice);
-	// 		}
-	// 	}
-	// };
-	// asdf();
-
 	// Capitalize
 	const name = $derived(
 		$page.params.elem_index_name

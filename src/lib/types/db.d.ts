@@ -26,7 +26,7 @@ export interface CharacterAttr {
 	// (i) appearance/identity
 	birthday?: string;
 	languages?: string;
-	age?: number;
+	age?: string;
 	gender?: string;
 	pronouns?: string;
 	sexuality?: string;
@@ -68,7 +68,6 @@ export interface CharacterAttr {
 	hobbies?: string;
 	philosophy?: string;
 	religion?: string;
-	jung_code?: string; // maybe?
 	introvert_extrovert?: string;
 	optimist_pessimist?: string;
 }

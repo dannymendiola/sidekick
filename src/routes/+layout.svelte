@@ -21,9 +21,9 @@
 		metaTheme?.setAttribute('content', skstate.darkMode ? '#161619' : '#ced1d3');
 	});
 
-	page.subscribe((val) => {
-		if (val.url && val.url.pathname !== '/') {
-			skstate.updateSettings({ currPath: val.url.pathname });
+	page.subscribe((v) => {
+		if (v.url && v.url.pathname !== '/') {
+			skstate.updateSettings({ currPath: `${v.url.pathname}${v.url.search}` });
 		}
 	});
 
