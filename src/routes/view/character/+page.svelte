@@ -8,6 +8,8 @@
 
 	let character: Character | 'unsaved' | undefined = $state();
 
+	let exists = true;
+
 	const loadCharacterId = async () => {
 		switch (charId) {
 			case 'new':
@@ -18,10 +20,13 @@
 				goto('/welcome');
 				break;
 			default:
-				const char = await db.characters.get(charId);
+				let char = await db.characters.get(charId);
 				if (char) {
+					let next = await char.getNext();
+					character = char;
 				} else {
-					goto('/welcome');
+					// goto('/welcome');
+					exists = false;
 				}
 
 				break;
@@ -30,6 +35,18 @@
 	loadCharacterId();
 </script>
 
-<div class="sk-content">
-	<div class="mb-6 -rotate-2 font-brand text-4xl uppercase">asdf</div>
+<div class="sk-content md:mt-16">
+	<!-- <div class="mb-6 -rotate-2 font-brand text-4xl uppercase">
+		{charId === 'new' ? 'New Character' : 'Edit Character'}
+	</div> -->
 </div>
+
+<svelte:head>
+	<title
+		>{charId === 'new'
+			? 'New Character'
+			: character
+				? `👤 ${(character as Character).name || 'Character'}`
+				: 'Edit Character'}</title
+	>
+</svelte:head>

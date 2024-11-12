@@ -90,6 +90,9 @@ const orderAfter = async <T extends Entity>(
 			await table.update(elem.id, { order: 0 });
 		}
 	} else {
+		// ensure that head is always at 0, so that we always retain the ordering space 0..ORDER_STEP
+		const forceRebalance = elem.order === 0;
+
 		const next = await preceding.getNext();
 		if (next) {
 			const order = (next.order! + preceding.order!) / 2;
@@ -106,6 +109,7 @@ const orderAfter = async <T extends Entity>(
 			await table.update(elem.id, { order: order });
 			elem.order = order;
 		}
+		if (forceRebalance) await rebalance();
 	}
 
 	return elem;

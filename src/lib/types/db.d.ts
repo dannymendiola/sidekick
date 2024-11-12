@@ -23,20 +23,9 @@ export interface LocationAttr {
 }
 
 export interface CharacterAttr {
-	// (i) basic qualities
-	last_name?: string;
-	nickname?: string;
+	// (i) appearance/identity
 	birthday?: string;
 	languages?: string;
-
-	// (i) arc
-	role?: string;
-	goals?: string;
-	moral_code?: string;
-	motivation?: string;
-	backstory?: string;
-
-	// (i) appearance/identity
 	age?: number;
 	gender?: string;
 	pronouns?: string;
@@ -48,6 +37,13 @@ export interface CharacterAttr {
 	fashion_style?: string;
 	disabilities?: string;
 	eye_color?: string;
+
+	// (i) arc
+	role?: string;
+	goals?: string;
+	moral_code?: string;
+	motivation?: string;
+	backstory?: string;
 
 	// (i) personality/psyche
 	strengths?: string;

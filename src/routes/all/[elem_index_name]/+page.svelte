@@ -1,8 +1,31 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import type { Character, Location, Moment } from '$lib/db';
-	import { db } from '$lib/db';
-	import { vibrate } from '$lib';
+	import { addCharacterAfter, db } from '$lib/db';
+	import { skstate, vibrate } from '$lib';
+	import { draggable } from '$lib';
+
+	// const asdf = async () => {
+	// 	await addCharacterAfter('root', { name: 'Alice' });
+	// 	await addCharacterAfter('tail', { name: 'Bob' });
+	// 	await addCharacterAfter('tail', { name: 'Charlie' });
+	// 	await addCharacterAfter('tail', { name: 'Doug' });
+	// };
+	// asdf();
+
+	// const asdf = async () => {
+	// 	const alice = await db.characters.where('name').equals('Alice').first();
+	// 	const bob = await db.characters.where('name').equals('Bob').first();
+
+	// 	if (bob && alice) {
+	// 		if ((await alice.getNext())!.name === 'Bob') {
+	// 			await alice.orderAfter(bob);
+	// 		} else {
+	// 			await bob.orderAfter(alice);
+	// 		}
+	// 	}
+	// };
+	// asdf();
 
 	// Capitalize
 	const name = $derived(
@@ -20,13 +43,13 @@
 				return await db.moments.orderBy('order').toArray();
 			case 'Themes':
 				elemCount = await db.themes.count();
-				return await db.themes.toArray();
+				return await db.themes.orderBy('order').toArray();
 			case 'Characters':
 				elemCount = await db.characters.count();
-				return await db.characters.orderBy('name').toArray();
+				return await db.characters.orderBy('order').toArray();
 			case 'Character Dynamics':
 				elemCount = await db.dynamics.count();
-				return await db.dynamics.toArray();
+				return await db.dynamics.orderBy('order').toArray();
 			case 'Locations':
 				elemCount = await db.locations.count();
 				return await db.locations.orderBy('name').toArray();
@@ -35,29 +58,43 @@
 </script>
 
 <div class="sk-content md:mt-28">
-	<div class="flex w-full items-center justify-between">
+	<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
 		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
 			{name}
 		</h1>
 		{#if name !== 'Character Dynamics' && elemCount !== 0}
 			<a
-				class="rounded-full bg-genie-600 p-2 dark:bg-genie-950"
+				class="flex items-center gap-2 rounded-full bg-genie-500 px-3 py-2 dark:bg-genie-950 md:p-2"
 				aria-label="Add {name.toLowerCase().slice(0, -1)}"
 				href={`/edit/${name.toLowerCase().slice(0, -1)}?id=new`}
-				data-sveltekit-replacestate
 			>
 				{@render Plus()}
+				<span class="text-sm text-genie-200 dark:text-genie-300 md:hidden">New</span>
 			</a>
 		{/if}
 	</div>
 	{#await elementsPromise then elements}
 		{#if elements && elements.length > 0}
-			{#each elements as element}
-				{#if name !== 'Character Dynamics'}
-					<!-- TODO -->
-					{(element as Character | Location | Moment).name}
-				{:else}{/if}
-			{/each}
+			<div class="mt-4 flex flex-col gap-6 md:mt-16">
+				{#each elements as element}
+					{#if name !== 'Character Dynamics'}
+						<!-- TODO use:draggable -->
+						<a
+							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+							href="/view/{name.toLowerCase().slice(0, -1)}?id={element.id}"
+						>
+							<div class="flex w-full justify-between">
+								<h4 class="text-left">
+									{(element as Character | Location | Moment).name}
+								</h4>
+								{#if skstate.touchscreen}
+									{@render DragHandle()}
+								{/if}
+							</div>
+						</a>
+					{:else}{/if}
+				{/each}
+			</div>
 		{:else}
 			<div class="flex w-full flex-col items-center justify-center">
 				<div
@@ -97,6 +134,21 @@
 	>
 		<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
 	</svg>
+{/snippet}
+
+{#snippet DragHandle()}
+	<button aria-label="Drag">
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke-width="1.5"
+			stroke="currentColor"
+			class="size-6"
+		>
+			<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+		</svg>
+	</button>
 {/snippet}
 
 <svelte:head>

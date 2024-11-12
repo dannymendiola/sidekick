@@ -49,7 +49,9 @@
 	</div>
 </div>
 
-<div class="fixed bottom-0 right-0 mb-20 mr-3 text-sm font-bold dark:text-donkey-600 md:mb-3">
+<div
+	class="fixed bottom-0 right-0 mb-20 mr-3 text-sm font-bold text-donkey-300 dark:text-donkey-600 md:mb-3"
+>
 	{version}
 </div>
 
