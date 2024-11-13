@@ -4,6 +4,7 @@
 	import { addCharacterAfter, db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
 	import { draggable } from '$lib';
+	import { goto } from '$app/navigation';
 
 	// Capitalize
 	const name = $derived(
@@ -11,6 +12,12 @@
 			.replace(/-/g, ' ')
 			.replace(/\w\S*/g, (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase())
 	);
+
+	$effect(() => {
+		if (!['Moments', 'Themes', 'Characters', 'Character Dynamics', 'Locations'].includes(name)) {
+			goto('/welcome');
+		}
+	});
 
 	let elemCount = $state(-1);
 
@@ -44,7 +51,7 @@
 			<a
 				class="flex items-center gap-2 rounded-full bg-genie-500 px-3 py-2 dark:bg-genie-950 md:p-2"
 				aria-label="Add {name.toLowerCase().slice(0, -1)}"
-				href={`/edit/${name.toLowerCase().slice(0, -1)}?id=new`}
+				href={`/${name.toLowerCase().slice(0, -1)}?id=new`}
 			>
 				{@render Plus()}
 				<span class="text-sm text-genie-200 dark:text-genie-300 md:hidden">New</span>
@@ -59,7 +66,7 @@
 						<!-- TODO use:draggable -->
 						<a
 							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-							href="/view/{name.toLowerCase().slice(0, -1)}?id={element.id}"
+							href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"
 						>
 							<div class="flex w-full justify-between">
 								<h4 class="text-left">
@@ -83,7 +90,7 @@
 				{#if name !== 'Character Dynamics'}
 					<a
 						class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-						href="/edit/{name.toLowerCase().slice(0, -1)}?id=new"
+						href="/{name.toLowerCase().slice(0, -1)}?id=new"
 						onpointerup={() => vibrate()}
 					>
 						{@render Plus()}

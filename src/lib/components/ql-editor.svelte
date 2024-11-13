@@ -7,22 +7,30 @@
 	interface Props {
 		id: number | string;
 		placeholder?: string;
+		title?: string;
 		text?: Delta;
-		initText?: Delta;
+		initText?: string | Delta;
 		toolbar?: boolean;
 		inputMode?: 'full' | 'info';
 		spellcheck?: boolean;
+		onfocusin?: () => void;
+		onfocusout?: () => void;
 	}
 
 	let {
 		id,
 		placeholder = ' ',
 		initText = undefined,
+		title = '',
 		text = $bindable(),
 		inputMode = 'full',
 		toolbar = inputMode === 'full',
-		spellcheck = false
+		spellcheck = false,
+		onfocusin = () => {},
+		onfocusout = () => {}
 	}: Props = $props();
+
+	let focused = $state(false);
 
 	const ALLOWED_FMTS =
 		inputMode === 'full' ? ['bold', 'italic', 'underline', 'indent', 'list', 'align'] : [];
@@ -38,7 +46,7 @@
 	let csrFmt = new CursorFormat();
 
 	const updateCsrFmt = () => {
-		if (!quill) return;
+		if (!quill || inputMode === 'info') return;
 
 		const range = quill.getSelection();
 		const fmt = range ? quill.getFormat(range.index, range.length) : quill.getFormat();
@@ -105,7 +113,9 @@
 		const keybindCleanup = inputMode === 'full' ? addKeybinds(quill!) : () => {};
 
 		if (initText) {
-			quill!.setContents(initText);
+			quill!.setContents(
+				initText instanceof Delta ? initText : quill!.clipboard.convert({ text: initText })
+			);
 		}
 
 		return () => {
@@ -117,22 +127,45 @@
 <div class="flex h-full w-full flex-col">
 	{#if toolbar}
 		{@render Toolbar()}
+	{:else if title}
+		<div
+			class="cursor-default rounded-t-xl bg-donkey-50 px-3 pt-1 text-left text-lg font-bold {focused
+				? 'dark:bg-donkey-800 '
+				: 'dark:bg-donkey-900'}"
+			onpointerup={() => {
+				quill!.focus();
+				focused = true;
+				onfocusin();
+			}}
+		>
+			{title}
+		</div>
 	{/if}
 	<div
-		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none bg-donkey-50 px-2 text-[1rem] text-donkey-950 outline-none drop-shadow-md selection:bg-genie-800 selection:text-genie-300 dark:bg-donkey-300 dark:drop-shadow-none [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
-        {toolbar ? 'rounded-b-xl' : 'rounded-xl'}"
+		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none bg-donkey-50 text-[1rem] text-donkey-950 outline-none drop-shadow-md selection:bg-genie-500 selection:text-genie-50 dark:bg-donkey-900 dark:text-donkey-100 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 dark:focus-within:bg-donkey-800 [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
+        {toolbar || title ? 'rounded-b-lg' : 'rounded-lg'} {inputMode === 'info' ? '' : ''}"
 		id={ID}
 		{spellcheck}
 		role="textbox"
 		tabindex="0"
-		onpointerup={updateCsrFmt}
+		onpointerdown={() => {
+			focused = true;
+		}}
+		onpointerup={() => {
+			updateCsrFmt();
+			onfocusin();
+		}}
 		onkeyupcapture={updateCsrFmt}
+		onfocusout={() => {
+			focused = false;
+			onfocusout();
+		}}
 	></div>
 </div>
 
 {#snippet Toolbar()}
 	<div
-		class="flex min-h-14 flex-wrap content-start justify-end gap-2 rounded-t-xl bg-donkey-50 px-4 pb-6 pt-4 drop-shadow-md dark:bg-donkey-300 dark:drop-shadow-none [&>button]:select-none [&>button]:text-xl"
+		class="flex min-h-14 flex-wrap content-start justify-end gap-2 rounded-t-lg bg-donkey-50 px-4 pb-6 pt-4 drop-shadow-md dark:bg-donkey-300 dark:drop-shadow-none [&>button]:select-none [&>button]:text-xl"
 	>
 		<button
 			class="rounded px-2 font-mono font-bold {csrFmt.bold ? twActiveButton : 'text-donkey-700'}"
