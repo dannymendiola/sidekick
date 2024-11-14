@@ -40,7 +40,7 @@
 {@render SkinnyTopbar()}
 
 <div class="wrapper flex h-screen flex-col-reverse md:flex-row">
-	<div class="navbar">
+	<div class="navbar z-10">
 		<Navbar />
 	</div>
 	<div class="flex grow justify-center overflow-auto">
@@ -50,7 +50,7 @@
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="fixed flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
+		class="fixed z-10 flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
 	>
 		<button
 			class="rounded-xl bg-donkey-200 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"

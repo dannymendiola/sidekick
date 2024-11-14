@@ -141,6 +141,16 @@ describe('Moments', () => {
 		expect(moment1.attr!.conflict).toBe('His father is not a great guy');
 		expect(moment1.attr!.significance).toBe('This is when he finds out who his father is');
 	});
+
+	it('Clean attr', async () => {
+		let moment = (await addMomentAfter('tail', { name: 'Moment' }))!;
+		moment.updateAttr({ conflict: 'This moment has no driving force', driving_force: '' });
+
+		expect(moment.attr?.driving_force).toBe('');
+		await moment.cleanAttr();
+		expect(moment.attr?.driving_force).toBe(undefined);
+		expect(moment.attr?.conflict).toBe('This moment has no driving force');
+	});
 });
 
 describe('Locations', () => {
@@ -183,6 +193,16 @@ describe('Locations', () => {
 
 		expect(location1.attr!.description).toBe('This is a place in the story');
 		expect(location1.attr!.history).toBe("This place's got history");
+	});
+
+	it('Clean attr', async () => {
+		let loc = (await addLocationAfter('tail', { name: 'Atlantis' }))!;
+		loc.updateAttr({ significance: "Nobody knows what this place's deal is", history: '' });
+
+		expect(loc.attr?.history).toBe('');
+		await loc.cleanAttr();
+		expect(loc.attr?.history).toBe(undefined);
+		expect(loc.attr?.significance).toBe("Nobody knows what this place's deal is");
 	});
 });
 
@@ -316,6 +336,16 @@ describe('Characters', () => {
 		expect(character.attr!.moral_code).toBe('Does not include showering');
 	});
 
+	it('Clean character attr', async () => {
+		let character = (await addCharacterAfter('tail', { name: 'Atlantis' }))!;
+		character.updateAttr({ flaws: 'Lacks emotional intelligence', emotional_intelligence: '' });
+
+		expect(character.attr?.emotional_intelligence).toBe('');
+		await character.cleanAttr();
+		expect(character.attr?.emotional_intelligence).toBe(undefined);
+		expect(character.attr?.flaws).toBe('Lacks emotional intelligence');
+	});
+
 	it('Dynamic attr', async () => {
 		const aliceId = await db.characters.add({ name: 'Alice' });
 		let alice = (await db.characters.get(aliceId))!;
@@ -330,6 +360,18 @@ describe('Characters', () => {
 		await dynamic.updateAttr({ shared_goals: 'Grieve Bob' });
 		expect(dynamic.attr!.conflict_sources).toBe('Alice wanted to be the one to defeat Bob');
 		expect(dynamic.attr!.shared_goals).toBe('Grieve Bob');
+	});
+
+	it('Clean dynamic attr', async () => {
+		let alice = (await addCharacterAfter('tail', { name: 'Alice' }))!;
+		let bob = (await addCharacterAfter('tail', { name: 'Bob' }))!;
+		let dynamic = (await alice.createDynamic(bob.id))!;
+		dynamic.updateAttr({ conflict_sources: 'Simply incompatible', chemistry: '' });
+
+		expect(dynamic.attr?.chemistry).toBe('');
+		await dynamic.cleanAttr();
+		expect(dynamic.attr?.chemistry).toBe(undefined);
+		expect(dynamic.attr?.conflict_sources).toBe('Simply incompatible');
 	});
 });
 
@@ -447,5 +489,15 @@ describe('Themes', () => {
 		});
 
 		expect(theme.attr!.conclusion).toBe('42');
+	});
+
+	it('Clean attr', async () => {
+		let theme = (await addThemeAfter('tail', { name: "Writer's block" }))!;
+		theme.updateAttr({ conclusion: '', conflict: "I don't know where I'm going with this theme" });
+
+		expect(theme.attr?.conclusion).toBe('');
+		await theme.cleanAttr();
+		expect(theme.attr?.conclusion).toBe(undefined);
+		expect(theme.attr?.conflict).toBe("I don't know where I'm going with this theme");
 	});
 });

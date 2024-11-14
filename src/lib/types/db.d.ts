@@ -28,12 +28,11 @@ export interface CharacterAttr {
 	languages?: string;
 	age?: string;
 	gender?: string;
-	pronouns?: string;
 	sexuality?: string;
 	hair_color?: string;
 	height?: string;
 	body_type?: string;
-	skin_color?: string;
+	complexion?: string;
 	fashion_style?: string;
 	disabilities?: string;
 	eye_color?: string;

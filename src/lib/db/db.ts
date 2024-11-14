@@ -2,6 +2,7 @@ import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr, ThemeAttr } from 
 import Dexie, { type EntityTable } from 'dexie';
 import { Delta } from 'quill/core';
 import { ulid } from 'ulidx';
+import { addDynamicAfter } from './api';
 
 const ORDER_STEP = 128;
 const ORDER_MIN_FRAC = 0.00001;
@@ -222,6 +223,14 @@ class Moment {
 		await db.moments.update(this.id, { attr: newAttr as MomentAttr });
 	}
 
+	async cleanAttr() {
+		const newAttr = Object.fromEntries(
+			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+		);
+		this.attr = newAttr;
+		await db.moments.update(this.id, { attr: newAttr });
+	}
+
 	async delete() {
 		const id = this.id;
 		this.id = '';
@@ -280,6 +289,14 @@ class Theme {
 		const newAttr = { ...currAttr, ...attr };
 		this.attr = newAttr;
 		await db.themes.update(this.id, { attr: this.attr });
+	}
+
+	async cleanAttr() {
+		const newAttr = Object.fromEntries(
+			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+		);
+		this.attr = newAttr;
+		await db.themes.update(this.id, { attr: newAttr });
 	}
 
 	refresh(): Promise<Theme> {
@@ -370,6 +387,14 @@ class Location {
 		await db.locations.update(this.id, { attr: this.attr });
 	}
 
+	async cleanAttr() {
+		const newAttr = Object.fromEntries(
+			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+		);
+		this.attr = newAttr;
+		await db.locations.update(this.id, { attr: newAttr });
+	}
+
 	refresh(): Promise<Location> {
 		return db.locations.get(this.id) as Promise<Location>;
 	}
@@ -443,9 +468,7 @@ class Character {
 		const existing = await db.dynamics.where('[aCharId+bCharId]').equals([idA, idB]).first();
 		if (existing) return existing;
 
-		const dynamicId = await db.dynamics.add({ aCharId: idA, bCharId: idB });
-
-		return db.dynamics.get(dynamicId);
+		return await addDynamicAfter('root', { aCharId: idA, bCharId: idB });
 	}
 
 	async removeDynamic(otherId: string) {
@@ -479,6 +502,14 @@ class Character {
 		const newAttr = { ...currAttr, ...attr };
 		this.attr = newAttr;
 		await db.characters.update(this.id, { attr: this.attr });
+	}
+
+	async cleanAttr() {
+		const newAttr = Object.fromEntries(
+			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+		);
+		this.attr = newAttr;
+		await db.characters.update(this.id, { attr: newAttr });
 	}
 
 	refresh(): Promise<Character> {
@@ -562,6 +593,14 @@ class Dynamic {
 		let newAttr = { ...currAttr, ...attr };
 		this.attr = newAttr;
 		await db.dynamics.update(this.id, { attr: this.attr });
+	}
+
+	async cleanAttr() {
+		const newAttr = Object.fromEntries(
+			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+		);
+		this.attr = newAttr;
+		await db.dynamics.update(this.id, { attr: newAttr });
 	}
 
 	refresh(): Promise<Dynamic> {
