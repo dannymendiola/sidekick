@@ -6,33 +6,20 @@
 	import { addCharacterAfter, db, type Character } from '$lib/db';
 	import { liveQuery } from 'dexie';
 
-	const charId = $derived($page.url.searchParams.get('id'));
+	const charId = $page.url.searchParams.get('id');
 
-	$effect(() => {
-		if (charId && charId !== 'new') {
-			db.characters.get(charId).then((c) => {
-				if (!c) {
-					goto('/all/characters');
-				}
-			});
-		}
-	});
-
-	let newCharName = $state('');
-	let newCharNameCleaned = $derived(newCharName?.slice(0, -1));
-
-	// $effect(() => {
-	// 	console.log({ newCharNameCleaned });
-	// });
-
-	const gotoNewChar = async () => {
-		let c = await addCharacterAfter('tail', { name: newCharNameCleaned });
-		if (c) {
-			goto(`/character?id=${c.id}`, { replaceState: true, invalidateAll: true });
+	const newChar = async () => {
+		let character = await addCharacterAfter('tail', {});
+		if (character) {
+			goto(`/character?id=${character.id}}`);
 		} else {
 			goto('/all/characters');
 		}
 	};
+
+	// if (charId === 'new') {
+	// 	newChar();
+	// }
 
 	let editing = $state({
 		identity: false,
@@ -163,26 +150,14 @@
 </script>
 
 {#if charId === 'new'}
-	<div class="sk-content mt-[30vh]">
-		<h1 class="mb-4 font-title text-3xl font-bold">New Character</h1>
-		<div class="h-min">
-			<QLEditor
-				id="new-char-name"
-				inputMode="info"
-				title="Give 'em a name"
-				bind:text={newCharName}
-			/>
-		</div>
-		<div class="mt-4 flex w-full justify-end">
-			<button
-				class="rounded-xl bg-genie-500 p-2 drop-shadow-lg hover:bg-genie-600 disabled:bg-donkey-500 disabled:text-donkey-100 disabled:drop-shadow-none dark:bg-genie-950 dark:drop-shadow-none dark:hover:bg-genie-900"
-				aria-label="Submit"
-				onpointerup={gotoNewChar}
-				disabled={!newCharNameCleaned}
-			>
-				{@render Icon('check', {})}
-			</button>
-		</div>
+	<div class="sk-content md:mt-16">
+		<form
+			onsubmit={() => {
+				console.log('hewwo');
+			}}
+		>
+			<h1 class="font-title text-3xl font-bold">New Character</h1>
+		</form>
 	</div>
 {:else}
 	<div class="sk-content md:mt-16">
@@ -416,7 +391,7 @@
 {/snippet}
 
 {#snippet Icon(
-	name: 'document-plus' | 'pencil-square' | 'eye-slash' | 'check',
+	name: 'document-plus' | 'pencil-square' | 'eye-slash',
 	{
 		twSize = 'size-5',
 		twColor = 'stroke-genie-100 dark:stroke-genie-300',
@@ -449,8 +424,6 @@
 				stroke-linejoin="round"
 				d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
 			/>
-		{:else if name === 'check'}
-			<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
 		{/if}
 	</svg>
 {/snippet}

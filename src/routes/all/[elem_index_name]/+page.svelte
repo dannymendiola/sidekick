@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import type { Character, Location, Moment } from '$lib/db';
+	import type { Character, Dynamic, Location, Moment } from '$lib/db';
 	import { addCharacterAfter, db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
 	import { draggable } from '$lib';
@@ -37,7 +37,7 @@
 				return await db.dynamics.orderBy('order').toArray();
 			case 'Locations':
 				elemCount = await db.locations.count();
-				return await db.locations.orderBy('name').toArray();
+				return await db.locations.orderBy('order').toArray();
 		}
 	});
 </script>
@@ -77,7 +77,23 @@
 								{/if}
 							</div>
 						</a>
-					{:else}{/if}
+					{:else}
+						<a
+							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+							href="/character-dynamic?id={element.id}"
+						>
+							<div class="flex w-full justify-between">
+								<h4 class="text-left">
+									{#await (element as Dynamic).toString() then name}
+										{name}
+									{/await}
+								</h4>
+								{#if skstate.touchscreen}
+									{@render DragHandle()}
+								{/if}
+							</div>
+						</a>
+					{/if}
 				{/each}
 			</div>
 		{:else}

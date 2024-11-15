@@ -55,6 +55,7 @@ export interface CharacterAttr {
 	emotional_availability?: string;
 	conflict_resolution?: string;
 	self_esteem?: string;
+	insecurities?: string;
 	emotional_intelligence?: string;
 	social_skills?: string;
 	charisma?: string;

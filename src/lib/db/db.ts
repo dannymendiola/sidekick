@@ -556,6 +556,11 @@ class Dynamic {
 		return dynsBefore.last();
 	}
 
+	async toString() {
+		const [a, b] = [this.aCharId, this.bCharId].map((id) => db.characters.get(id));
+		return await Promise.all([a, b]).then(([a, b]) => `${a?.name} & ${b?.name}`);
+	}
+
 	getCharacters(): Promise<[Character | undefined, Character | undefined]> {
 		return Promise.all([db.characters.get(this.aCharId), db.characters.get(this.bCharId)]);
 	}
