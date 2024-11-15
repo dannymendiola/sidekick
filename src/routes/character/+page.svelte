@@ -8,8 +8,6 @@
 
 	const charId = $derived($page.url.searchParams.get('id'));
 
-	// $effect(() => console.log({ charId }));
-
 	$effect(() => {
 		if (charId /*&& charId !== 'new'*/) {
 			db.characters.get(charId).then((c) => {
@@ -61,7 +59,7 @@
 
 	const attr = $derived(character?.attr);
 
-	const charName = $derived(character?.name || 'Character');
+	let charName = $state(character?.name || '');
 
 	type Section = 'identity' | 'arc' | 'personality';
 
@@ -151,7 +149,29 @@
 </script>
 
 <div class="sk-content md:mt-16">
-	<h1 class="font-title text-3xl font-bold">{charName}</h1>
+	{#await db.characters.get(charId!) then char}
+		<h1 class="font-title text-3xl font-bold">
+			<QLEditor
+				id="char-name"
+				initText={char?.name}
+				inputMode="info"
+				twBG="bg-donkey-100 dark:bg-donkey-950"
+				twText="text-donkey-900 dark:text-donkey-50"
+				twClass="[&>.ql-editor]:pl-0 [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer"
+				onkeyup={async () => {
+					if (charId) {
+						await db.characters.update(charId, { name: charName });
+					}
+				}}
+				onfocusout={async () => {
+					if (charId) {
+						await db.characters.update(charId, { name: charName });
+					}
+				}}
+				bind:text={charName}
+			/>
+		</h1>
+	{/await}
 	{#if character}
 		{@render AttrSection('arc')}
 		{@render AttrSection('personality')}
