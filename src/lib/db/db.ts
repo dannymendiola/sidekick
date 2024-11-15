@@ -225,7 +225,7 @@ class Moment {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
 		);
 		this.attr = newAttr;
 		await db.moments.update(this.id, { attr: newAttr });
@@ -293,7 +293,7 @@ class Theme {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
 		);
 		this.attr = newAttr;
 		await db.themes.update(this.id, { attr: newAttr });
@@ -389,7 +389,7 @@ class Location {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
 		);
 		this.attr = newAttr;
 		await db.locations.update(this.id, { attr: newAttr });
@@ -506,7 +506,7 @@ class Character {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
 		);
 		this.attr = newAttr;
 		await db.characters.update(this.id, { attr: newAttr });
@@ -597,7 +597,7 @@ class Dynamic {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
 		);
 		this.attr = newAttr;
 		await db.dynamics.update(this.id, { attr: newAttr });

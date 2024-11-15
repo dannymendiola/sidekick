@@ -137,7 +137,7 @@
 		{@render Toolbar()}
 	{:else if title}
 		<div
-			class="cursor-default rounded-t-xl bg-donkey-50 px-3 pt-1 text-left text-lg font-bold {focused
+			class="z-[1] cursor-text rounded-t-xl bg-donkey-50 px-3 pt-1 text-left text-lg font-bold {focused
 				? 'dark:bg-donkey-800 '
 				: 'dark:bg-donkey-900'}"
 			onpointerup={() => {
@@ -151,7 +151,7 @@
 		</div>
 	{/if}
 	<div
-		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none bg-donkey-50 text-[1rem] text-donkey-950 outline-none drop-shadow-md selection:bg-genie-500 selection:text-genie-50 dark:text-donkey-100 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
+		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none bg-donkey-50 text-[1rem] text-donkey-950 outline-none drop-shadow-md selection:bg-genie-500 selection:text-genie-50 dark:text-donkey-100 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-400 [&>.ql-editor]:h-full [&>div]:max-h-full
         {toolbar || title ? 'rounded-b-lg' : 'rounded-lg'} 
 		{inputMode === 'info' ? '[&>.ql-editor]:pb-2 [&>.ql-editor]:pt-[0.3rem]' : ''}
 		{focused ? 'dark:bg-donkey-800' : 'dark:bg-donkey-900'}"
@@ -260,3 +260,9 @@
 		</svg>
 	{/if}
 {/snippet}
+
+<style>
+	.ql-editor::before {
+		font-family: 'Noto Sans', 'Arial', sans-serif !important;
+	}
+</style>

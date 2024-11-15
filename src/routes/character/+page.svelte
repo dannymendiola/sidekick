@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { QLEditor, skstate } from '$lib';
+	import { QLEditor, TextPicker, skstate, vibrate } from '$lib';
 	import { type CharacterAttr } from '$lib/types/db.d';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { addCharacterAfter, db, type Character } from '$lib/db';
-	import { Delta } from 'quill/core';
-	import { slide } from 'svelte/transition';
 	import { liveQuery } from 'dexie';
 
 	const charId = $page.url.searchParams.get('id');
@@ -31,7 +29,7 @@
 	const sectionName = {
 		identity: 'Appearance & Identity',
 		arc: 'Character Arc',
-		personality: 'Personality'
+		personality: 'Personality & Psyche'
 	};
 
 	let characterQuery = liveQuery(() => {
@@ -67,7 +65,7 @@
 
 	const attrDisplayNames: {
 		identity: {
-			[K in keyof CharacterAttr]: { name: string; placeholder?: string };
+			[K in keyof CharacterAttr]: string;
 		};
 		arc: {
 			[K in keyof CharacterAttr]: string;
@@ -77,18 +75,18 @@
 		};
 	} = {
 		identity: {
-			age: { name: 'Age' },
-			birthday: { name: 'Birthday' },
-			gender: { name: 'Gender' },
-			hair_color: { name: 'Hair Color' },
-			eye_color: { name: 'Eye Color' },
-			sexuality: { name: 'Sexuality' },
-			height: { name: 'Height' },
-			body_type: { name: 'Body Type' },
-			complexion: { name: 'Complexion' },
-			disabilities: { name: 'Disabilities' },
-			languages: { name: 'Languages' },
-			fashion_style: { name: 'Fashion/Style' }
+			age: 'Age',
+			birthday: 'Birthday',
+			gender: 'Gender',
+			hair_color: 'Hair Color',
+			eye_color: 'Eye Color',
+			sexuality: 'Sexuality',
+			height: 'Height',
+			body_type: 'Body Type',
+			complexion: 'Complexion',
+			disabilities: 'Disabilities',
+			languages: 'Languages',
+			fashion_style: 'Fashion/Style'
 		},
 		arc: {
 			role: 'Role',
@@ -97,7 +95,32 @@
 			moral_code: 'Moral Code',
 			backstory: 'Backstory'
 		},
-		personality: {}
+		personality: {
+			strengths: 'Strengths',
+			weaknesses: 'Weaknesses',
+			flaws: 'Flaws',
+			secrets: 'Secrets',
+			fears: 'Fears',
+			passions: 'Passions',
+			communication_style: 'Communication Style',
+			emotional_availability: 'Emotional Availability',
+			conflict_resolution: 'Conflict Resolution Style',
+			self_esteem: 'Self Esteem',
+			emotional_intelligence: 'Emotional Intelligence',
+			social_skills: 'Social Skills',
+			charisma: 'Charisma',
+			coping_mechanisms: 'Coping Mechanisms',
+			emotional_stability: 'Emotional Stability',
+			ambition: 'Ambition/Drive',
+			phobias: 'Phobias',
+			habits: 'Habits',
+			quirks: 'Quirks',
+			hobbies: 'Hobbies',
+			philosophy: 'Life Philosophy',
+			religion: 'Religion',
+			introvert_extrovert: 'Introvert or Extrovert',
+			optimist_pessimist: 'Optimist or Pessimist'
+		}
 	};
 
 	const attrKeys = (section: Section) => {
@@ -108,24 +131,19 @@
 		return character?.attr?.[key] || '';
 	};
 
-	// let currDelta: Delta | undefined = $state();
-
-	// const currText = $derived.by(() => {
-	// 	return currDelta?.ops
-	// 		.map((op) => (op.insert ? (op.insert ? (op.insert as string).slice(0, -1) : '') : ''))
-	// 		.join('');
-	// });
-
 	let liveAttr = $state({} as CharacterAttr);
-
-	// const currText = $derived(character?.attr?.role || '');
 
 	const dynamics = liveQuery(() => character?.getDynamics() || []);
 
 	const numAttr = $derived(attrCount.arc + attrCount.identity + attrCount.personality);
 
+	let initClean = false;
+
 	$effect(() => {
-		console.log({ liveAttr });
+		if (character && !initClean) {
+			character.cleanAttr();
+			initClean = true;
+		}
 	});
 </script>
 
@@ -167,6 +185,7 @@
 				<button
 					class="rounded-full bg-genie-500 p-1 dark:bg-genie-950"
 					onpointerup={() => {
+						vibrate();
 						editing[section] = !editing[section];
 					}}
 					title="{editing[section] ? 'Hide' : 'Show'} unchanged"
@@ -184,9 +203,8 @@
 						<QLEditor
 							id={attrKey}
 							inputMode="info"
-							title={attrDisplayNames.identity[attrKey]?.name}
+							title={attrDisplayNames.identity[attrKey]}
 							initText={getAttribute(attrKey)}
-							placeholder={attrDisplayNames['identity'][attrKey]?.placeholder}
 							onfocusout={async () => {
 								await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
 								await character?.cleanAttr();
@@ -199,8 +217,13 @@
 					{/if}
 				{/each}
 				{#if !editing.identity && attrCount.identity === 0}
-					<div class="flex items-center gap-2">
-						{@render Icon('document-plus', {
+					<button
+						class="flex items-center gap-2 [&>*]:hover:text-genie-500 [&>svg]:hover:stroke-genie-500"
+						onpointerup={() => {
+							editing.identity = true;
+						}}
+					>
+						{@render Icon('pencil-square', {
 							twSize: 'size-4',
 							twColor: 'stroke-donkey-400 dark:stroke-donkey-600',
 							twOther: 'ml-4',
@@ -208,13 +231,41 @@
 						})}
 
 						<p class="font-bold text-donkey-400 dark:text-donkey-600">Nothing yet</p>
-					</div>
+					</button>
 				{/if}
 			{:else if section === 'arc'}
 				{#each attrKeys('arc') as attrKey (`attr-${attrKey}`)}
 					{#if editing.arc || (character?.attr && character.attr[attrKey] !== undefined)}
-						{#if attrKey === 'role'}
-							role picker
+						{#if ['role'].includes(attrKey)}
+							<TextPicker
+								selectTitle="Role"
+								customTitle="Role"
+								options={[
+									'Protagonist',
+									'Companion',
+									'Antagonist',
+									'Love interest',
+									'Comic relief',
+									'Chorus',
+									'Mentor'
+								]}
+								initValue={attr?.role}
+								onfocusout={async () => {
+									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.cleanAttr();
+								}}
+								onkeyup={async () => {
+									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+								}}
+								onchange={async (newVal: string) => {
+									await character?.updateAttr({ [attrKey]: newVal });
+									await character?.cleanAttr();
+								}}
+								onlistbutton={async () => {
+									await character?.updateAttr({ [attrKey]: '' });
+								}}
+								bind:value={liveAttr[attrKey]}
+							/>
 						{:else}
 							<QLEditor
 								id={attrKey}
@@ -234,8 +285,13 @@
 					{/if}
 				{/each}
 				{#if !editing.arc && attrCount.arc === 0}
-					<div class="flex items-center gap-2">
-						{@render Icon('document-plus', {
+					<button
+						class="flex items-center gap-2 [&>*]:hover:text-genie-500 [&>svg]:hover:stroke-genie-500"
+						onpointerup={() => {
+							editing.arc = true;
+						}}
+					>
+						{@render Icon('pencil-square', {
 							twSize: 'size-4',
 							twColor: 'stroke-donkey-400 dark:stroke-donkey-600',
 							twOther: 'ml-4',
@@ -243,10 +299,76 @@
 						})}
 
 						<p class="font-bold text-donkey-400 dark:text-donkey-600">Nothing yet</p>
-					</div>
+					</button>
 				{/if}
 			{:else if section === 'personality'}
-				<h3>personality</h3>
+				{#each attrKeys('personality') as attrKey (`attr-${attrKey}`)}
+					{#if editing.personality || (character?.attr && character.attr[attrKey] !== undefined)}
+						{#if [''].includes(attrKey)}
+							<TextPicker
+								selectTitle="Role"
+								options={[
+									'Protagonist',
+									'Companion',
+									'Antagonist',
+									'Love interest',
+									'Comic relief',
+									'Chorus',
+									'Mentor'
+								]}
+								customTitle="Role"
+								initValue={attr?.role}
+								onfocusout={async () => {
+									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.cleanAttr();
+								}}
+								onkeyup={async () => {
+									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+								}}
+								onchange={async (newVal: string) => {
+									await character?.updateAttr({ [attrKey]: newVal });
+									await character?.cleanAttr();
+								}}
+								onlistbutton={async () => {
+									await character?.updateAttr({ [attrKey]: '' });
+								}}
+								bind:value={liveAttr[attrKey]}
+							/>
+						{:else}
+							<QLEditor
+								id={attrKey}
+								inputMode="info"
+								title={attrDisplayNames['personality'][attrKey]}
+								initText={getAttribute(attrKey)}
+								onfocusout={async () => {
+									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.cleanAttr();
+								}}
+								onkeyup={async () => {
+									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+								}}
+								bind:text={liveAttr[attrKey]}
+							/>
+						{/if}
+					{/if}
+				{/each}
+				{#if !editing.personality && attrCount.personality === 0}
+					<button
+						class="flex items-center gap-2 [&>*]:hover:text-genie-500 [&>svg]:hover:stroke-genie-500"
+						onpointerup={() => {
+							editing.personality = true;
+						}}
+					>
+						{@render Icon('pencil-square', {
+							twSize: 'size-4',
+							twColor: 'stroke-donkey-400 dark:stroke-donkey-600',
+							twOther: 'ml-4',
+							strokeWidth: 2.5
+						})}
+
+						<p class="font-bold text-donkey-400 dark:text-donkey-600">Nothing yet</p>
+					</button>
+				{/if}
 			{/if}
 		</section>
 	{/if}
