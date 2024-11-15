@@ -2,14 +2,16 @@
 	import { QLEditor, TextPicker, skstate, vibrate } from '$lib';
 	import { type CharacterAttr } from '$lib/types/db.d';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { addCharacterAfter, db, type Character } from '$lib/db';
 	import { liveQuery } from 'dexie';
 
 	const charId = $derived($page.url.searchParams.get('id'));
 
+	// $effect(() => console.log({ charId }));
+
 	$effect(() => {
-		if (charId && charId !== 'new') {
+		if (charId /*&& charId !== 'new'*/) {
 			db.characters.get(charId).then((c) => {
 				if (!c) {
 					goto('/all/characters');
@@ -17,22 +19,6 @@
 			});
 		}
 	});
-
-	let newCharName = $state('');
-	let newCharNameCleaned = $derived(newCharName?.slice(0, -1));
-
-	// $effect(() => {
-	// 	console.log({ newCharNameCleaned });
-	// });
-
-	const gotoNewChar = async () => {
-		let c = await addCharacterAfter('tail', { name: newCharNameCleaned });
-		if (c) {
-			goto(`/character?id=${c.id}`, { replaceState: true, invalidateAll: true });
-		} else {
-			goto('/all/characters');
-		}
-	};
 
 	let editing = $state({
 		identity: false,
@@ -46,9 +32,11 @@
 		personality: 'Personality & Psyche'
 	};
 
-	let characterQuery = liveQuery(() => {
-		return db.characters.get(charId!);
-	});
+	let characterQuery = $derived(
+		liveQuery(() => {
+			return db.characters.get(charId!);
+		})
+	);
 	let character: Character | undefined = $derived($characterQuery);
 
 	const attrCount = $derived({
@@ -162,61 +150,37 @@
 	});
 </script>
 
-{#if charId === 'new'}
-	<div class="sk-content mt-[30vh]">
-		<h1 class="mb-4 font-title text-3xl font-bold">New Character</h1>
-		<div class="h-min">
-			<QLEditor
-				id="new-char-name"
-				inputMode="info"
-				title="Give 'em a name"
-				bind:text={newCharName}
-			/>
-		</div>
-		<div class="mt-4 flex w-full justify-end">
-			<button
-				class="rounded-xl bg-genie-500 p-2 drop-shadow-lg hover:bg-genie-600 disabled:bg-donkey-500 disabled:text-donkey-100 disabled:drop-shadow-none dark:bg-genie-950 dark:drop-shadow-none dark:hover:bg-genie-900"
-				aria-label="Submit"
-				onpointerup={gotoNewChar}
-				disabled={!newCharNameCleaned}
-			>
-				{@render Icon('check', {})}
-			</button>
-		</div>
-	</div>
-{:else}
-	<div class="sk-content md:mt-16">
-		<h1 class="font-title text-3xl font-bold">{charName}</h1>
-		{#if character}
-			{@render AttrSection('arc')}
-			{@render AttrSection('personality')}
-			{@render AttrSection('identity')}
-			<h2 class="mt-6 font-title text-xl font-bold italic">Relationships</h2>
-			{#if $dynamics?.length > 0}
-				{#each $dynamics as dynamic}
-					{#await dynamic.getOther(character.id) then other}
-						{other?.name}
-					{/await}
-				{/each}
-			{:else}
-				no dynamics :(
-			{/if}
-			<h2 class="mt-6 font-title text-xl font-bold italic">Moments</h2>
-			{#await character.getMoments() then moments}
-				{#if moments.length > 0}
-					hello
-				{:else}
-					no moments
-				{/if}
-			{/await}
-		{/if}
-		{#if numAttr < 10}
-			<div class="h-[40vh]"></div>
+<div class="sk-content md:mt-16">
+	<h1 class="font-title text-3xl font-bold">{charName}</h1>
+	{#if character}
+		{@render AttrSection('arc')}
+		{@render AttrSection('personality')}
+		{@render AttrSection('identity')}
+		<h2 class="mt-6 font-title text-xl font-bold italic">Relationships</h2>
+		{#if $dynamics?.length > 0}
+			{#each $dynamics as dynamic}
+				{#await dynamic.getOther(character.id) then other}
+					{other?.name}
+				{/await}
+			{/each}
 		{:else}
-			<div class="h-[20vh]"></div>
+			no dynamics :(
 		{/if}
-	</div>
-{/if}
+		<h2 class="mt-6 font-title text-xl font-bold italic">Moments</h2>
+		{#await character.getMoments() then moments}
+			{#if moments.length > 0}
+				hello
+			{:else}
+				no moments
+			{/if}
+		{/await}
+	{/if}
+	{#if numAttr < 10}
+		<div class="h-[40vh]"></div>
+	{:else}
+		<div class="h-[20vh]"></div>
+	{/if}
+</div>
 
 {#snippet AttrSection(section: keyof typeof editing)}
 	{#if character}

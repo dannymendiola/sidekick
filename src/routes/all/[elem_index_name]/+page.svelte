@@ -51,7 +51,7 @@
 			<a
 				class="flex items-center gap-2 rounded-full bg-genie-500 px-3 py-2 dark:bg-genie-950 md:p-2"
 				aria-label="Add {name.toLowerCase().slice(0, -1)}"
-				href={`/${name.toLowerCase().slice(0, -1)}?id=new`}
+				href={`/${name.toLowerCase().slice(0, -1)}/new`}
 			>
 				{@render Plus()}
 				<span class="text-sm text-genie-200 dark:text-genie-300 md:hidden">New</span>
@@ -106,7 +106,7 @@
 				{#if name !== 'Character Dynamics'}
 					<a
 						class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-						href="/{name.toLowerCase().slice(0, -1)}?id=new"
+						href="/{name.toLowerCase().slice(0, -1)}/new"
 						onpointerup={() => vibrate()}
 					>
 						{@render Plus()}
@@ -123,6 +123,7 @@
 			</div>
 		{/if}
 	{/await}
+	<div class="h-24"></div>
 </div>
 
 {#snippet Plus()}
