@@ -6,9 +6,9 @@
 
 Currently under development for [SvelteHack 2024](https://hack.sveltesociety.dev/2024). This puts the target for release at January 10th, 2025
 
-## 🤔 What? ...Why?
+## 🤔 Why?
 
-**Sidekick** aims to provide an intuitive way for writers to plan important elements of their story, and to encourage users to think about how these elements work together and with the story as a whole.
+**Sidekick** aims to provide an intuitive way for writers to plan and **connect** important elements of their story. The goal is to facilitate the process of discovering connections and through-lines that serve your creative vision.
 
 ## 🌱 Project Status
 
