@@ -1,4 +1,4 @@
-interface MomentAttr {
+export interface MomentAttr {
 	conflict?: string;
 	significance?: string;
 	start_point?: string;
@@ -8,7 +8,7 @@ interface MomentAttr {
 	notes?: string;
 }
 
-interface ThemeAttr {
+export interface ThemeAttr {
 	thesis?: string;
 	conflict?: string;
 	journey?: string;
@@ -16,18 +16,26 @@ interface ThemeAttr {
 	conclusion_reason?: string;
 }
 
-interface LocationAttr {
+export interface LocationAttr {
 	description?: string;
 	history?: string;
 	significance?: string;
 }
 
-export class CharacterAttr {
-	// (i) basic qualities
-	last_name?: string;
-	nickname?: string;
+export interface CharacterAttr {
+	// (i) appearance/identity
 	birthday?: string;
 	languages?: string;
+	age?: string;
+	gender?: string;
+	sexuality?: string;
+	hair_color?: string;
+	height?: string;
+	body_type?: string;
+	complexion?: string;
+	fashion_style?: string;
+	disabilities?: string;
+	eye_color?: string;
 
 	// (i) arc
 	role?: string;
@@ -35,19 +43,9 @@ export class CharacterAttr {
 	moral_code?: string;
 	motivation?: string;
 	backstory?: string;
-
-	// (i) appearance/identity
-	age?: number;
-	gender?: string;
-	pronouns?: string;
-	sexuality?: string;
-	hair_color?: string;
-	height?: string;
-	body_type?: string;
-	skin_color?: string;
-	fashion_style?: string;
-	disabilities?: string;
-	eye_color?: string;
+	arc_start?: string;
+	arc_driver?: string;
+	arc_end?: string;
 
 	// (i) personality/psyche
 	strengths?: string;
@@ -60,6 +58,7 @@ export class CharacterAttr {
 	emotional_availability?: string;
 	conflict_resolution?: string;
 	self_esteem?: string;
+	insecurities?: string;
 	emotional_intelligence?: string;
 	social_skills?: string;
 	charisma?: string;
@@ -72,7 +71,6 @@ export class CharacterAttr {
 	hobbies?: string;
 	philosophy?: string;
 	religion?: string;
-	jung_code?: string; // maybe?
 	introvert_extrovert?: string;
 	optimist_pessimist?: string;
 }

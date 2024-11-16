@@ -1,15 +1,23 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import type { Character, Location, Moment } from '$lib/db';
-	import { db } from '$lib/db';
-	import { vibrate } from '$lib';
+	import type { Character, Dynamic, Location, Moment } from '$lib/db';
+	import { addCharacterAfter, db } from '$lib/db';
+	import { skstate, vibrate } from '$lib';
+	import { draggable } from '$lib';
+	import { goto } from '$app/navigation';
 
-	// Capitalize the
+	// Capitalize
 	const name = $derived(
 		$page.params.elem_index_name
 			.replace(/-/g, ' ')
 			.replace(/\w\S*/g, (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase())
 	);
+
+	$effect(() => {
+		if (!['Moments', 'Themes', 'Characters', 'Character Dynamics', 'Locations'].includes(name)) {
+			goto('/welcome');
+		}
+	});
 
 	let elemCount = $state(-1);
 
@@ -18,43 +26,76 @@
 			case 'Moments':
 				elemCount = await db.moments.count();
 				return await db.moments.orderBy('order').toArray();
+			case 'Themes':
+				elemCount = await db.themes.count();
+				return await db.themes.orderBy('order').toArray();
 			case 'Characters':
 				elemCount = await db.characters.count();
-				return await db.characters.orderBy('name').toArray();
+				return await db.characters.orderBy('order').toArray();
 			case 'Character Dynamics':
 				elemCount = await db.dynamics.count();
-				return await db.dynamics.toArray();
+				return await db.dynamics.orderBy('order').toArray();
 			case 'Locations':
 				elemCount = await db.locations.count();
-				return await db.locations.orderBy('name').toArray();
+				return await db.locations.orderBy('order').toArray();
 		}
 	});
 </script>
 
 <div class="sk-content md:mt-28">
-	<div class="flex w-full items-center justify-between">
-		<h1 class="w-full text-center font-title text-3xl font-bold md:text-left md:text-4xl">
+	<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
+		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
 			{name}
 		</h1>
 		{#if name !== 'Character Dynamics' && elemCount !== 0}
 			<a
-				class="rounded-full bg-genie-600 p-2 dark:bg-genie-950"
+				class="flex items-center gap-2 rounded-full bg-genie-500 px-3 py-2 dark:bg-genie-950 md:p-2"
 				aria-label="Add {name.toLowerCase().slice(0, -1)}"
-				href={`/edit/${name.toLowerCase().slice(0, -1)}?id=new`}
-				data-sveltekit-replacestate
+				href={`/${name.toLowerCase().slice(0, -1)}/new`}
 			>
 				{@render Plus()}
+				<span class="text-sm text-genie-200 dark:text-genie-300 md:hidden">New</span>
 			</a>
 		{/if}
 	</div>
 	{#await elementsPromise then elements}
 		{#if elements && elements.length > 0}
-			{#each elements as element}
-				{#if name !== 'Character Dynamics'}
-					<!-- TODO -->
-					{(element as Character | Location | Moment).name}
-				{:else}{/if}
-			{/each}
+			<div class="mt-4 flex flex-col gap-6 md:mt-16">
+				{#each elements as element}
+					{#if name !== 'Character Dynamics'}
+						<!-- TODO use:draggable -->
+						<a
+							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+							href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"
+						>
+							<div class="flex w-full justify-between">
+								<h4 class="text-left">
+									{(element as Character | Location | Moment).name}
+								</h4>
+								{#if skstate.touchscreen}
+									{@render DragHandle()}
+								{/if}
+							</div>
+						</a>
+					{:else}
+						<a
+							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+							href="/character-dynamic?id={element.id}"
+						>
+							<div class="flex w-full justify-between">
+								<h4 class="text-left">
+									{#await (element as Dynamic).toString() then name}
+										{name}
+									{/await}
+								</h4>
+								{#if skstate.touchscreen}
+									{@render DragHandle()}
+								{/if}
+							</div>
+						</a>
+					{/if}
+				{/each}
+			</div>
 		{:else}
 			<div class="flex w-full flex-col items-center justify-center">
 				<div
@@ -65,12 +106,12 @@
 				{#if name !== 'Character Dynamics'}
 					<a
 						class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-						href="/edit/{name.toLowerCase().slice(0, -1)}?id=new"
+						href="/{name.toLowerCase().slice(0, -1)}/new"
 						onpointerup={() => vibrate()}
 					>
 						{@render Plus()}
 						<p class="text-genie-100 dark:text-genie-300">
-							Create a new {name.toLowerCase().slice(0, -1)}
+							Add a new {name.toLowerCase().slice(0, -1)}
 						</p>
 					</a>
 				{:else}
@@ -82,6 +123,7 @@
 			</div>
 		{/if}
 	{/await}
+	<div class="h-24"></div>
 </div>
 
 {#snippet Plus()}
@@ -94,6 +136,21 @@
 	>
 		<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
 	</svg>
+{/snippet}
+
+{#snippet DragHandle()}
+	<button aria-label="Drag">
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke-width="1.5"
+			stroke="currentColor"
+			class="size-6"
+		>
+			<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+		</svg>
+	</button>
 {/snippet}
 
 <svelte:head>

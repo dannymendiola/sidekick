@@ -17,6 +17,10 @@ class SKState {
 	get darkMode() {
 		return this.#settings ? this.#settings.theme === 'dark' : DEFAULT_SETTINGS.theme === 'dark';
 	}
+
+	get touchscreen() {
+		return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+	}
 }
 
 export const skstate = new SKState();

@@ -1,3 +1,7 @@
 {
-	"tailwindCSS.experimental.classRegex": ["tw[A-Z][a-zA-Z]+=\\s*(?:\"|'|{`)([^\"'`}]*)"]
+	"tailwindCSS.experimental.classRegex": ["tw[A-Z][a-zA-Z]+=\\s*(?:\"|'|{`)([^\"'`}]*)"],
+	"workbench.editor.customLabels.patterns": {
+		"**/view/*/+page.svelte": "+${dirname(1)}/${dirname}",
+		"**/edit/*/+page.svelte": "+${dirname(1)}/${dirname}"
+	}
 }

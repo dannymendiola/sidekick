@@ -14,7 +14,7 @@
 @layer components {
 	/* Default text color */
 	* {
-		@apply text-donkey-700 dark:text-donkey-300;
+		@apply text-donkey-700 dark:text-donkey-200;
 	}
 
 	/* Scrollbar */
@@ -42,6 +42,6 @@
 	}
 
 	.ql-editor * {
-		@apply font-sans text-donkey-700;
+		@apply font-sans;
 	}
 }

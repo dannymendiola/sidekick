@@ -21,7 +21,7 @@ https://github.com/slab/quill/issues/2413#issuecomment-525818610
 /* (i) QUILLJS */
 .ql-container {
 	box-sizing: border-box;
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: 'Noto Sans', Helvetica, Arial, sans-serif;
 	font-size: 13px;
 	height: 100%;
 	margin: 0;

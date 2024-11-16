@@ -21,14 +21,16 @@
 		metaTheme?.setAttribute('content', skstate.darkMode ? '#161619' : '#ced1d3');
 	});
 
-	page.subscribe((val) => {
-		if (val.url && val.url.pathname !== '/') {
-			skstate.updateSettings({ currPath: val.url.pathname });
+	page.subscribe((v) => {
+		if (v.url && v.url.pathname !== '/') {
+			skstate.updateSettings({ currPath: `${v.url.pathname}${v.url.search}` });
 		}
 	});
 
 	const requestPersistence = async () => {
 		if (navigator.storage && !(await navigator.storage.persisted())) {
+			// TODO Show modal explainer:
+			// Your browser might ask if you want to allow Sidekick access to persistent storage on your device. This is optional, but it tells your browser that your work should be protected from automatic deletion in the case of low storage.
 			const granted = await navigator.storage.persist();
 		}
 	};
@@ -38,7 +40,7 @@
 {@render SkinnyTopbar()}
 
 <div class="wrapper flex h-screen flex-col-reverse md:flex-row">
-	<div class="navbar">
+	<div class="navbar z-10">
 		<Navbar />
 	</div>
 	<div class="flex grow justify-center overflow-auto">
@@ -48,7 +50,7 @@
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="fixed flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
+		class="fixed z-10 flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
 	>
 		<button
 			class="rounded-xl bg-donkey-200 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
