@@ -137,6 +137,8 @@
 
 	const dynamics = liveQuery(() => character?.getDynamics() || []);
 
+	const moments = liveQuery(() => character?.getMoments() || []);
+
 	const numAttr = $derived(attrCount.arc + attrCount.identity + attrCount.personality);
 
 	let initClean = false;
