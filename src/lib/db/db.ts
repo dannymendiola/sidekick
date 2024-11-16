@@ -120,7 +120,7 @@ class Moment {
 	id!: string;
 	order?: number;
 	name?: string;
-	body?: Delta;
+	body?: Delta | string; // TODO just Delta after rich editor fix. And then wipe db probably
 	attr?: MomentAttr;
 	locations?: string[];
 	characters?: string[];

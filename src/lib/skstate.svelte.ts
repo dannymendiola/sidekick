@@ -2,6 +2,7 @@ import { DEFAULT_SETTINGS, type SKSettings } from '$lib';
 
 class SKState {
 	#settings: typeof DEFAULT_SETTINGS | undefined = $state();
+	quillInit = $state(false);
 
 	get settings() {
 		return this.#settings ? this.#settings : DEFAULT_SETTINGS;

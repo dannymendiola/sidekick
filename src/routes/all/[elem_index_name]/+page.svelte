@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import type { Character, Dynamic, Location, Moment } from '$lib/db';
+	import type { Character, Dynamic, Location, Moment, Theme } from '$lib/db';
 	import { addCharacterAfter, db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
 	import { draggable } from '$lib';
@@ -70,7 +70,9 @@
 						>
 							<div class="flex w-full justify-between">
 								<h4 class="text-left">
-									{(element as Character | Location | Moment).name}
+									{name === 'Moments'
+										? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
+										: (element as Character | Theme | Location).name}
 								</h4>
 								{#if skstate.touchscreen}
 									{@render DragHandle()}

@@ -1,5 +1,11 @@
 <script lang="ts">
 	import Quill, { type QuillOptions } from 'quill';
+	// import Bold from 'quill/formats/bold';
+	// import Italic from 'quill/formats/italic';
+	// import Underline from 'quill/formats/underline';
+	// import Indent from 'quill/formats/indent';
+	// import List from 'quill/formats/list';
+	// import Align from 'quill/formats/align';
 	import { Delta } from 'quill/core';
 	import { type IconName, addKeybinds, skstate } from '$lib';
 	import { onMount } from 'svelte';
@@ -42,6 +48,18 @@
 		onkeyup = () => {},
 		onfocusoutcapture = () => {}
 	}: Props = $props();
+
+	if (!skstate.quillInit) {
+		skstate.quillInit = true;
+		// Quill.register({
+		// 	'formats/bold': Bold,
+		// 	'formats/italic': Italic,
+		// 	'formats/underline': Underline,
+		// 	'formats/indent': Indent,
+		// 	'formats/list': List
+		// 	// 'formats/align': Align
+		// });
+	}
 
 	let focused = $state(false);
 
@@ -156,11 +174,14 @@
 			{title}
 		</div>
 	{/if}
-	<!-- {focused ? 'dark:bg-donkey-800' : 'dark:bg-donkey-900'} -->
 	<div
 		class="ql-editor-wrapper h-full cursor-text overflow-auto border-none text-[1rem] outline-none drop-shadow-md selection:bg-genie-500 selection:text-genie-50 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-400 [&>.ql-editor]:h-full [&>div]:max-h-full
         {toolbar || title ? 'rounded-b-lg' : 'rounded-lg'} 
-		{inputMode === 'info' ? '[&>.ql-editor]:pb-2 [&>.ql-editor]:pt-[0.3rem]' : ''}
+		{inputMode === 'info'
+			? title
+				? '[&>.ql-editor]:pb-2 [&>.ql-editor]:pt-[0.3rem]'
+				: '[&>.ql-editor]:py-3'
+			: ''}
 		{twText || 'text-donkey-950 dark:text-donkey-100'}
 		{twBG || `bg-donkey-50 ${focused ? 'dark:bg-donkey-800' : 'dark:bg-donkey-900'}`}
 		{twClass}"
@@ -192,10 +213,12 @@
 
 {#snippet Toolbar()}
 	<div
-		class="flex min-h-14 flex-wrap content-start justify-end gap-2 rounded-t-lg bg-donkey-50 px-4 pb-6 pt-4 drop-shadow-md dark:bg-donkey-300 dark:drop-shadow-none [&>button]:select-none [&>button]:text-xl"
+		class="flex min-h-14 flex-wrap content-start justify-end gap-2 rounded-t-lg bg-donkey-50 px-4 pb-6 pt-4 drop-shadow-md dark:drop-shadow-none [&>button]:select-none [&>button]:text-xl {focused
+			? 'dark:bg-donkey-800'
+			: 'dark:bg-donkey-900'}"
 	>
 		<button
-			class="rounded px-2 font-mono font-bold {csrFmt.bold ? twActiveButton : 'text-donkey-700'}"
+			class="rounded px-2 font-mono font-bold {csrFmt.bold ? twActiveButton : 'text-donkey-200'}"
 			onpointerup={() => {
 				quill!.format('bold', !csrFmt.bold);
 				updateCsrFmt();
@@ -204,16 +227,8 @@
 			B
 		</button>
 
-		<button
-			class="rounded px-2 font-mono italic {csrFmt.italic ? twActiveButton : 'text-donkey-700'}"
-		>
-			I
-		</button>
-		<button
-			class="rounded px-2 font-mono underline {csrFmt.underline
-				? twActiveButton
-				: 'text-donkey-700'}"
-		>
+		<button class="rounded px-2 font-mono italic {csrFmt.italic ? twActiveButton : ''}"> I </button>
+		<button class="rounded px-2 font-mono underline {csrFmt.underline ? twActiveButton : ''}">
 			U
 		</button>
 		<button
@@ -238,7 +253,7 @@
 {#snippet Icon(name: IconName)}
 	{#if name === 'indent'}
 		<svg
-			class="size-5 stroke-zinc-900"
+			class="size-5 dark:stroke-zinc-200"
 			viewBox="0 0 48 48"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
@@ -256,7 +271,7 @@
 		</svg>
 	{:else if name === 'outdent'}
 		<svg
-			class="size-5 stroke-zinc-900"
+			class="size-5 dark:stroke-zinc-200"
 			viewBox="0 0 48 48"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
