@@ -5,7 +5,7 @@
 	import { db } from '$lib/db';
 	import { type MomentAttr } from '$lib/types/db.d';
 	import { liveQuery } from 'dexie';
-	import { Delta } from 'quill/core';
+	import Delta from 'quill-delta';
 
 	const momentId = $derived($page.url.searchParams.get('id'));
 
@@ -19,7 +19,10 @@
 		}
 	});
 
-	let editing = $state(false);
+	let editing = $state({
+		body: true,
+		attr: false
+	});
 
 	let momentQuery = liveQuery(() => {
 		return db.moments.get(momentId!);
@@ -78,7 +81,7 @@
 	{@render DeleteModal()}
 {/if}
 
-<div class="sk-content md:mt-16">
+<div class="sk-content mb-32 md:mt-16">
 	<h1 class="invisible absolute">{momentName}</h1>
 
 	{#await db.moments.get(momentId!) then m}
@@ -107,7 +110,7 @@
 			</div>
 			<button
 				class="rounded-md bg-robin-600 p-2 hover:bg-robin-500 dark:bg-robin-950 hover:dark:bg-robin-900"
-				aria-label="Delete Character"
+				aria-label="Delete Moment"
 				onpointerup={() => {
 					vibrate();
 					showDeleteModal = true;
@@ -118,7 +121,7 @@
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke-width="1.5"
-					class="size-5 stroke-robin-300 dark:stroke-robin-400"
+					class="size-5 stroke-robin-100 dark:stroke-robin-400"
 				>
 					<path
 						stroke-linecap="round"
@@ -130,30 +133,74 @@
 		</div>
 	{/await}
 	{#if moment}
-		<!-- TODO fix rich editor -->
 		<section class="mb-8 mt-4 flex flex-col">
 			<div class="mb-3 flex items-center gap-4">
-				<div class="h-32 w-full">
-					<QLEditor
-						id="moment-body"
-						inputMode="info"
-						initText={moment.body || ''}
-						onkeyup={async () => {
-							if (momentId) {
-								await db.moments.update(momentId, { body: bodyText });
-							}
+				<h2 class="cursor-pointer font-title text-xl font-bold italic" aria-label="Body">
+					<button
+						onpointerup={() => {
+							vibrate();
+							editing.body = !editing.body;
 						}}
-						onfocusout={async () => {
-							if (momentId) {
-								await db.moments.update(momentId, { body: bodyText });
-							}
-						}}
-						bind:text={bodyText}
-					/>
-				</div>
+						class="italic"
+					>
+						Write
+					</button>
+				</h2>
+				<button
+					class="rounded-full bg-genie-500 p-1 dark:bg-genie-950"
+					onpointerup={() => {
+						vibrate();
+						editing.body = !editing.body;
+					}}
+					title="{editing.body ? 'Hide' : 'Show'} the moment body"
+				>
+					{#if editing.body}
+						{@render Icon('eye-slash', {})}
+					{:else}
+						{@render Icon('pencil-square', {})}
+					{/if}
+				</button>
 			</div>
+			{#if editing.body}
+				<QLEditor
+					id="moment-body"
+					inputMode="full"
+					twHeight="min-h-64"
+					initText={moment.body || ''}
+					onkeyup={async () => {
+						if (momentId) {
+							await db.moments.update(momentId, { body: bodyDelta });
+						}
+					}}
+					onfocusout={async () => {
+						if (momentId) {
+							await db.moments.update(momentId, { body: bodyDelta });
+						}
+					}}
+					bind:delta={bodyDelta}
+				/>
+			{:else}
+				<!-- <div class="bg-donkey-200 w-full drop-shadow-lg dark:bg-donkey-900 dark:drop-shadow-none hover:dark:"></div> -->
+				<button
+					class="flex items-center gap-2 [&>*]:hover:text-genie-500 [&>svg]:hover:stroke-genie-500"
+					onpointerup={() => {
+						editing.body = true;
+					}}
+				>
+					{@render Icon('pencil-square', {
+						twSize: 'size-4',
+						twColor: 'stroke-donkey-400 dark:stroke-donkey-600',
+						twOther: 'ml-4',
+						strokeWidth: 2.5
+					})}
+
+					<p class="font-bold text-donkey-400 dark:text-donkey-600">View</p>
+				</button>
+			{/if}
+			<!-- </div> -->
 		</section>
 	{/if}
+	<div class="h-16"></div>
 </div>
 
 {#snippet DeleteModal()}
@@ -194,6 +241,38 @@
 			</div>
 		</div>
 	</div>
+{/snippet}
+
+{#snippet Icon(
+	name: 'pencil-square' | 'eye-slash',
+	{
+		twSize = 'size-5',
+		twColor = 'stroke-genie-100 dark:stroke-genie-300',
+		twOther = '',
+		strokeWidth = 2
+	}
+)}
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke-width={strokeWidth}
+		class="{twSize} {twColor} {twOther}"
+	>
+		{#if name === 'pencil-square'}
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+			/>
+		{:else if name === 'eye-slash'}
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+			/>
+		{/if}
+	</svg>
 {/snippet}
 
 <svelte:head>

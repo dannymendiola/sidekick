@@ -195,7 +195,7 @@
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke-width="1.5"
-					class="size-5 stroke-robin-300 dark:stroke-robin-400"
+					class="size-5 stroke-robin-100 dark:stroke-robin-400"
 				>
 					<path
 						stroke-linecap="round"
