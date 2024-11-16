@@ -43,6 +43,9 @@ export interface CharacterAttr {
 	moral_code?: string;
 	motivation?: string;
 	backstory?: string;
+	arc_start?: string;
+	arc_driver?: string;
+	arc_end?: string;
 
 	// (i) personality/psyche
 	strengths?: string;

@@ -17,7 +17,7 @@
 	};
 </script>
 
-<div class="sk-content mt-[30vh]">
+<div class="sk-content mt-[10vh] md:mt-[30vh]">
 	<h1 class="mb-4 font-title text-3xl font-bold">New Character</h1>
 	<div class="h-min">
 		<QLEditor id="new-char-name" inputMode="info" title="Give 'em a name" bind:text={newCharName} />
