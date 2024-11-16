@@ -4,6 +4,7 @@
 	import { vibrate } from '$lib';
 	import { page } from '$app/stores';
 	import '../app.css';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
 

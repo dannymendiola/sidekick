@@ -67,6 +67,7 @@
 						<a
 							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 							href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"
+							use:draggable
 						>
 							<div class="flex w-full justify-between">
 								<h4 class="text-left">
@@ -75,7 +76,7 @@
 										: (element as Character | Theme | Location).name}
 								</h4>
 								{#if skstate.touchscreen}
-									{@render DragHandle()}
+									{@render OrderButton()}
 								{/if}
 							</div>
 						</a>
@@ -91,7 +92,7 @@
 									{/await}
 								</h4>
 								{#if skstate.touchscreen}
-									{@render DragHandle()}
+									{@render OrderButton()}
 								{/if}
 							</div>
 						</a>
@@ -140,17 +141,24 @@
 	</svg>
 {/snippet}
 
-{#snippet DragHandle()}
-	<button aria-label="Drag">
+{#snippet OrderButton()}
+	<button
+		class="z-[1] rounded-lg bg-donkey-300 p-1 dark:bg-donkey-800"
+		aria-label="Reorder"
+		onpointerup={() => vibrate()}
+	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			fill="none"
 			viewBox="0 0 24 24"
 			stroke-width="1.5"
-			stroke="currentColor"
-			class="size-6"
+			class="size-6 stroke-donkey-800 dark:stroke-donkey-200"
 		>
-			<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+			/>
 		</svg>
 	</button>
 {/snippet}
