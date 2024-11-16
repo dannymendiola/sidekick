@@ -24,6 +24,11 @@
 		attr: false
 	});
 
+	let scroll = $state(0);
+	$effect(() => {
+		console.log({ scroll });
+	});
+
 	let momentQuery = liveQuery(() => {
 		return db.moments.get(momentId!);
 	});
@@ -85,7 +90,9 @@
 	<h1 class="invisible absolute">{momentName}</h1>
 
 	{#await db.moments.get(momentId!) then m}
-		<div class="flex w-full items-center justify-between">
+		<div
+			class="top-0 z-[9] flex w-full items-center justify-between py-3 dark:bg-donkey-950 md:sticky"
+		>
 			<div class=" w-full font-title font-bold">
 				<QLEditor
 					id="moment-name"
@@ -133,7 +140,7 @@
 		</div>
 	{/await}
 	{#if moment}
-		<section class="mb-8 mt-4 flex flex-col">
+		<section class="mb-8 mt-4 flex flex-col overflow-y-auto">
 			<div class="mb-3 flex items-center gap-4">
 				<h2 class="cursor-pointer font-title text-xl font-bold italic" aria-label="Body">
 					<button
@@ -199,8 +206,8 @@
 			{/if}
 			<!-- </div> -->
 		</section>
+		<div class="h-16"></div>
 	{/if}
-	<div class="h-16"></div>
 </div>
 
 {#snippet DeleteModal()}
@@ -280,3 +287,5 @@
 		{moment ? momentNameClean || 'Untitled moment' : 'Loading...'}
 	</title>
 </svelte:head>
+
+<svelte:window bind:scrollY={scroll} />
