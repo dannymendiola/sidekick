@@ -27,5 +27,9 @@ export const draggable = (node: HTMLElement) => {
 			},
 			{ once: true }
 		);
+
+		node.addEventListener('dragenter', (e) => {
+			e.preventDefault();
+		});
 	});
 };

@@ -24,11 +24,6 @@
 		attr: false
 	});
 
-	let scroll = $state(0);
-	$effect(() => {
-		console.log({ scroll });
-	});
-
 	let momentQuery = liveQuery(() => {
 		return db.moments.get(momentId!);
 	});
@@ -44,17 +39,19 @@
 		conflict: 'Conflict',
 		significance: 'Significance',
 		driving_force: 'Driving force',
-		start_point: 'It starts:',
-		end_point: 'How it ends...',
-		outcome_reason: '...because:',
+		start_point: 'How it starts',
+		end_point: 'How it ends',
+		outcome_reason: 'It ends this way because',
 		notes: 'Notes'
 	};
 
-	const attrKeys = () => {
-		return Object.keys(attrDisplayNames) as Array<keyof MomentAttr>;
+	const getAttr = (key: keyof MomentAttr) => {
+		return moment?.attr?.[key] || '';
 	};
 
-	let liveAttr = $state<MomentAttr>({});
+	const attrKeys = $derived(Object.keys(attrDisplayNames) as Array<keyof MomentAttr>);
+
+	let attrBuf = $state<MomentAttr>({});
 
 	$effect(() => {
 		if (moment) {
@@ -62,10 +59,6 @@
 	});
 	let bodyDelta = $state<Delta>();
 	let bodyText = $state('');
-	// let b
-	// let bodyDelta = $derived(moment?.body);
-
-	// let moment = $state<Delta>(new Delta());
 
 	const characters = liveQuery(() => moment?.getCharacters() || []);
 	const locations = liveQuery(() => moment?.getLocations() || []);
@@ -91,7 +84,7 @@
 
 	{#await db.moments.get(momentId!) then m}
 		<div
-			class="top-0 z-[9] flex w-full items-center justify-between py-3 dark:bg-donkey-950 md:sticky"
+			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-100 py-3 dark:bg-donkey-950 md:sticky"
 		>
 			<div class=" w-full font-title font-bold">
 				<QLEditor
@@ -150,7 +143,7 @@
 						}}
 						class="italic"
 					>
-						Write
+						Compose
 					</button>
 				</h2>
 				<button
@@ -206,7 +199,45 @@
 			{/if}
 			<!-- </div> -->
 		</section>
-		<div class="h-16"></div>
+		<section class="mb-8 mt-4 flex flex-col gap-2">
+			<div class="mb-3 flex items-center gap-4">
+				<h2 class="cursor-default font-title text-xl font-bold italic">Foundation</h2>
+			</div>
+			{#each attrKeys as attrKey (`attr-${attrKey}`)}
+				{#if attrKey !== 'notes'}
+					<QLEditor
+						id={attrKey}
+						inputMode="info"
+						title={attrDisplayNames[attrKey]}
+						initText={getAttr(attrKey)}
+						onfocusout={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await moment?.cleanAttr();
+						}}
+						onkeyup={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+						}}
+						bind:text={attrBuf[attrKey]}
+					/>
+				{:else}
+					<QLEditor
+						id={attrKey}
+						inputMode="full"
+						title="Notes"
+						initText={getAttr(attrKey)}
+						twHeight="min-h-32"
+						onfocusout={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await moment?.cleanAttr();
+						}}
+						onkeyup={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+						}}
+						bind:delta={attrBuf[attrKey]}
+					/>
+				{/if}
+			{/each}
+		</section>
 	{/if}
 </div>
 
@@ -287,5 +318,3 @@
 		{moment ? momentNameClean || 'Untitled moment' : 'Loading...'}
 	</title>
 </svelte:head>
-
-<svelte:window bind:scrollY={scroll} />

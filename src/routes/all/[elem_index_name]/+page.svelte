@@ -63,7 +63,6 @@
 			<div class="mt-4 flex flex-col gap-6 md:mt-16">
 				{#each elements as element}
 					{#if name !== 'Character Dynamics'}
-						<!-- TODO use:draggable -->
 						<a
 							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 							href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"

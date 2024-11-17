@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Quill, { type QuillOptions } from 'quill';
+	import Keyboard from 'quill/modules/keyboard';
 	import { Delta } from 'quill/core';
 	import { type IconName, addKeybinds, skstate } from '$lib';
 	import { onMount } from 'svelte';
-	import Toolbar from 'quill/modules/toolbar';
 
 	interface Props {
 		id: number | string;
@@ -23,7 +23,6 @@
 		onfocusout?: () => void;
 		onkeyup?: () => void;
 		onkeypresscapture?: () => void;
-		onfocusoutcapture?: () => void;
 	}
 
 	let {
@@ -42,8 +41,7 @@
 		twClass = '',
 		onfocusin = () => {},
 		onfocusout = () => {},
-		onkeyup = () => {},
-		onfocusoutcapture = () => {}
+		onkeyup = () => {}
 	}: Props = $props();
 
 	if (!skstate.quillInit) {
@@ -122,7 +120,10 @@
 		formats: ALLOWED_FMTS,
 		modules: {
 			keyboard: {
-				bindings: KEYBINDS
+				bindings: {
+					...Keyboard.DEFAULTS.bindings,
+					...KEYBINDS
+				}
 			}
 		}
 	};
@@ -175,7 +176,7 @@
 			? title
 				? '[&>.ql-editor]:pb-2 [&>.ql-editor]:pt-[0.3rem]'
 				: '[&>.ql-editor]:py-3'
-			: 'md:px-6'}
+			: ''}
 		{twText || 'text-donkey-950 dark:text-donkey-100'}
 		{twBG ||
 			`bg-donkey-50 ${focused && inputMode === 'info' ? 'dark:bg-donkey-800' : 'dark:bg-donkey-900'}`}

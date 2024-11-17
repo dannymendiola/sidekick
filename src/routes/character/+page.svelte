@@ -136,7 +136,7 @@
 		return character?.attr?.[key] || '';
 	};
 
-	let liveAttr = $state({} as CharacterAttr);
+	let attrBuf = $state({} as CharacterAttr);
 
 	const dynamics = liveQuery(() => character?.getDynamics() || []);
 
@@ -160,7 +160,9 @@
 <div class="sk-content md:mt-16">
 	<h1 class="invisible absolute">{charName}</h1>
 	{#await db.characters.get(charId!) then char}
-		<div class="flex w-full items-center justify-between">
+		<div
+			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-100 py-3 dark:bg-donkey-950 md:sticky"
+		>
 			<div class=" w-full font-title font-bold">
 				<QLEditor
 					id="char-name"
@@ -274,13 +276,13 @@
 							title={attrDisplayNames.identity[attrKey]}
 							initText={getAttribute(attrKey)}
 							onfocusout={async () => {
-								await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+								await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								await character?.cleanAttr();
 							}}
 							onkeyup={async () => {
-								await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+								await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 							}}
-							bind:text={liveAttr[attrKey]}
+							bind:text={attrBuf[attrKey]}
 						/>
 					{/if}
 				{/each}
@@ -320,11 +322,11 @@
 								]}
 								initValue={attr?.role}
 								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 									await character?.cleanAttr();
 								}}
 								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								}}
 								onchange={async (newVal: string) => {
 									await character?.updateAttr({ [attrKey]: newVal });
@@ -333,7 +335,7 @@
 								onlistbutton={async () => {
 									await character?.updateAttr({ [attrKey]: '' });
 								}}
-								bind:value={liveAttr[attrKey]}
+								bind:value={attrBuf[attrKey]}
 							/>
 						{:else}
 							<QLEditor
@@ -342,13 +344,13 @@
 								title={attrDisplayNames['arc'][attrKey]}
 								initText={getAttribute(attrKey)}
 								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 									await character?.cleanAttr();
 								}}
 								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								}}
-								bind:text={liveAttr[attrKey]}
+								bind:text={attrBuf[attrKey]}
 							/>
 						{/if}
 					{/if}
@@ -388,11 +390,11 @@
 								customTitle="Role"
 								initValue={attr?.role}
 								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 									await character?.cleanAttr();
 								}}
 								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								}}
 								onchange={async (newVal: string) => {
 									await character?.updateAttr({ [attrKey]: newVal });
@@ -401,7 +403,7 @@
 								onlistbutton={async () => {
 									await character?.updateAttr({ [attrKey]: '' });
 								}}
-								bind:value={liveAttr[attrKey]}
+								bind:value={attrBuf[attrKey]}
 							/>
 						{:else}
 							<QLEditor
@@ -410,13 +412,13 @@
 								title={attrDisplayNames['personality'][attrKey]}
 								initText={getAttribute(attrKey)}
 								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 									await character?.cleanAttr();
 								}}
 								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								}}
-								bind:text={liveAttr[attrKey]}
+								bind:text={attrBuf[attrKey]}
 							/>
 						{/if}
 					{/if}
