@@ -5,6 +5,7 @@
 	import { skstate, vibrate } from '$lib';
 	import { skElemDragTarget, skElemDraggable } from '$lib';
 	import { goto } from '$app/navigation';
+	import { liveQuery, type Observable } from 'dexie';
 
 	// Capitalize
 	const name = $derived(
@@ -19,30 +20,39 @@
 		}
 	});
 
-	let elemCount = $state(-1);
+	const index_name = $derived(
+		$page.params.elem_index_name as
+			| 'moments'
+			| 'themes'
+			| 'characters'
+			| 'character-dynamics'
+			| 'locations'
+	);
 
-	let elementsPromise = $derived.by(async () => {
-		switch (name) {
-			case 'Moments':
-				elemCount = await db.moments.count();
-				return await db.moments.orderBy('order').toArray();
-			case 'Themes':
-				elemCount = await db.themes.count();
-				return await db.themes.orderBy('order').toArray();
-			case 'Characters':
-				elemCount = await db.characters.count();
-				return await db.characters.orderBy('order').toArray();
-			case 'Character Dynamics':
-				elemCount = await db.dynamics.count();
-				return await db.dynamics.orderBy('order').toArray();
-			case 'Locations':
-				elemCount = await db.locations.count();
-				return await db.locations.orderBy('order').toArray();
+	let elements: Observable<Moment[] | Theme[] | Character[] | Dynamic[] | Location[]> | undefined =
+		$state();
+	$effect(() => {
+		switch (index_name) {
+			case 'moments':
+				elements = liveQuery(() => db.moments.orderBy('order').toArray());
+				break;
+			case 'themes':
+				elements = liveQuery(() => db.themes.orderBy('order').toArray());
+				break;
+			case 'characters':
+				elements = liveQuery(() => db.characters.orderBy('order').toArray());
+				break;
+			case 'character-dynamics':
+				elements = liveQuery(() => db.dynamics.orderBy('order').toArray());
+				break;
+			case 'locations':
+				elements = liveQuery(() => db.locations.orderBy('order').toArray());
+				break;
 		}
 	});
-</script>
 
-<!-- TODO make the list reactive to reordering -->
+	let elemCount = $derived($elements?.length);
+</script>
 
 <div class="sk-content md:mt-28">
 	<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
@@ -60,79 +70,77 @@
 			</a>
 		{/if}
 	</div>
-	{#await elementsPromise then elements}
-		{#if elements && elements.length > 0}
-			<div class="mt-4 flex flex-col gap-6 md:mt-16">
-				{#each elements as element}
-					{#if name !== 'Character Dynamics'}
-						<a
-							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-							href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"
-							use:skElemDraggable={/* send data: */ {
-								id: element.id,
-								type: name.toLowerCase().slice(0, -1)
-							}}
-							use:skElemDragTarget={{
-								hoveredElem: element
-							}}
-						>
-							<div class="flex w-full justify-between">
-								<h4 class="text-left">
-									{name === 'Moments'
-										? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
-										: (element as Character | Theme | Location).name}
-								</h4>
-								{#if skstate.touchscreen}
-									{@render OrderButton()}
-								{/if}
-							</div>
-						</a>
-					{:else}
-						<a
-							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-							href="/character-dynamic?id={element.id}"
-						>
-							<div class="flex w-full justify-between">
-								<h4 class="text-left">
-									{#await (element as Dynamic).toString() then name}
-										{name}
-									{/await}
-								</h4>
-								{#if skstate.touchscreen}
-									{@render OrderButton()}
-								{/if}
-							</div>
-						</a>
-					{/if}
-				{/each}
-			</div>
-		{:else}
-			<div class="flex w-full flex-col items-center justify-center">
-				<div
-					class="mb-6 mt-[20vh] font-title text-xl font-bold italic dark:text-donkey-400 md:text-2xl"
-				>
-					No {name.toLowerCase()} yet
-				</div>
+	{#if $elements && $elements.length > 0}
+		<div class="mt-4 flex flex-col gap-6 md:mt-16">
+			{#each $elements as element}
 				{#if name !== 'Character Dynamics'}
 					<a
-						class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-						href="/{name.toLowerCase().slice(0, -1)}/new"
-						onpointerup={() => vibrate()}
+						class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+						href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"
+						use:skElemDraggable={/* send data: */ {
+							id: element.id,
+							type: name.toLowerCase().slice(0, -1)
+						}}
+						use:skElemDragTarget={{
+							hoveredElem: element
+						}}
 					>
-						{@render Plus()}
-						<p class="text-genie-100 dark:text-genie-300">
-							Add a new {name.toLowerCase().slice(0, -1)}
-						</p>
+						<div class="flex w-full justify-between">
+							<h4 class="text-left">
+								{name === 'Moments'
+									? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
+									: (element as Character | Theme | Location).name}
+							</h4>
+							{#if skstate.touchscreen}
+								{@render OrderButton()}
+							{/if}
+						</div>
 					</a>
 				{:else}
-					<div class="text-donkey-700 dark:text-donkey-400">
-						Create one from within a
-						<a href="/all/characters" class="text-genie-500 hover:underline"> character sheet </a>
-					</div>
+					<a
+						class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+						href="/character-dynamic?id={element.id}"
+					>
+						<div class="flex w-full justify-between">
+							<h4 class="text-left">
+								{#await (element as Dynamic).toString() then name}
+									{name}
+								{/await}
+							</h4>
+							{#if skstate.touchscreen}
+								{@render OrderButton()}
+							{/if}
+						</div>
+					</a>
 				{/if}
+			{/each}
+		</div>
+	{:else}
+		<div class="flex w-full flex-col items-center justify-center">
+			<div
+				class="mb-6 mt-[20vh] font-title text-xl font-bold italic dark:text-donkey-400 md:text-2xl"
+			>
+				No {name.toLowerCase()} yet
 			</div>
-		{/if}
-	{/await}
+			{#if name !== 'Character Dynamics'}
+				<a
+					class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
+					href="/{name.toLowerCase().slice(0, -1)}/new"
+					onpointerup={() => vibrate()}
+				>
+					{@render Plus()}
+					<p class="text-genie-100 dark:text-genie-300">
+						Add a new {name.toLowerCase().slice(0, -1)}
+					</p>
+				</a>
+			{:else}
+				<div class="text-donkey-700 dark:text-donkey-400">
+					Create one from within a
+					<a href="/all/characters" class="text-genie-500 hover:underline"> character sheet </a>
+				</div>
+			{/if}
+		</div>
+	{/if}
 	<div class="h-24"></div>
 </div>
 
