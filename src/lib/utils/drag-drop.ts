@@ -71,6 +71,7 @@ export const skElemDragTarget = (
 		const json = e.dataTransfer?.getData('text/plain');
 		const draggedData = JSON.parse(json || '{}');
 
+		// const hoveredPrev = await (await zoneData.hoveredElem.refresh()).getPrev();
 		const hoveredPrev = await zoneData.hoveredElem.getPrev();
 		let dragged: typeof zoneData.hoveredElem | undefined;
 
