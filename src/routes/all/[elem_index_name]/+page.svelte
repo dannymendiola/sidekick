@@ -3,7 +3,7 @@
 	import type { Character, Dynamic, Location, Moment, Theme } from '$lib/db';
 	import { addCharacterAfter, db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
-	import { draggable } from '$lib';
+	import { skElemDragTarget, skElemDraggable } from '$lib';
 	import { goto } from '$app/navigation';
 
 	// Capitalize
@@ -42,6 +42,8 @@
 	});
 </script>
 
+<!-- TODO make the list reactive to reordering -->
+
 <div class="sk-content md:mt-28">
 	<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
 		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
@@ -66,7 +68,13 @@
 						<a
 							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 							href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"
-							use:draggable
+							use:skElemDraggable={/* send data: */ {
+								id: element.id,
+								type: name.toLowerCase().slice(0, -1)
+							}}
+							use:skElemDragTarget={{
+								hoveredElem: element
+							}}
 						>
 							<div class="flex w-full justify-between">
 								<h4 class="text-left">
