@@ -120,7 +120,7 @@ class Moment {
 	id!: string;
 	order?: number;
 	name?: string;
-	body?: Delta;
+	body?: Delta | string; // TODO just Delta after rich editor fix. And then wipe db probably
 	attr?: MomentAttr;
 	locations?: string[];
 	characters?: string[];
@@ -225,7 +225,13 @@ class Moment {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => {
+				if ((v as Delta).ops) {
+					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
+				}
+
+				return v?.trim() !== '';
+			})
 		);
 		this.attr = newAttr;
 		await db.moments.update(this.id, { attr: newAttr });

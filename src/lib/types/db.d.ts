@@ -5,7 +5,7 @@ export interface MomentAttr {
 	driving_force?: string;
 	end_point?: string;
 	outcome_reason?: string;
-	notes?: string;
+	notes?: Delta;
 }
 
 export interface ThemeAttr {

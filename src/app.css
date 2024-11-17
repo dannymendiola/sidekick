@@ -38,10 +38,15 @@
 
 	/* Width for content (as passed into layout, contained in a flex row w/ justify: center) */
 	.sk-content {
-		@apply w-[70%] pt-24 md:pt-0 lg:w-[48rem] midskinny:w-[80%] skinny:w-[90%];
+		@apply relative w-[70%] pt-24 md:w-[32rem] md:pt-0 lg:w-[42rem] midskinny:w-[85%] skinny:w-[93%];
 	}
 
 	.ql-editor * {
 		@apply font-sans;
+	}
+
+	.ql-editor ol,
+	.ql-editor ul {
+		@apply !pl-0;
 	}
 }

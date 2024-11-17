@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { QLEditor, TextPicker, skstate, vibrate } from '$lib';
+	import { QLEditor, TextPicker, vibrate } from '$lib';
 	import { type CharacterAttr } from '$lib/types/db.d';
 	import { page } from '$app/stores';
-	import { goto, invalidateAll } from '$app/navigation';
-	import { addCharacterAfter, db, type Character } from '$lib/db';
+	import { goto } from '$app/navigation';
+	import { db, type Character } from '$lib/db';
 	import { liveQuery } from 'dexie';
 
 	const charId = $derived($page.url.searchParams.get('id'));
 
 	$effect(() => {
-		if (charId /*&& charId !== 'new'*/) {
+		if (charId) {
 			db.characters.get(charId).then((c) => {
 				if (!c) {
 					goto('/all/characters');
@@ -30,11 +30,11 @@
 		personality: 'Personality & Psyche'
 	};
 
-	let characterQuery = $derived(
+	let characterQuery = //$derived(
 		liveQuery(() => {
 			return db.characters.get(charId!);
-		})
-	);
+		});
+	//);
 	let character: Character | undefined = $derived($characterQuery);
 
 	const attrCount = $derived({
@@ -136,16 +136,15 @@
 		return character?.attr?.[key] || '';
 	};
 
-	let liveAttr = $state({} as CharacterAttr);
+	let attrBuf = $state({} as CharacterAttr);
 
 	const dynamics = liveQuery(() => character?.getDynamics() || []);
 
 	const numAttr = $derived(attrCount.arc + attrCount.identity + attrCount.personality);
 
-	let initClean = false;
-
 	let showDeleteModal = $state(false);
 
+	let initClean = false;
 	$effect(() => {
 		if (character && !initClean) {
 			character.cleanAttr();
@@ -161,7 +160,9 @@
 <div class="sk-content md:mt-16">
 	<h1 class="invisible absolute">{charName}</h1>
 	{#await db.characters.get(charId!) then char}
-		<div class="flex w-full items-center justify-between">
+		<div
+			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-100 py-3 dark:bg-donkey-950 md:sticky"
+		>
 			<div class=" w-full font-title font-bold">
 				<QLEditor
 					id="char-name"
@@ -196,7 +197,7 @@
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke-width="1.5"
-					class="size-5 stroke-robin-300 dark:stroke-robin-400"
+					class="size-5 stroke-robin-100 dark:stroke-robin-400"
 				>
 					<path
 						stroke-linecap="round"
@@ -275,13 +276,13 @@
 							title={attrDisplayNames.identity[attrKey]}
 							initText={getAttribute(attrKey)}
 							onfocusout={async () => {
-								await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+								await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								await character?.cleanAttr();
 							}}
 							onkeyup={async () => {
-								await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+								await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 							}}
-							bind:text={liveAttr[attrKey]}
+							bind:text={attrBuf[attrKey]}
 						/>
 					{/if}
 				{/each}
@@ -312,19 +313,20 @@
 								options={[
 									'Protagonist',
 									'Companion',
-									'Antagonist',
 									'Love interest',
-									'Comic relief',
+									'Rival',
+									'Antagonist',
 									'Chorus',
+									'Comic relief',
 									'Mentor'
 								]}
 								initValue={attr?.role}
 								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 									await character?.cleanAttr();
 								}}
 								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								}}
 								onchange={async (newVal: string) => {
 									await character?.updateAttr({ [attrKey]: newVal });
@@ -333,7 +335,7 @@
 								onlistbutton={async () => {
 									await character?.updateAttr({ [attrKey]: '' });
 								}}
-								bind:value={liveAttr[attrKey]}
+								bind:value={attrBuf[attrKey]}
 							/>
 						{:else}
 							<QLEditor
@@ -342,13 +344,13 @@
 								title={attrDisplayNames['arc'][attrKey]}
 								initText={getAttribute(attrKey)}
 								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 									await character?.cleanAttr();
 								}}
 								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								}}
-								bind:text={liveAttr[attrKey]}
+								bind:text={attrBuf[attrKey]}
 							/>
 						{/if}
 					{/if}
@@ -388,11 +390,11 @@
 								customTitle="Role"
 								initValue={attr?.role}
 								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 									await character?.cleanAttr();
 								}}
 								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								}}
 								onchange={async (newVal: string) => {
 									await character?.updateAttr({ [attrKey]: newVal });
@@ -401,7 +403,7 @@
 								onlistbutton={async () => {
 									await character?.updateAttr({ [attrKey]: '' });
 								}}
-								bind:value={liveAttr[attrKey]}
+								bind:value={attrBuf[attrKey]}
 							/>
 						{:else}
 							<QLEditor
@@ -410,13 +412,13 @@
 								title={attrDisplayNames['personality'][attrKey]}
 								initText={getAttribute(attrKey)}
 								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 									await character?.cleanAttr();
 								}}
 								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: liveAttr[attrKey] });
+									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 								}}
-								bind:text={liveAttr[attrKey]}
+								bind:text={attrBuf[attrKey]}
 							/>
 						{/if}
 					{/if}
@@ -525,10 +527,6 @@
 
 <svelte:head>
 	<title>
-		{charId === 'new'
-			? 'New Character'
-			: character
-				? charNameCleaned || 'Character'
-				: 'Edit Character'}
+		{character ? charNameCleaned || 'Character' : 'Loading...'}
 	</title>
 </svelte:head>

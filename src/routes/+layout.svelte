@@ -4,6 +4,7 @@
 	import { vibrate } from '$lib';
 	import { page } from '$app/stores';
 	import '../app.css';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
 
@@ -43,14 +44,14 @@
 	<div class="navbar z-10">
 		<Navbar />
 	</div>
-	<div class="flex grow justify-center overflow-auto">
+	<div class="grid grow items-start justify-items-center overflow-y-auto">
 		{@render children()}
 	</div>
 </div>
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="fixed z-10 flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
+		class="absolute z-10 flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
 	>
 		<button
 			class="rounded-xl bg-donkey-200 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
