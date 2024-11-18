@@ -6,16 +6,21 @@
 	import { skElemDragTarget, skElemDraggable } from '$lib';
 	import { goto } from '$app/navigation';
 	import { liveQuery, type Observable } from 'dexie';
+	import { flip } from 'svelte/animate';
+	import { slide } from 'svelte/transition';
+	import { bounceOut, cubicOut, elasticOut, quintInOut, quintOut } from 'svelte/easing';
 
 	// Capitalize
-	const name = $derived(
+	const indexTitle = $derived(
 		$page.params.elem_index_name
 			.replace(/-/g, ' ')
 			.replace(/\w\S*/g, (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase())
 	);
 
 	$effect(() => {
-		if (!['Moments', 'Themes', 'Characters', 'Character Dynamics', 'Locations'].includes(name)) {
+		if (
+			!['Moments', 'Themes', 'Characters', 'Character Dynamics', 'Locations'].includes(indexTitle)
+		) {
 			goto('/welcome');
 		}
 	});
@@ -57,13 +62,13 @@
 <div class="sk-content md:mt-28">
 	<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
 		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
-			{name}
+			{indexTitle}
 		</h1>
-		{#if name !== 'Character Dynamics' && elemCount !== 0}
+		{#if indexTitle !== 'Character Dynamics' && elemCount !== 0}
 			<a
 				class="flex items-center gap-2 rounded-full bg-genie-500 px-3 py-2 dark:bg-genie-950 md:p-2"
-				aria-label="Add {name.toLowerCase().slice(0, -1)}"
-				href={`/${name.toLowerCase().slice(0, -1)}/new`}
+				aria-label="Add {indexTitle.toLowerCase().slice(0, -1)}"
+				href={`/${indexTitle.toLowerCase().slice(0, -1)}/new`}
 			>
 				{@render Plus()}
 				<span class="text-sm text-genie-200 dark:text-genie-300 md:hidden">New</span>
@@ -73,30 +78,41 @@
 	{#if $elements && $elements.length > 0}
 		<div class="mt-4 flex flex-col gap-6 md:mt-16">
 			{#each $elements as element (element.id)}
-				{#if name !== 'Character Dynamics'}
-					<a
-						class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-						href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"
-						use:skElemDraggable={/* send data: */ {
-							id: element.id,
-							type: name.toLowerCase().slice(0, -1)
-						}}
-						use:skElemDragTarget={{
-							hoveredElem: element
-						}}
-					>
-						<div class="flex w-full justify-between">
-							<h4 class="text-left">
-								{name === 'Moments'
-									? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
+				<!-- {#if name !== 'Character Dynamics'} -->
+				<a
+					class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					href="/{$page.params.elem_index_name}?id={element.id}"
+					use:skElemDraggable={/* send data: */ {
+						id: element.id,
+						type: indexTitle.toLowerCase().slice(0, -1),
+						order: element.order || -1
+					}}
+					use:skElemDragTarget={{
+						hoveredElem: element
+					}}
+					ondragenter={() => console.log(`dragenter ${element.id}`)}
+					ondragleave={() => console.log(`dragleave ${element.id}`)}
+					animate:flip={{ duration: 300, easing: quintOut }}
+				>
+					<div class="flex w-full justify-between">
+						<h4 class="text-left">
+							{indexTitle === 'Moments'
+								? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
+								: indexTitle === 'Character Dynamics'
+									? ''
 									: (element as Character | Theme | Location).name}
-							</h4>
-							{#if skstate.touchscreen}
-								{@render OrderButton()}
+							{#if indexTitle === 'Character Dynamics'}
+								{#await element.toString() then name}
+									{name}
+								{/await}
 							{/if}
-						</div>
-					</a>
-				{:else}
+						</h4>
+						{#if skstate.touchscreen}
+							{@render OrderButton()}
+						{/if}
+					</div>
+				</a>
+				<!-- {:else}
 					<a
 						class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 						href="/character-dynamic?id={element.id}"
@@ -111,8 +127,8 @@
 								{@render OrderButton()}
 							{/if}
 						</div>
-					</a>
-				{/if}
+					</a> -->
+				<!-- {/if} -->
 			{/each}
 		</div>
 	{:else}
@@ -120,17 +136,17 @@
 			<div
 				class="mb-6 mt-[20vh] font-title text-xl font-bold italic dark:text-donkey-400 md:text-2xl"
 			>
-				No {name.toLowerCase()} yet
+				No {indexTitle.toLowerCase()} yet
 			</div>
-			{#if name !== 'Character Dynamics'}
+			{#if indexTitle !== 'Character Dynamics'}
 				<a
 					class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-					href="/{name.toLowerCase().slice(0, -1)}/new"
+					href="/{indexTitle.toLowerCase().slice(0, -1)}/new"
 					onpointerup={() => vibrate()}
 				>
 					{@render Plus()}
 					<p class="text-genie-100 dark:text-genie-300">
-						Add a new {name.toLowerCase().slice(0, -1)}
+						Add a new {indexTitle.toLowerCase().slice(0, -1)}
 					</p>
 				</a>
 			{:else}
@@ -179,5 +195,5 @@
 {/snippet}
 
 <svelte:head>
-	<title>{name}</title>
+	<title>{indexTitle}</title>
 </svelte:head>

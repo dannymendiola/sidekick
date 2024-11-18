@@ -16,8 +16,9 @@ Currently under development for [SvelteHack 2024](https://hack.sveltesociety.dev
 
 ### **Core features**
 
-- ✅ **100% local**: Your story is stored on your device. It is never sent to a server, AI dataset, or anywhere else you may not want it.
+- ✅ **100% local**: Sidekick is a [local-only](https://dev.to/alexanderop/what-is-local-first-web-development-3mnd) app. Your projects never leave your device, keeping them away from servers, AI datasets, or anywhere else you may not want them. This applies whether run through your browser or installed as a web app (PWA).
 - ⏹️ **Export and import**: Easily save your story to a file, for safekeeping or to import on another device
+- ⏹️ **Progressive web app**: Install **Sidekick** as a PWA, allowing for an app-like experience on any device (or stick with the browser)
 - ⏹️ **Create story elements**: Flesh out your story with moments, themes, locations, and interrelated characters
     - ⏹️ **Moments**: Create and easily flesh out story moments/scenes. Each can link to important characters, locations, and themes
     - ⏹️ **Themes**: Lay out over-arching ideas that tie your story together, and easily view them from anywhere in the app
@@ -27,7 +28,7 @@ Currently under development for [SvelteHack 2024](https://hack.sveltesociety.dev
 
 ### **Feature backlog**
 
-- ⏹️ **Live link suggestions**: When editing, other mentioned and unlinked story elements automatically highlight, making it easy to create potentially useful connections
+- ⏹️ **Live link suggestions**: Mention an unlinked story element, and Sidekick will automatically suggest a link, making it easy to create potentially useful connections
 
 ## ✨ Getting started
 
@@ -35,7 +36,7 @@ Currently under development for [SvelteHack 2024](https://hack.sveltesociety.dev
 
 When core features are implemented, this app will be available for use in any modern browser. 
 
-If you'd prefer to run it on your own machine for any reason, you can always do so straight from the source:
+If you'd prefer to run it on your own machine for full control, you can always do so straight from the source:
 
 1. Install [Git](https://git-scm.com/downloads) and [Node](https://nodejs.org/en) if necessary
 2. Open a terminal in the folder where you'd like to download Sidekick, and run:

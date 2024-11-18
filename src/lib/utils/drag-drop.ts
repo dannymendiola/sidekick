@@ -1,58 +1,62 @@
-// export const draggable = (node: HTMLElement) => {
-// 	node.draggable = true;
-
-// 	node.addEventListener('dragstart', (event) => {
-// 		const rect = node.getBoundingClientRect();
-// 		const dragPreview = node.cloneNode(true) as HTMLElement;
-
-// 		const w = rect.width;
-// 		console.log({ w });
-
-// 		dragPreview.style.top = `${-rect.height}px`;
-// 		dragPreview.style.width = `${rect.width}px`;
-// 		dragPreview.style.opacity = '1';
-// 		dragPreview.style.position = 'absolute';
-
-// 		document.body.appendChild(dragPreview);
-
-// 		const offsetX = event.clientX - rect.left;
-// 		const offsetY = event.clientY - rect.top;
-
-// 		event.dataTransfer?.setDragImage(dragPreview, offsetX, offsetY);
-
-// 		node.addEventListener(
-// 			'dragend',
-// 			() => {
-// 				dragPreview.remove();
-// 			},
-// 			{ once: true }
-// 		);
-
-// 		node.addEventListener('dragenter', (e) => {
-// 			e.preventDefault();
-// 		});
-// 	});
-// };
-
 import { skstate } from '$lib';
 import { db, Character, Dynamic, Location, Moment, Theme } from '$lib/db';
 
-// import {db}
-
-export const skElemDraggable = (node: HTMLElement, sendData: { id: string; type: string }) => {
+export const skElemDraggable = (
+	node: HTMLElement,
+	sendData: { id: string; type: string; order: number }
+) => {
 	if (skstate.touchscreen) return;
 
 	node.draggable = true;
 
+	let dragPreview: HTMLElement;
+
 	const handleDragStart = (e: DragEvent) => {
 		e.dataTransfer?.setData('text/plain', JSON.stringify(sendData));
+
+		const rect = node.getBoundingClientRect();
+
+		dragPreview = node.cloneNode(true) as HTMLElement;
+
+		// Set width and height to match the original element
+		// dragPreview.style.width = `${rect.width}px`;
+		// dragPreview.style.height = `${rect.height}px`;
+		dragPreview.style.top = `${-rect.height}px`;
+		dragPreview.style.width = `${rect.width * 0.8}px`;
+		dragPreview.style.opacity = '1'; // Keep solid appearance
+		dragPreview.style.position = 'absolute';
+
+		document.body.appendChild(dragPreview);
+
+		// Calculate offsets to center the preview under the cursor
+		const offsetX = e.clientX - rect.left;
+		const offsetY = e.clientY - rect.top;
+
+		e.dataTransfer?.setDragImage(dragPreview, offsetX, offsetY);
+
+		// @ts-ignore
+		e.target?.classList.add('opacity-10');
+		// console.log(e.target);
+		// @ts-ignore
+		// e.target.classList.add('opacity-100');
+	};
+
+	const handleDragEnd = (e: DragEvent) => {
+		// console.log('dragEnd:', e.target);
+		dragPreview.remove();
+
+		// @ts-ignore
+		e.target.classList.remove('opacity-10');
 	};
 
 	node.addEventListener('dragstart', handleDragStart);
 
+	node.addEventListener('dragend', handleDragEnd);
+
 	return {
 		destroy() {
 			node.removeEventListener('dragstart', handleDragStart);
+			node.removeEventListener('dragend', handleDragEnd);
 		}
 	};
 };
@@ -71,58 +75,63 @@ export const skElemDragTarget = (
 		const json = e.dataTransfer?.getData('text/plain');
 		const draggedData = JSON.parse(json || '{}');
 
-		// const hoveredPrev = await (await zoneData.hoveredElem.refresh()).getPrev();
-		const hoveredPrev = await zoneData.hoveredElem.getPrev();
+		const hoveredOrder = zoneData.hoveredElem.order;
+		const direction = hoveredOrder && draggedData.order < hoveredOrder ? 'down' : 'up';
+
+		const elemToOrderAfter =
+			direction === 'down' ? zoneData.hoveredElem : await zoneData.hoveredElem.getPrev();
 		let dragged: typeof zoneData.hoveredElem | undefined;
+
+		console.log('draggedData', draggedData);
 
 		switch (draggedData.type) {
 			case 'moment':
 				dragged = await db.moments.get(draggedData.id);
 				if (dragged) {
-					if (hoveredPrev) {
-						await dragged.orderAfter(hoveredPrev as Moment);
+					if (elemToOrderAfter) {
+						await dragged.orderAfter(elemToOrderAfter as Moment);
 					} else {
-						await dragged.orderAfter('root');
+						await dragged.orderAfter(direction === 'down' ? 'tail' : 'root');
 					}
 				}
 				break;
 			case 'character':
 				dragged = await db.characters.get(draggedData.id);
 				if (dragged) {
-					if (hoveredPrev) {
-						await dragged.orderAfter(hoveredPrev as Character);
+					if (elemToOrderAfter) {
+						await dragged.orderAfter(elemToOrderAfter as Character);
 					} else {
-						await dragged.orderAfter('root');
+						await dragged.orderAfter(direction === 'down' ? 'tail' : 'root');
 					}
 				}
 				break;
 			case 'theme':
 				dragged = await db.themes.get(draggedData.id);
 				if (dragged) {
-					if (hoveredPrev) {
-						await dragged.orderAfter(hoveredPrev as Theme);
+					if (elemToOrderAfter) {
+						await dragged.orderAfter(elemToOrderAfter as Theme);
 					} else {
-						await dragged.orderAfter('root');
+						await dragged.orderAfter(direction === 'down' ? 'tail' : 'root');
 					}
 				}
 				break;
-			case 'character-dynmaic':
+			case 'character dynamic':
 				dragged = await db.dynamics.get(draggedData.id);
 				if (dragged) {
-					if (hoveredPrev) {
-						await dragged.orderAfter(hoveredPrev as Dynamic);
+					if (elemToOrderAfter) {
+						await dragged.orderAfter(elemToOrderAfter as Dynamic);
 					} else {
-						await dragged.orderAfter('root');
+						await dragged.orderAfter(direction === 'down' ? 'tail' : 'root');
 					}
 				}
 				break;
 			case 'location':
 				dragged = await db.locations.get(draggedData.id);
 				if (dragged) {
-					if (hoveredPrev) {
-						await dragged.orderAfter(hoveredPrev as Location);
+					if (elemToOrderAfter) {
+						await dragged.orderAfter(elemToOrderAfter as Location);
 					} else {
-						await dragged.orderAfter('root');
+						await dragged.orderAfter(direction === 'down' ? 'tail' : 'root');
 					}
 				}
 				break;
