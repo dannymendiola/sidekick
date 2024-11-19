@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import type { Character, Dynamic, Location, Moment, Theme } from '$lib/db';
-	import { addCharacterAfter, db } from '$lib/db';
+	import { db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
-	import { skElemDragTarget, skElemDraggable } from '$lib';
 	import { goto } from '$app/navigation';
 	import { liveQuery, type Observable } from 'dexie';
 	import { flip } from 'svelte/animate';
-	import { slide } from 'svelte/transition';
-	import { bounceOut, cubicOut, elasticOut, quintInOut, quintOut } from 'svelte/easing';
+	import { quintOut } from 'svelte/easing';
 
-	// Capitalize
 	const indexTitle = $derived(
 		$page.params.elem_index_name
 			.replace(/-/g, ' ')
@@ -25,7 +22,7 @@
 		}
 	});
 
-	const index_name = $derived(
+	const indexName = $derived(
 		$page.params.elem_index_name as
 			| 'moments'
 			| 'themes'
@@ -34,10 +31,15 @@
 			| 'locations'
 	);
 
-	let elements: Observable<Moment[] | Theme[] | Character[] | Dynamic[] | Location[]> | undefined =
-		$state();
+	const elemPathSeg = $derived(indexName.slice(0, -1));
+
+	const tableName = $derived(indexName === 'character-dynamics' ? 'dynamics' : indexName);
+
+	type StoryElem = Moment | Theme | Character | Dynamic | Location;
+
+	let elements: Observable<StoryElem[]> | undefined = $state();
 	$effect(() => {
-		switch (index_name) {
+		switch (indexName) {
 			case 'moments':
 				elements = liveQuery(() => db.moments.orderBy('order').toArray());
 				break;
@@ -57,6 +59,51 @@
 	});
 
 	let elemCount = $derived($elements?.length);
+
+	let hoveredElem: StoryElem | undefined = $state();
+	let draggedElem: StoryElem | undefined = $state();
+
+	const handleDragStart = async (e: DragEvent, draggedId: string) => {
+		draggedElem = await db[tableName].get(draggedId);
+		const node = e.target as HTMLElement;
+
+		node.classList.add('opacity-10');
+	};
+
+	const handleDragEnd = (e: DragEvent) => {
+		const node = e.target as HTMLElement;
+		node.classList.remove('opacity-10');
+	};
+
+	const handleDrop = async () => {
+		if (!draggedElem || !hoveredElem) return;
+
+		const dragDirection =
+			hoveredElem.order !== undefined && draggedElem.order !== undefined
+				? draggedElem.order < hoveredElem.order
+					? 'down'
+					: 'up'
+				: 'down';
+
+		const elemToOrderAfter = dragDirection === 'down' ? hoveredElem : await hoveredElem.getPrev();
+
+		if (elemToOrderAfter) {
+			// @ts-ignore
+			await draggedElem.orderAfter(elemToOrderAfter);
+		} else {
+			await draggedElem.orderAfter(dragDirection === 'down' ? 'tail' : 'root');
+		}
+
+		draggedElem = undefined;
+	};
+
+	const handleDragEnter = async (elemId: string) => {
+		hoveredElem = await db[tableName].get(elemId);
+	};
+
+	const handleDragLeave = () => {
+		hoveredElem = undefined;
+	};
 </script>
 
 <div class="sk-content md:mt-28">
@@ -78,21 +125,17 @@
 	{#if $elements && $elements.length > 0}
 		<div class="mt-4 flex flex-col gap-6 md:mt-16">
 			{#each $elements as element (element.id)}
-				<!-- {#if name !== 'Character Dynamics'} -->
 				<a
 					class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-					href="/{$page.params.elem_index_name}?id={element.id}"
-					use:skElemDraggable={/* send data: */ {
-						id: element.id,
-						type: indexTitle.toLowerCase().slice(0, -1),
-						order: element.order || -1
-					}}
-					use:skElemDragTarget={{
-						hoveredElem: element
-					}}
-					ondragenter={() => console.log(`dragenter ${element.id}`)}
-					ondragleave={() => console.log(`dragleave ${element.id}`)}
-					animate:flip={{ duration: 300, easing: quintOut }}
+					href="/{elemPathSeg}?id={element.id}"
+					draggable={!skstate.touchscreen}
+					ondragstart={(e) => handleDragStart(e, element.id)}
+					ondragend={(e) => handleDragEnd(e)}
+					ondragover={(e) => e.preventDefault()}
+					ondragenter={async () => handleDragEnter(element.id)}
+					ondragleave={handleDragLeave}
+					ondrop={(e) => handleDrop()}
+					animate:flip={{ duration: 200, easing: quintOut }}
 				>
 					<div class="flex w-full justify-between">
 						<h4 class="text-left">
@@ -112,23 +155,6 @@
 						{/if}
 					</div>
 				</a>
-				<!-- {:else}
-					<a
-						class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-						href="/character-dynamic?id={element.id}"
-					>
-						<div class="flex w-full justify-between">
-							<h4 class="text-left">
-								{#await (element as Dynamic).toString() then name}
-									{name}
-								{/await}
-							</h4>
-							{#if skstate.touchscreen}
-								{@render OrderButton()}
-							{/if}
-						</div>
-					</a> -->
-				<!-- {/if} -->
 			{/each}
 		</div>
 	{:else}
