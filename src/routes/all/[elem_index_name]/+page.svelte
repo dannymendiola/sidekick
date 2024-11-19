@@ -126,7 +126,7 @@
 		<div class="mt-4 flex flex-col gap-6 md:mt-16">
 			{#each $elements as element (element.id)}
 				<a
-					class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 					href="/{elemPathSeg}?id={element.id}"
 					draggable={!skstate.touchscreen}
 					ondragstart={(e) => handleDragStart(e, element.id)}
@@ -134,7 +134,7 @@
 					ondragover={(e) => e.preventDefault()}
 					ondragenter={async () => handleDragEnter(element.id)}
 					ondragleave={handleDragLeave}
-					ondrop={(e) => handleDrop()}
+					ondrop={() => handleDrop()}
 					animate:flip={{ duration: 200, easing: quintOut }}
 				>
 					<div class="flex w-full justify-between">
