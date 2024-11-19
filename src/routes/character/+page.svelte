@@ -157,8 +157,8 @@
 	{@render DeleteModal()}
 {/if}
 
+<h1 class="invisible absolute">{charName}</h1>
 <div class="sk-content md:mt-16">
-	<h1 class="invisible absolute">{charName}</h1>
 	{#await db.characters.get(charId!) then char}
 		<div
 			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-100 py-3 dark:bg-donkey-950 md:sticky"

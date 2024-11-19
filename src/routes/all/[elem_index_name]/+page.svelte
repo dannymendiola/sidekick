@@ -7,6 +7,9 @@
 	import { liveQuery, type Observable } from 'dexie';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
+	import { polyfill } from 'mobile-drag-drop';
+
+	polyfill();
 
 	const indexTitle = $derived(
 		$page.params.elem_index_name
@@ -128,7 +131,7 @@
 				<a
 					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 					href="/{elemPathSeg}?id={element.id}"
-					draggable={!skstate.touchscreen}
+					draggable={true}
 					ondragstart={(e) => handleDragStart(e, element.id)}
 					ondragend={(e) => handleDragEnd(e)}
 					ondragover={(e) => e.preventDefault()}

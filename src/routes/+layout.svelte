@@ -10,7 +10,7 @@
 	const storedSettings = localStorage.getItem('sk-settings');
 	skstate.updateSettings(storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS);
 
-	let pageColor: TWColor = $derived(skstate.darkMode ? 'bg-donkey-950' : 'bg-donkey-50');
+	let pageColor: TWColor = $derived(skstate.darkMode ? 'bg-donkey-950' : 'bg-donkey-100');
 
 	$effect(() => {
 		if (document.body && !document.body.classList.contains(pageColor)) {
