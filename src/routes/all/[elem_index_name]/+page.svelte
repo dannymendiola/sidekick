@@ -1,130 +1,188 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import type { Character, Dynamic, Location, Moment, Theme } from '$lib/db';
-	import { addCharacterAfter, db } from '$lib/db';
+	import { db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
-	import { draggable } from '$lib';
 	import { goto } from '$app/navigation';
+	import { liveQuery, type Observable } from 'dexie';
+	import { flip } from 'svelte/animate';
+	import { quintOut } from 'svelte/easing';
 
-	// Capitalize
-	const name = $derived(
+	const indexTitle = $derived(
 		$page.params.elem_index_name
 			.replace(/-/g, ' ')
 			.replace(/\w\S*/g, (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase())
 	);
 
 	$effect(() => {
-		if (!['Moments', 'Themes', 'Characters', 'Character Dynamics', 'Locations'].includes(name)) {
+		if (
+			!['Moments', 'Themes', 'Characters', 'Character Dynamics', 'Locations'].includes(indexTitle)
+		) {
 			goto('/welcome');
 		}
 	});
 
-	let elemCount = $state(-1);
+	const indexName = $derived(
+		$page.params.elem_index_name as
+			| 'moments'
+			| 'themes'
+			| 'characters'
+			| 'character-dynamics'
+			| 'locations'
+	);
 
-	let elementsPromise = $derived.by(async () => {
-		switch (name) {
-			case 'Moments':
-				elemCount = await db.moments.count();
-				return await db.moments.orderBy('order').toArray();
-			case 'Themes':
-				elemCount = await db.themes.count();
-				return await db.themes.orderBy('order').toArray();
-			case 'Characters':
-				elemCount = await db.characters.count();
-				return await db.characters.orderBy('order').toArray();
-			case 'Character Dynamics':
-				elemCount = await db.dynamics.count();
-				return await db.dynamics.orderBy('order').toArray();
-			case 'Locations':
-				elemCount = await db.locations.count();
-				return await db.locations.orderBy('order').toArray();
+	const elemPathSeg = $derived(indexName.slice(0, -1));
+
+	const tableName = $derived(indexName === 'character-dynamics' ? 'dynamics' : indexName);
+
+	type StoryElem = Moment | Theme | Character | Dynamic | Location;
+
+	let elements: Observable<StoryElem[]> | undefined = $state();
+	$effect(() => {
+		switch (indexName) {
+			case 'moments':
+				elements = liveQuery(() => db.moments.orderBy('order').toArray());
+				break;
+			case 'themes':
+				elements = liveQuery(() => db.themes.orderBy('order').toArray());
+				break;
+			case 'characters':
+				elements = liveQuery(() => db.characters.orderBy('order').toArray());
+				break;
+			case 'character-dynamics':
+				elements = liveQuery(() => db.dynamics.orderBy('order').toArray());
+				break;
+			case 'locations':
+				elements = liveQuery(() => db.locations.orderBy('order').toArray());
+				break;
 		}
 	});
+
+	let elemCount = $derived($elements?.length);
+
+	let hoveredElem: StoryElem | undefined = $state();
+	let draggedElem: StoryElem | undefined = $state();
+
+	const handleDragStart = async (e: DragEvent, draggedId: string) => {
+		draggedElem = await db[tableName].get(draggedId);
+		const node = e.target as HTMLElement;
+
+		node.classList.add('opacity-10');
+	};
+
+	const handleDragEnd = (e: DragEvent) => {
+		const node = e.target as HTMLElement;
+		node.classList.remove('opacity-10');
+	};
+
+	const handleDrop = async () => {
+		if (!draggedElem || !hoveredElem) return;
+
+		const dragDirection =
+			hoveredElem.order !== undefined && draggedElem.order !== undefined
+				? draggedElem.order < hoveredElem.order
+					? 'down'
+					: 'up'
+				: 'down';
+
+		const elemToOrderAfter = dragDirection === 'down' ? hoveredElem : await hoveredElem.getPrev();
+
+		if (elemToOrderAfter) {
+			// @ts-ignore
+			await draggedElem.orderAfter(elemToOrderAfter);
+		} else {
+			await draggedElem.orderAfter(dragDirection === 'down' ? 'tail' : 'root');
+		}
+
+		draggedElem = undefined;
+	};
+
+	const handleDragEnter = async (elemId: string) => {
+		hoveredElem = await db[tableName].get(elemId);
+	};
+
+	const handleDragLeave = () => {
+		hoveredElem = undefined;
+	};
 </script>
 
 <div class="sk-content md:mt-28">
 	<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
 		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
-			{name}
+			{indexTitle}
 		</h1>
-		{#if name !== 'Character Dynamics' && elemCount !== 0}
+		{#if indexTitle !== 'Character Dynamics' && elemCount !== 0}
 			<a
 				class="flex items-center gap-2 rounded-full bg-genie-500 px-3 py-2 dark:bg-genie-950 md:p-2"
-				aria-label="Add {name.toLowerCase().slice(0, -1)}"
-				href={`/${name.toLowerCase().slice(0, -1)}/new`}
+				aria-label="Add {indexTitle.toLowerCase().slice(0, -1)}"
+				href={`/${indexTitle.toLowerCase().slice(0, -1)}/new`}
 			>
 				{@render Plus()}
 				<span class="text-sm text-genie-200 dark:text-genie-300 md:hidden">New</span>
 			</a>
 		{/if}
 	</div>
-	{#await elementsPromise then elements}
-		{#if elements && elements.length > 0}
-			<div class="mt-4 flex flex-col gap-6 md:mt-16">
-				{#each elements as element}
-					{#if name !== 'Character Dynamics'}
-						<a
-							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-							href="/{name.toLowerCase().slice(0, -1)}?id={element.id}"
-							use:draggable
-						>
-							<div class="flex w-full justify-between">
-								<h4 class="text-left">
-									{name === 'Moments'
-										? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
-										: (element as Character | Theme | Location).name}
-								</h4>
-								{#if skstate.touchscreen}
-									{@render OrderButton()}
-								{/if}
-							</div>
-						</a>
-					{:else}
-						<a
-							class="touch-none rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-							href="/character-dynamic?id={element.id}"
-						>
-							<div class="flex w-full justify-between">
-								<h4 class="text-left">
-									{#await (element as Dynamic).toString() then name}
-										{name}
-									{/await}
-								</h4>
-								{#if skstate.touchscreen}
-									{@render OrderButton()}
-								{/if}
-							</div>
-						</a>
-					{/if}
-				{/each}
-			</div>
-		{:else}
-			<div class="flex w-full flex-col items-center justify-center">
-				<div
-					class="mb-6 mt-[20vh] font-title text-xl font-bold italic dark:text-donkey-400 md:text-2xl"
+	{#if $elements && $elements.length > 0}
+		<div class="mt-4 flex flex-col gap-6 md:mt-16">
+			{#each $elements as element (element.id)}
+				<a
+					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					href="/{elemPathSeg}?id={element.id}"
+					draggable={!skstate.touchscreen}
+					ondragstart={(e) => handleDragStart(e, element.id)}
+					ondragend={(e) => handleDragEnd(e)}
+					ondragover={(e) => e.preventDefault()}
+					ondragenter={async () => handleDragEnter(element.id)}
+					ondragleave={handleDragLeave}
+					ondrop={() => handleDrop()}
+					animate:flip={{ duration: 200, easing: quintOut }}
 				>
-					No {name.toLowerCase()} yet
-				</div>
-				{#if name !== 'Character Dynamics'}
-					<a
-						class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-						href="/{name.toLowerCase().slice(0, -1)}/new"
-						onpointerup={() => vibrate()}
-					>
-						{@render Plus()}
-						<p class="text-genie-100 dark:text-genie-300">
-							Add a new {name.toLowerCase().slice(0, -1)}
-						</p>
-					</a>
-				{:else}
-					<div class="text-donkey-700 dark:text-donkey-400">
-						Create one from within a
-						<a href="/all/characters" class="text-genie-500 hover:underline"> character sheet </a>
+					<div class="flex w-full justify-between">
+						<h4 class="text-left">
+							{indexTitle === 'Moments'
+								? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
+								: indexTitle === 'Character Dynamics'
+									? ''
+									: (element as Character | Theme | Location).name}
+							{#if indexTitle === 'Character Dynamics'}
+								{#await element.toString() then name}
+									{name}
+								{/await}
+							{/if}
+						</h4>
+						{#if skstate.touchscreen}
+							{@render OrderButton()}
+						{/if}
 					</div>
-				{/if}
+				</a>
+			{/each}
+		</div>
+	{:else}
+		<div class="flex w-full flex-col items-center justify-center">
+			<div
+				class="mb-6 mt-[20vh] font-title text-xl font-bold italic dark:text-donkey-400 md:text-2xl"
+			>
+				No {indexTitle.toLowerCase()} yet
 			</div>
-		{/if}
-	{/await}
+			{#if indexTitle !== 'Character Dynamics'}
+				<a
+					class="flex w-min items-center gap-2 whitespace-nowrap rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
+					href="/{indexTitle.toLowerCase().slice(0, -1)}/new"
+					onpointerup={() => vibrate()}
+				>
+					{@render Plus()}
+					<p class="text-genie-100 dark:text-genie-300">
+						Add a new {indexTitle.toLowerCase().slice(0, -1)}
+					</p>
+				</a>
+			{:else}
+				<div class="text-donkey-700 dark:text-donkey-400">
+					Create one from within a
+					<a href="/all/characters" class="text-genie-500 hover:underline"> character sheet </a>
+				</div>
+			{/if}
+		</div>
+	{/if}
 	<div class="h-24"></div>
 </div>
 
@@ -163,5 +221,5 @@
 {/snippet}
 
 <svelte:head>
-	<title>{name}</title>
+	<title>{indexTitle}</title>
 </svelte:head>

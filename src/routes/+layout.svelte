@@ -4,14 +4,13 @@
 	import { vibrate } from '$lib';
 	import { page } from '$app/stores';
 	import '../app.css';
-	import { onMount } from 'svelte';
 
 	let { children } = $props();
 
 	const storedSettings = localStorage.getItem('sk-settings');
 	skstate.updateSettings(storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS);
 
-	let pageColor: TWColor = $derived(skstate.darkMode ? 'bg-donkey-950' : 'bg-donkey-100');
+	let pageColor: TWColor = $derived(skstate.darkMode ? 'bg-donkey-950' : 'bg-donkey-50');
 
 	$effect(() => {
 		if (document.body && !document.body.classList.contains(pageColor)) {
