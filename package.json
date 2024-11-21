@@ -1,6 +1,6 @@
 {
 	"name": "sidekick",
-	"version": "0.6.0",
+	"version": "0.6.0-alpha",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host --port 3000",
@@ -36,5 +36,8 @@
 		"fake-indexeddb": "^6.0.0",
 		"quill": "^2.0.2",
 		"ulidx": "^2.4.1"
+	},
+	"overrides": {
+		"cookie": "0.7.0"
 	}
 }

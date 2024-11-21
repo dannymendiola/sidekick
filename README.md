@@ -25,9 +25,6 @@ Currently under development for [SvelteHack 2024](https://hack.sveltesociety.dev
     - ✅ **Characters**: Describe your story's characters with several useful prompts
     - ⏹️ **Character dynamics**: Link characters to each other and describe their relationship
     - ⏹️ **Locations**: Describe your story's vibrant settings
-
-### **Feature backlog**
-
 - ⏹️ **Live link suggestions**: Mention an unlinked story element, and Sidekick will automatically suggest a link, making it easy to create potentially useful connections
 
 ## ✨ Getting started
