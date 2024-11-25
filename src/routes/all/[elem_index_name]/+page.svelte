@@ -70,12 +70,38 @@
 		draggedElem = await db[tableName].get(draggedId);
 		const node = e.target as HTMLElement;
 
-		node.classList.add('opacity-10');
+		if (!skstate.touchscreen) {
+			node.classList.add('opacity-10');
+		} else {
+			// vibrate(1);
+			const fullATag = node.parentElement as HTMLElement;
+			fullATag.classList.add('opacity-10');
+
+			const clone = fullATag.cloneNode(true) as HTMLElement;
+			const rect = fullATag.getBoundingClientRect();
+			clone.style.position = 'absolute';
+			clone.style.top = `${-rect.width}px`;
+
+			document.body.appendChild(clone);
+
+			// const rect = node.getBoundingClientRect();
+			// const offsetX = e.clientX - parentRect.left;
+			// const offsetY = e.clientY - parentRect.top;
+
+			e.dataTransfer?.setDragImage(clone, 0, 0);
+
+			console.log('hello');
+		}
 	};
 
 	const handleDragEnd = (e: DragEvent) => {
 		const node = e.target as HTMLElement;
 		node.classList.remove('opacity-10');
+
+		if (skstate.touchscreen) {
+			const fullATag = node.parentElement as HTMLElement;
+			fullATag.classList.remove('opacity-10');
+		}
 	};
 
 	const handleDrop = async () => {
@@ -127,11 +153,12 @@
 	</div>
 	{#if $elements && $elements.length > 0}
 		<div class="mt-4 flex flex-col gap-6 md:mt-16">
-			{#each $elements as element (element.id)}
+			{@render Elements(skstate.touchscreen)}
+			<!-- {#each $elements as element (element.id)}
 				<a
 					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 					href="/{elemPathSeg}?id={element.id}"
-					draggable={true}
+					draggable={!skstate.touchscreen}
 					ondragstart={(e) => handleDragStart(e, element.id)}
 					ondragend={(e) => handleDragEnd(e)}
 					ondragover={(e) => e.preventDefault()}
@@ -153,12 +180,9 @@
 								{/await}
 							{/if}
 						</h4>
-						{#if skstate.touchscreen}
-							{@render OrderButton()}
-						{/if}
 					</div>
 				</a>
-			{/each}
+			{/each} -->
 		</div>
 	{:else}
 		<div class="flex w-full flex-col items-center justify-center">
@@ -189,20 +213,111 @@
 	<div class="h-24"></div>
 </div>
 
-{#snippet Plus()}
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke-width="2"
-		class="size-4 stroke-genie-200 dark:stroke-genie-300 md:size-6"
-	>
-		<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-	</svg>
+{#snippet Elements(touchscreen: boolean)}
+	{#if $elements && $elements.length > 0}
+		{#if !touchscreen}
+			<!-- desktop list -->
+			{#each $elements as element (element.id)}
+				<a
+					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					href="/{elemPathSeg}?id={element.id}"
+					draggable={true}
+					ondragstart={(e) => handleDragStart(e, element.id)}
+					ondragend={(e) => handleDragEnd(e)}
+					ondragover={(e) => e.preventDefault()}
+					ondragenter={async () => handleDragEnter(element.id)}
+					ondragleave={handleDragLeave}
+					ondrop={() => handleDrop()}
+					animate:flip={{ duration: 200, easing: quintOut }}
+				>
+					<div class="flex w-full justify-between">
+						<h4 class="text-left">
+							{indexTitle === 'Moments'
+								? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
+								: indexTitle === 'Character Dynamics'
+									? ''
+									: (element as Character | Theme | Location).name}
+							{#if indexTitle === 'Character Dynamics'}
+								{#await element.toString() then name}
+									{name}
+								{/await}
+							{/if}
+						</h4>
+					</div>
+				</a>
+			{/each}
+		{:else}
+			<!-- mobile list -->
+			{#each $elements as element (element.id)}
+				<div class="flex w-full">
+					<a
+						class="relative grow rounded-bl-lg rounded-tl-lg bg-donkey-200 p-6 font-title text-xl font-bold italic after:content-[''] hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+						href="/{elemPathSeg}?id={element.id}"
+						draggable={!skstate.touchscreen}
+						ondragstart={(e) => handleDragStart(e, element.id)}
+						ondragend={(e) => handleDragEnd(e)}
+						ondragover={(e) => e.preventDefault()}
+						ondragenter={async () => handleDragEnter(element.id)}
+						ondragleave={handleDragLeave}
+						ondrop={() => handleDrop()}
+					>
+						<div class="flex w-full justify-between">
+							<h4 class="text-left">
+								{indexTitle === 'Moments'
+									? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
+									: indexTitle === 'Character Dynamics'
+										? ''
+										: (element as Character | Theme | Location).name}
+								{#if indexTitle === 'Character Dynamics'}
+									{#await element.toString() then name}
+										{name}
+									{/await}
+								{/if}
+							</h4>
+						</div>
+					</a>
+					<button
+						class="rounded-br-lg rounded-tr-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+						draggable={true}
+						ondragstart={(e) => handleDragStart(e, element.id)}
+						ondragend={(e) => handleDragEnd(e)}
+						ondragover={(e) => e.preventDefault()}
+						ondragenter={async () => handleDragEnter(element.id)}
+						ondragleave={handleDragLeave}
+						ondrop={() => handleDrop()}
+						onpointerdown={() => vibrate([1, 1, 1])}
+					>
+						{@render OrderButton()}
+					</button>
+				</div>
+			{/each}
+		{/if}
+	{/if}
 {/snippet}
 
 {#snippet OrderButton()}
+	<!-- <button class="z-[1]"> -->
 	<button
+		class="relative z-[1] h-full rounded-lg bg-donkey-300 p-1 dark:bg-donkey-800"
+		aria-label="Reorder"
+		onpointerdown={() => vibrate([1, 1, 1])}
+	>
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke-width="1.5"
+			class="size-6 stroke-donkey-800 dark:stroke-donkey-200"
+		>
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+			/>
+		</svg>
+	</button>
+	<!-- </button> -->
+	<!-- <button
 		class="z-[1] rounded-lg bg-donkey-300 p-1 dark:bg-donkey-800"
 		aria-label="Reorder"
 		onpointerup={() => vibrate()}
@@ -220,7 +335,19 @@
 				d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
 			/>
 		</svg>
-	</button>
+	</button> -->
+{/snippet}
+
+{#snippet Plus()}
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke-width="2"
+		class="size-4 stroke-genie-200 dark:stroke-genie-300 md:size-6"
+	>
+		<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+	</svg>
 {/snippet}
 
 <svelte:head>
