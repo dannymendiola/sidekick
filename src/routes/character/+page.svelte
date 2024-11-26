@@ -30,11 +30,9 @@
 		personality: 'Personality & Psyche'
 	};
 
-	let characterQuery = //$derived(
-		liveQuery(() => {
-			return db.characters.get(charId!);
-		});
-	//);
+	let characterQuery = liveQuery(() => {
+		return db.characters.get(charId!);
+	});
 	let character: Character | undefined = $derived($characterQuery);
 
 	const attrCount = $derived({
@@ -61,6 +59,8 @@
 
 	let charName = $state('');
 	let charNameCleaned = $derived(charName?.replaceAll('\n', ''));
+
+	let charDesc = $state('');
 
 	type Section = 'identity' | 'arc' | 'personality';
 
@@ -206,6 +206,29 @@
 					/>
 				</svg>
 			</button>
+		</div>
+		<div class="w-full font-bold">
+			<QLEditor
+				id="char-desc"
+				initText={char?.desc}
+				placeholder="No tagline..."
+				inputMode="info"
+				twBG="bg-donkey-100 dark:bg-donkey-950"
+				twText="text-donkey-900 dark:text-donkey-50"
+				twClass="ml-4 [&>.ql-editor]:pl-0 [&>.ql-editor]:pb-2 [&>.ql-editor]:pt-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:text-donkey-500   [&>.ql-editor>*]:dark:text-donkey-400  [&>.ql-editor::before]:dark:text-donkey-600 cursor-pointer"
+				maxLen={50}
+				onkeyup={async () => {
+					if (charId) {
+						await db.characters.update(charId, { desc: charDesc === '\n' ? undefined : charDesc });
+					}
+				}}
+				onfocusout={async () => {
+					if (charId) {
+						await db.characters.update(charId, { desc: charDesc === '\n' ? undefined : charDesc });
+					}
+				}}
+				bind:text={charDesc}
+			/>
 		</div>
 	{/await}
 	{#if character}

@@ -7,9 +7,6 @@
 	import { liveQuery, type Observable } from 'dexie';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
-	// import { polyfill } from 'mobile-drag-drop';
-
-	// polyfill();
 
 	const indexTitle = $derived(
 		$page.params.elem_index_name
@@ -61,6 +58,18 @@
 		}
 	});
 
+	let touchReorderingId = $state<string | undefined>();
+
+	const touchReorder = async (id: string, direction: 'up' | 'down') => {
+		const elem = await db[tableName].get(id);
+		if (elem) {
+			const after =
+				direction === 'up' ? await (await elem.getPrev())?.getPrev() : await elem.getNext();
+			// @ts-ignore
+			await elem.orderAfter(after ?? (direction === 'up' ? 'root' : 'tail'));
+		}
+	};
+
 	let elemCount = $derived($elements?.length);
 
 	let hoveredElem: StoryElem | undefined = $state();
@@ -70,28 +79,6 @@
 		draggedElem = await db[tableName].get(draggedId);
 		const node = e.target as HTMLElement;
 		node.classList.add('opacity-10');
-
-		// if (!skstate.touchscreen) {
-		// } else {
-		// 	// vibrate(1);
-		// 	const fullATag = node.parentElement as HTMLElement;
-		// 	fullATag.classList.add('opacity-10');
-
-		// 	const clone = fullATag.cloneNode(true) as HTMLElement;
-		// 	const rect = fullATag.getBoundingClientRect();
-		// 	clone.style.position = 'absolute';
-		// 	clone.style.top = `${-rect.width}px`;
-
-		// 	document.body.appendChild(clone);
-
-		// 	// const rect = node.getBoundingClientRect();
-		// 	// const offsetX = e.clientX - parentRect.left;
-		// 	// const offsetY = e.clientY - parentRect.top;
-
-		// 	e.dataTransfer?.setDragImage(clone, 0, 0);
-
-		// 	console.log('hello');
-		// }
 	};
 
 	const handleDragEnd = (e: DragEvent) => {
@@ -154,35 +141,6 @@
 	{#if $elements && $elements.length > 0}
 		<div class="mt-4 flex flex-col gap-6 md:mt-16">
 			{@render Elements(skstate.touchscreen)}
-			<!-- {#each $elements as element (element.id)}
-				<a
-					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-					href="/{elemPathSeg}?id={element.id}"
-					draggable={!skstate.touchscreen}
-					ondragstart={(e) => handleDragStart(e, element.id)}
-					ondragend={(e) => handleDragEnd(e)}
-					ondragover={(e) => e.preventDefault()}
-					ondragenter={async () => handleDragEnter(element.id)}
-					ondragleave={handleDragLeave}
-					ondrop={() => handleDrop()}
-					animate:flip={{ duration: 200, easing: quintOut }}
-				>
-					<div class="flex w-full justify-between">
-						<h4 class="text-left">
-							{indexTitle === 'Moments'
-								? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
-								: indexTitle === 'Character Dynamics'
-									? ''
-									: (element as Character | Theme | Location).name}
-							{#if indexTitle === 'Character Dynamics'}
-								{#await element.toString() then name}
-									{name}
-								{/await}
-							{/if}
-						</h4>
-					</div>
-				</a>
-			{/each} -->
 		</div>
 	{:else}
 		<div class="flex w-full flex-col items-center justify-center">
@@ -219,7 +177,7 @@
 			<!-- desktop list -->
 			{#each $elements as element (element.id)}
 				<a
-					class="rounded-lg bg-donkey-300 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 					href="/{elemPathSeg}?id={element.id}"
 					draggable={true}
 					ondragstart={(e) => handleDragStart(e, element.id)}
@@ -244,12 +202,17 @@
 							{/if}
 						</h4>
 					</div>
+					{#if 'desc' in element}
+						<h5 class="mt-2 font-sans text-sm not-italic text-donkey-500 dark:text-donkey-600">
+							{element.desc}
+						</h5>
+					{/if}
 				</a>
 			{/each}
 		{:else}
 			<!-- mobile list -->
 			{#each $elements as element (element.id)}
-				<div class="flex w-full">
+				<div class="flex w-full" animate:flip={{ duration: 200, easing: quintOut }}>
 					<a
 						class="grow rounded-bl-lg rounded-tl-lg bg-donkey-200 p-6 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl"
 						href="/{elemPathSeg}?id={element.id}"
@@ -268,87 +231,90 @@
 								{/if}
 							</h4>
 						</div>
+						{#if 'desc' in element}
+							<h5 class="mt-2 font-sans text-sm not-italic text-donkey-500 dark:text-donkey-600">
+								{element.desc}
+							</h5>
+						{/if}
 					</a>
 					<div
-						class="rounded-br-lg rounded-tr-lg bg-donkey-200 p-6 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl"
+						class="rounded-br-lg rounded-tr-lg bg-donkey-200 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl {touchReorderingId ===
+						element.id
+							? 'px-6'
+							: 'p-6'}"
 					>
-						<button
-							class="relative z-[1] h-full max-h-12 rounded-lg bg-donkey-100 p-1 dark:bg-donkey-800"
-							aria-label="Reorder"
-							onpointerdown={() => {
-								vibrate([1, 1, 1]);
-								const select = document.getElementById(
-									`order-after-select-${element.id}`
-								) as HTMLSelectElement;
-								select.focus();
-								select.click();
-							}}
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="1.5"
-								class="size-6 stroke-donkey-700 dark:stroke-donkey-200"
+						{#if touchReorderingId !== element.id}
+							<button
+								class="relative z-[1] h-full max-h-12 rounded-lg bg-donkey-100 p-1 dark:bg-donkey-800"
+								aria-label="Reorder"
+								onpointerdown={() => {
+									vibrate([1, 1, 1]);
+									touchReorderingId = element.id;
+								}}
 							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-								/>
-							</svg>
-						</button>
-						<select class="hidden" name="order-after-select" id="order-after-select-{element.id}">
-							<option value="after-{element.id}">asdf</option>
-						</select>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									class="size-6 stroke-donkey-700 dark:stroke-donkey-200"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+									/>
+								</svg>
+							</button>
+						{:else}
+							<div
+								class="flex h-full flex-col justify-evenly gap-[0.1rem] py-2 [&>button>svg]:fill-genie-100"
+							>
+								<button
+									class="z-[1] rounded-lg bg-genie-500 p-2 dark:bg-genie-950"
+									aria-label="Reorder"
+									onpointerdown={() => {
+										vibrate([1, 1, 1]);
+										touchReorder(element.id, 'up');
+									}}
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										viewBox="0 0 16 16"
+										class="size-4 stroke-genie-100 dark:stroke-genie-300"
+									>
+										<path
+											fill-rule="evenodd"
+											d="M8 14a.75.75 0 0 0 .75-.75V4.56l1.22 1.22a.75.75 0 1 0 1.06-1.06l-2.5-2.5a.75.75 0 0 0-1.06 0l-2.5 2.5a.75.75 0 0 0 1.06 1.06l1.22-1.22v8.69c0 .414.336.75.75.75Z"
+											clip-rule="evenodd"
+										/>
+									</svg>
+								</button>
+								<button
+									class="z-[1] rounded-lg bg-genie-500 p-2 dark:bg-genie-950"
+									aria-label="Reorder"
+									onpointerdown={() => {
+										vibrate([1, 1, 1]);
+										touchReorder(element.id, 'down');
+									}}
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										viewBox="0 0 16 16"
+										class="size-4 stroke-genie-100 dark:stroke-genie-300"
+									>
+										<path
+											d="M8 2a.75.75 0 0 1 .75.75v8.69l1.22-1.22a.75.75 0 1 1 1.06 1.06l-2.5 2.5a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06l1.22 1.22V2.75A.75.75 0 0 1 8 2Z"
+										/>
+									</svg>
+								</button>
+							</div>
+						{/if}
 					</div>
 				</div>
 			{/each}
 		{/if}
 	{/if}
-{/snippet}
-
-{#snippet OrderButton()}
-	<!-- <button class="z-[1]"> -->
-	<button
-		class="relative z-[1] h-full rounded-lg bg-donkey-300 p-1 dark:bg-donkey-800"
-		aria-label="Reorder"
-		onpointerdown={() => vibrate([1, 1, 1])}
-	>
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke-width="1.5"
-			class="size-6 stroke-donkey-800 dark:stroke-donkey-200"
-		>
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-			/>
-		</svg>
-	</button>
-	<!-- </button> -->
-	<!-- <button
-		class="z-[1] rounded-lg bg-donkey-300 p-1 dark:bg-donkey-800"
-		aria-label="Reorder"
-		onpointerup={() => vibrate()}
-	>
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-			stroke-width="1.5"
-			class="size-6 stroke-donkey-800 dark:stroke-donkey-200"
-		>
-			<path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
-			/>
-		</svg>
-	</button> -->
 {/snippet}
 
 {#snippet Plus()}

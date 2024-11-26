@@ -19,6 +19,7 @@
 		twBG?: string;
 		twHeight?: string;
 		twClass?: string;
+		maxLen?: number;
 		onfocusin?: () => void;
 		onfocusout?: () => void;
 		onkeyup?: () => void;
@@ -35,6 +36,7 @@
 		inputMode = 'full',
 		toolbar = inputMode === 'full',
 		spellcheck = false,
+		maxLen = undefined,
 		twText = undefined,
 		twBG = undefined,
 		twHeight = undefined,
@@ -130,9 +132,13 @@
 
 	onMount(() => {
 		quill = new Quill(`#${ID}`, QL_OPTS);
-		quill!.on('text-change', () => {
+		quill!.on('text-change', (d) => {
 			delta = quill!.getContents();
 			text = quill!.getText();
+
+			if (maxLen && text.length > maxLen) {
+				quill!.deleteText(maxLen, text.length);
+			}
 		});
 		const keybindCleanup = inputMode === 'full' ? addKeybinds(quill!) : () => {};
 
