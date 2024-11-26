@@ -424,6 +424,7 @@ db.locations.hook('creating', (pk, obj, _) => {
 
 class Character {
 	id!: string;
+	desc?: string;
 	name?: string;
 	order?: number;
 	attr?: CharacterAttr;
