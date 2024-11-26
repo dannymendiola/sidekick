@@ -56,7 +56,7 @@
 	<div class="flex w-full flex-col rounded-lg {twText} {twBG}" {onfocusout}>
 		<div class="pl-3 pt-1 text-lg font-bold">{selectTitle}</div>
 		<select
-			class="w-full cursor-pointer rounded-lg px-4 pb-3 pt-1 outline-none {twText} {twBG} [&>option]:bg-donkey-200 [&>option]:dark:bg-donkey-800 {twBorder} {value ===
+			class="w-full cursor-pointer rounded-lg px-4 pb-3 pt-1 outline-none drop-shadow-lg {twText} {twBG} [&>option]:bg-donkey-200 [&>option]:dark:bg-donkey-800 {twBorder} {value ===
 				'' && 'font-bold italic dark:text-donkey-300'}"
 			onchange={(e) => {
 				// @ts-ignore

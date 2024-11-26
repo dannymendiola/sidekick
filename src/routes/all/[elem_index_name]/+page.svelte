@@ -7,9 +7,9 @@
 	import { liveQuery, type Observable } from 'dexie';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
-	import { polyfill } from 'mobile-drag-drop';
+	// import { polyfill } from 'mobile-drag-drop';
 
-	polyfill();
+	// polyfill();
 
 	const indexTitle = $derived(
 		$page.params.elem_index_name
@@ -69,29 +69,29 @@
 	const handleDragStart = async (e: DragEvent, draggedId: string) => {
 		draggedElem = await db[tableName].get(draggedId);
 		const node = e.target as HTMLElement;
+		node.classList.add('opacity-10');
 
-		if (!skstate.touchscreen) {
-			node.classList.add('opacity-10');
-		} else {
-			// vibrate(1);
-			const fullATag = node.parentElement as HTMLElement;
-			fullATag.classList.add('opacity-10');
+		// if (!skstate.touchscreen) {
+		// } else {
+		// 	// vibrate(1);
+		// 	const fullATag = node.parentElement as HTMLElement;
+		// 	fullATag.classList.add('opacity-10');
 
-			const clone = fullATag.cloneNode(true) as HTMLElement;
-			const rect = fullATag.getBoundingClientRect();
-			clone.style.position = 'absolute';
-			clone.style.top = `${-rect.width}px`;
+		// 	const clone = fullATag.cloneNode(true) as HTMLElement;
+		// 	const rect = fullATag.getBoundingClientRect();
+		// 	clone.style.position = 'absolute';
+		// 	clone.style.top = `${-rect.width}px`;
 
-			document.body.appendChild(clone);
+		// 	document.body.appendChild(clone);
 
-			// const rect = node.getBoundingClientRect();
-			// const offsetX = e.clientX - parentRect.left;
-			// const offsetY = e.clientY - parentRect.top;
+		// 	// const rect = node.getBoundingClientRect();
+		// 	// const offsetX = e.clientX - parentRect.left;
+		// 	// const offsetY = e.clientY - parentRect.top;
 
-			e.dataTransfer?.setDragImage(clone, 0, 0);
+		// 	e.dataTransfer?.setDragImage(clone, 0, 0);
 
-			console.log('hello');
-		}
+		// 	console.log('hello');
+		// }
 	};
 
 	const handleDragEnd = (e: DragEvent) => {
@@ -219,7 +219,7 @@
 			<!-- desktop list -->
 			{#each $elements as element (element.id)}
 				<a
-					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					class="rounded-lg bg-donkey-300 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 					href="/{elemPathSeg}?id={element.id}"
 					draggable={true}
 					ondragstart={(e) => handleDragStart(e, element.id)}
@@ -251,15 +251,8 @@
 			{#each $elements as element (element.id)}
 				<div class="flex w-full">
 					<a
-						class="relative grow rounded-bl-lg rounded-tl-lg bg-donkey-200 p-6 font-title text-xl font-bold italic after:content-[''] hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+						class="grow rounded-bl-lg rounded-tl-lg bg-donkey-200 p-6 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl"
 						href="/{elemPathSeg}?id={element.id}"
-						draggable={!skstate.touchscreen}
-						ondragstart={(e) => handleDragStart(e, element.id)}
-						ondragend={(e) => handleDragEnd(e)}
-						ondragover={(e) => e.preventDefault()}
-						ondragenter={async () => handleDragEnter(element.id)}
-						ondragleave={handleDragLeave}
-						ondrop={() => handleDrop()}
 					>
 						<div class="flex w-full justify-between">
 							<h4 class="text-left">
@@ -276,19 +269,39 @@
 							</h4>
 						</div>
 					</a>
-					<button
-						class="rounded-br-lg rounded-tr-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-						draggable={true}
-						ondragstart={(e) => handleDragStart(e, element.id)}
-						ondragend={(e) => handleDragEnd(e)}
-						ondragover={(e) => e.preventDefault()}
-						ondragenter={async () => handleDragEnter(element.id)}
-						ondragleave={handleDragLeave}
-						ondrop={() => handleDrop()}
-						onpointerdown={() => vibrate([1, 1, 1])}
+					<div
+						class="rounded-br-lg rounded-tr-lg bg-donkey-200 p-6 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl"
 					>
-						{@render OrderButton()}
-					</button>
+						<button
+							class="relative z-[1] h-full max-h-12 rounded-lg bg-donkey-100 p-1 dark:bg-donkey-800"
+							aria-label="Reorder"
+							onpointerdown={() => {
+								vibrate([1, 1, 1]);
+								const select = document.getElementById(
+									`order-after-select-${element.id}`
+								) as HTMLSelectElement;
+								select.focus();
+								select.click();
+							}}
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								class="size-6 stroke-donkey-700 dark:stroke-donkey-200"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+								/>
+							</svg>
+						</button>
+						<select class="hidden" name="order-after-select" id="order-after-select-{element.id}">
+							<option value="after-{element.id}">asdf</option>
+						</select>
+					</div>
 				</div>
 			{/each}
 		{/if}
