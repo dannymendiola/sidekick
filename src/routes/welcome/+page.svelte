@@ -23,6 +23,10 @@
 		<p class="select-none font-title font-bold text-donkey-600 dark:text-donkey-400">
 			- Map your story -
 		</p>
+		<p class="text-center dark:text-donkey-500 md:px-32">
+			⚠️ This is a very early version, and missing key features. If you're here for everything the
+			app will have to offer, please check again later
+		</p>
 		<!-- <button
 			class="flex items-center gap-2 rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
 			onpointerup={() => {
