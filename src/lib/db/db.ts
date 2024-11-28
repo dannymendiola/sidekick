@@ -120,7 +120,8 @@ class Moment {
 	id!: string;
 	order?: number;
 	name?: string;
-	body?: Delta | string; // TODO just Delta after rich editor fix. And then wipe db probably
+	tagline?: string;
+	body?: Delta;
 	attr?: MomentAttr;
 	locations?: string[];
 	characters?: string[];
@@ -253,9 +254,10 @@ db.moments.hook('creating', (pk, obj, _) => {
 
 class Theme {
 	id!: string;
-	name?: string;
 	order?: number;
-	desc?: string;
+	name?: string;
+	tagline?: string;
+	// body?: string;
 	attr?: ThemeAttr;
 
 	orderAfter(preceding: Theme | 'root' | 'tail'): Promise<Theme> {
@@ -299,7 +301,13 @@ class Theme {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => {
+				if ((v as Delta).ops) {
+					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
+				} else {
+					return v?.trim() !== '';
+				}
+			})
 		);
 		this.attr = newAttr;
 		await db.themes.update(this.id, { attr: newAttr });
@@ -342,8 +350,9 @@ db.themes.hook('creating', (pk, obj, _) => {
 
 class Location {
 	id!: string;
-	name?: string;
 	order?: number;
+	name?: string;
+	tagline?: string;
 	attr?: LocationAttr;
 	themes?: string[];
 
@@ -395,7 +404,12 @@ class Location {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => {
+				if ((v as Delta).ops) {
+					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
+				}
+				return v?.trim() !== '';
+			})
 		);
 		this.attr = newAttr;
 		await db.locations.update(this.id, { attr: newAttr });
@@ -424,7 +438,7 @@ db.locations.hook('creating', (pk, obj, _) => {
 
 class Character {
 	id!: string;
-	desc?: string;
+	tagline?: string;
 	name?: string;
 	order?: number;
 	attr?: CharacterAttr;
@@ -513,7 +527,13 @@ class Character {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => {
+				if ((v as Delta).ops) {
+					return (v as Delta).ops?.some((op) => op.insert !== '' && op.insert !== '\n');
+				}
+
+				return v?.trim() !== '';
+			})
 		);
 		this.attr = newAttr;
 		await db.characters.update(this.id, { attr: newAttr });
@@ -609,7 +629,13 @@ class Dynamic {
 
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => v?.trim() !== '')
+			Object.entries(this.attr || {}).filter(([_, v]) => {
+				if ((v as Delta).ops) {
+					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
+				}
+
+				return v?.trim() !== '';
+			})
 		);
 		this.attr = newAttr;
 		await db.dynamics.update(this.id, { attr: newAttr });

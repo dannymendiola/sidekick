@@ -60,71 +60,129 @@
 	let charName = $state('');
 	let charNameCleaned = $derived(charName?.replaceAll('\n', ''));
 
-	let charDesc = $state('');
+	let charTagline = $state('');
 
 	type Section = 'identity' | 'arc' | 'personality';
 
 	const attrDisplayNames: {
 		identity: {
-			[K in keyof CharacterAttr]: string;
+			[K in keyof CharacterAttr]: {
+				name: string;
+				placeholder?: string;
+			};
 		};
 		arc: {
-			[K in keyof CharacterAttr]: string;
+			[K in keyof CharacterAttr]: {
+				name: string;
+				placeholder?: string;
+			};
 		};
 		personality: {
-			[K in keyof CharacterAttr]: string;
+			[K in keyof CharacterAttr]: {
+				name: string;
+				placeholder?: string;
+			};
 		};
 	} = {
 		identity: {
-			age: 'Age',
-			birthday: 'Birthday',
-			gender: 'Gender',
-			hair_color: 'Hair Color',
-			eye_color: 'Eye Color',
-			sexuality: 'Sexuality',
-			height: 'Height',
-			body_type: 'Body Type',
-			complexion: 'Complexion',
-			disabilities: 'Disabilities',
-			languages: 'Languages',
-			fashion_style: 'Fashion/Style'
+			age: {
+				name: 'Age',
+				placeholder: Math.ceil(Math.random() * 100).toString()
+			},
+			birthday: {
+				name: 'Birthday'
+			},
+			gender: {
+				name: 'Gender'
+			},
+			hair_color: {
+				name: 'Hair Color'
+			},
+			eye_color: {
+				name: 'Eye Color'
+			},
+			sexuality: {
+				name: 'Sexuality'
+			},
+			height: {
+				name: 'Height'
+			},
+			body_type: { name: 'Body Type' },
+			complexion: { name: 'Complexion' },
+			disabilities: { name: 'Disabilities' },
+			languages: { name: 'Spoken Languages' },
+			fashion_style: { name: 'Fashion/Style' }
 		},
 		arc: {
-			role: 'Role',
-			goals: 'Goals',
-			motivation: 'Motivation',
-			moral_code: 'Moral Code',
-			backstory: 'Backstory',
-			arc_start: 'Starting point',
-			arc_driver: 'What drives development',
-			arc_end: 'End point'
+			role: {
+				name: 'Role'
+			},
+			goals: { name: 'Goals', placeholder: 'The character wants to achieve...' },
+			motivation: { name: 'Motivation', placeholder: 'The character is driven by...' },
+			moral_code: { name: 'Morals', placeholder: 'The character is morally swayed by...' },
+			backstory: {
+				name: 'Backstory',
+				placeholder: 'The character developed all their issues from...'
+			},
+			arc_start: { name: 'Starting point', placeholder: 'The character begins the story like...' },
+			arc_end: { name: 'Ending point', placeholder: 'The character ends the story like...' },
+			arc_driver: { name: 'Development driver', placeholder: "The character's arc is driven by..." }
 		},
 		personality: {
-			strengths: 'Strengths',
-			weaknesses: 'Weaknesses',
-			flaws: 'Flaws',
-			secrets: 'Secrets',
-			fears: 'Fears',
-			passions: 'Passions',
-			communication_style: 'Communication Style',
-			emotional_availability: 'Emotional Availability',
-			conflict_resolution: 'Conflict Resolution Style',
-			self_esteem: 'Self Esteem',
-			insecurities: 'Insecurities',
-			emotional_intelligence: 'Emotional Intelligence',
-			social_skills: 'Social Skills',
-			charisma: 'Charisma',
-			coping_mechanisms: 'Coping Mechanisms',
-			emotional_stability: 'Emotional Stability',
-			ambition: 'Ambition/Drive',
-			phobias: 'Phobias',
-			habits: 'Habits',
-			quirks: 'Quirks',
-			hobbies: 'Hobbies',
-			philosophy: 'Life Philosophy',
-			religion: 'Religion',
-			introvert_extrovert: 'Introvert or Extrovert',
-			optimist_pessimist: 'Optimist or Pessimist'
+			strengths: { name: 'Strengths', placeholder: 'The character is capable with...' },
+			weaknesses: { name: 'Weaknesses', placeholder: 'The character is humbled/led astray by...' },
+			flaws: { name: 'Flaws', placeholder: 'The character is imperfect in that...' },
+			secrets: {
+				name: 'Secrets',
+				placeholder: 'The character does not want others to know that...'
+			},
+			fears: { name: 'Fears', placeholder: 'The character is afraid of...' },
+			passions: {
+				name: 'Passions',
+				placeholder: 'The character is interested in or passionate about...'
+			},
+			communication_style: {
+				name: 'Communication Style',
+				placeholder: 'The character prefers to express themselves by...'
+			},
+			emotional_availability: {
+				name: 'Emotional Availability',
+				placeholder:
+					'The character does/not share their emotions, feelings, or thoughts,  because...'
+			},
+			conflict_resolution: {
+				name: 'Conflict Resolution',
+				placeholder: 'The character handles conflict by...'
+			},
+			self_esteem: {
+				name: 'Self Esteem',
+				placeholder: 'What the character thinks of themself and why'
+			},
+			insecurities: { name: 'Insecurities', placeholder: 'The character is insecure about...' },
+			emotional_intelligence: {
+				name: 'Emotional Intelligence',
+				placeholder:
+					'The character understands the emotions of themself and others to the extent that...'
+			},
+			social_skills: {
+				name: 'Social Skills',
+				placeholder: "The character's ability to be natural in social situations"
+			},
+			coping_mechanisms: {
+				name: 'Coping Mechanisms',
+				placeholder: 'The character copes with hardship by...'
+			},
+			emotional_stability: {
+				name: 'Emotional Stability',
+				placeholder: 'The maintains or loses control of their emotions when/because...'
+			},
+			habits: { name: 'Habits', placeholder: 'The character finds it hard to stop...' },
+			quirks: { name: 'Quirks', placeholder: 'The character is eccentric in that...' },
+			hobbies: { name: 'Hobbies', placeholder: 'The character enjoys...' },
+			philosophy: { name: 'Philosophy', placeholder: 'The character believes...' },
+			religion: { name: 'Religion' },
+			introvert_extrovert: { name: 'Introvert or Extrovert' },
+			optimist_pessimist: { name: 'Optimist or Pessimist' }
 		}
 	};
 
@@ -163,54 +221,69 @@
 		<div
 			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-100 py-3 dark:bg-donkey-950 md:sticky"
 		>
-			<div class=" w-full font-title font-bold">
-				<QLEditor
-					id="char-name"
-					initText={char?.name}
-					inputMode="info"
-					twBG="bg-donkey-100 dark:bg-donkey-950"
-					twText="text-donkey-900 dark:text-donkey-50"
-					twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer"
-					onkeyup={async () => {
-						if (charId) {
-							await db.characters.update(charId, { name: charName });
-						}
-					}}
-					onfocusout={async () => {
-						if (charId) {
-							await db.characters.update(charId, { name: charName });
-						}
-					}}
-					bind:text={charName}
-				/>
-			</div>
-			<button
-				class="rounded-md bg-robin-600 p-2 hover:bg-robin-500 dark:bg-robin-950 hover:dark:bg-robin-900"
-				aria-label="Delete Character"
-				onpointerup={() => {
-					vibrate();
-					showDeleteModal = true;
-				}}
-			>
+			<div class="flex grow items-center gap-3">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke-width="1.5"
-					class="size-5 stroke-robin-100 dark:stroke-robin-400"
+					class="hidden size-8 stroke-donkey-500 dark:stroke-donkey-400 md:block"
 				>
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
-						d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+						d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z"
 					/>
 				</svg>
-			</button>
+				<div class=" w-full font-title font-bold">
+					<QLEditor
+						id="char-name"
+						initText={char?.name}
+						inputMode="info"
+						twBG="bg-donkey-100 dark:bg-donkey-950"
+						twText="text-donkey-900 dark:text-donkey-50"
+						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer"
+						onkeyup={async () => {
+							if (charId) {
+								await db.characters.update(charId, { name: charName });
+							}
+						}}
+						onfocusout={async () => {
+							if (charId) {
+								await db.characters.update(charId, { name: charName });
+							}
+						}}
+						bind:text={charName}
+					/>
+				</div>
+				<button
+					class="rounded-md bg-robin-600 p-2 hover:bg-robin-500 dark:bg-robin-950 hover:dark:bg-robin-900"
+					aria-label="Delete Character"
+					onpointerup={() => {
+						vibrate();
+						showDeleteModal = true;
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						class="size-5 stroke-robin-100 dark:stroke-robin-400"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+						/>
+					</svg>
+				</button>
+			</div>
 		</div>
 		<div class="w-full font-bold">
 			<QLEditor
 				id="char-desc"
-				initText={char?.desc}
+				initText={char?.tagline}
 				placeholder="No tagline..."
 				inputMode="info"
 				twBG="bg-donkey-100 dark:bg-donkey-950"
@@ -219,15 +292,19 @@
 				maxLen={50}
 				onkeyup={async () => {
 					if (charId) {
-						await db.characters.update(charId, { desc: charDesc === '\n' ? undefined : charDesc });
+						await db.characters.update(charId, {
+							tagline: charTagline === '\n' ? undefined : charTagline
+						});
 					}
 				}}
 				onfocusout={async () => {
 					if (charId) {
-						await db.characters.update(charId, { desc: charDesc === '\n' ? undefined : charDesc });
+						await db.characters.update(charId, {
+							tagline: charTagline === '\n' ? undefined : charTagline
+						});
 					}
 				}}
-				bind:text={charDesc}
+				bind:text={charTagline}
 			/>
 		</div>
 	{/await}
@@ -296,7 +373,8 @@
 						<QLEditor
 							id={attrKey}
 							inputMode="info"
-							title={attrDisplayNames.identity[attrKey]}
+							title={attrDisplayNames.identity[attrKey]?.name}
+							placeholder={attrDisplayNames.identity[attrKey]?.placeholder}
 							initText={getAttribute(attrKey)}
 							onfocusout={async () => {
 								await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
@@ -364,7 +442,8 @@
 							<QLEditor
 								id={attrKey}
 								inputMode="info"
-								title={attrDisplayNames['arc'][attrKey]}
+								title={attrDisplayNames['arc'][attrKey]?.name}
+								placeholder={attrDisplayNames['arc'][attrKey]?.placeholder}
 								initText={getAttribute(attrKey)}
 								onfocusout={async () => {
 									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
@@ -398,52 +477,21 @@
 			{:else if section === 'personality'}
 				{#each attrKeys('personality') as attrKey (`attr-${attrKey}`)}
 					{#if editing.personality || (character?.attr && character.attr[attrKey] !== undefined)}
-						{#if [''].includes(attrKey)}
-							<TextPicker
-								selectTitle="Role"
-								options={[
-									'Protagonist',
-									'Companion',
-									'Antagonist',
-									'Love interest',
-									'Comic relief',
-									'Chorus',
-									'Mentor'
-								]}
-								customTitle="Role"
-								initValue={attr?.role}
-								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-									await character?.cleanAttr();
-								}}
-								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-								}}
-								onchange={async (newVal: string) => {
-									await character?.updateAttr({ [attrKey]: newVal });
-									await character?.cleanAttr();
-								}}
-								onlistbutton={async () => {
-									await character?.updateAttr({ [attrKey]: '' });
-								}}
-								bind:value={attrBuf[attrKey]}
-							/>
-						{:else}
-							<QLEditor
-								id={attrKey}
-								inputMode="info"
-								title={attrDisplayNames['personality'][attrKey]}
-								initText={getAttribute(attrKey)}
-								onfocusout={async () => {
-									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-									await character?.cleanAttr();
-								}}
-								onkeyup={async () => {
-									await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-								}}
-								bind:text={attrBuf[attrKey]}
-							/>
-						{/if}
+						<QLEditor
+							id={attrKey}
+							inputMode="info"
+							title={attrDisplayNames['personality'][attrKey]?.name}
+							placeholder={attrDisplayNames['personality'][attrKey]?.placeholder}
+							initText={getAttribute(attrKey)}
+							onfocusout={async () => {
+								await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+								await character?.cleanAttr();
+							}}
+							onkeyup={async () => {
+								await character?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							}}
+							bind:text={attrBuf[attrKey]}
+						/>
 					{/if}
 				{/each}
 				{#if !editing.personality && attrCount.personality === 0}
@@ -550,6 +598,6 @@
 
 <svelte:head>
 	<title>
-		{character ? charNameCleaned || 'Character' : 'Loading...'}
+		{charNameCleaned ? `🪪 ${charNameCleaned}` : 'Character'}
 	</title>
 </svelte:head>

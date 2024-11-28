@@ -202,9 +202,9 @@
 							{/if}
 						</h4>
 					</div>
-					{#if 'desc' in element}
+					{#if 'tagline' in element}
 						<h5 class="mt-2 font-sans text-sm not-italic text-donkey-500 dark:text-donkey-600">
-							{element.desc}
+							{element.tagline}
 						</h5>
 					{/if}
 				</a>
@@ -231,9 +231,9 @@
 								{/if}
 							</h4>
 						</div>
-						{#if 'desc' in element}
+						{#if 'tagline' in element}
 							<h5 class="mt-2 font-sans text-sm not-italic text-donkey-500 dark:text-donkey-600">
-								{element.desc}
+								{element.tagline}
 							</h5>
 						{/if}
 					</a>

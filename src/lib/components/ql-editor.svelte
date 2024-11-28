@@ -46,6 +46,8 @@
 		onkeyup = () => {}
 	}: Props = $props();
 
+	placeholder = placeholder || ' ';
+
 	if (!skstate.quillInit) {
 		skstate.quillInit = true;
 	}
@@ -176,7 +178,7 @@
 		</div>
 	{/if}
 	<div
-		class="ql-editor-wrapper cursor-text overflow-auto border-none text-[1rem] outline-none drop-shadow-md selection:bg-genie-500 selection:text-genie-50 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-400 [&>.ql-editor]:h-full [&>div]:max-h-full
+		class="ql-editor-wrapper cursor-text overflow-auto border-none text-[1rem] outline-none drop-shadow-md selection:bg-genie-500 selection:text-genie-50 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 [&>*]:outline-none [&>.ql-editor::before]:text-donkey-300 [&>.ql-editor::before]:dark:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
         {toolbar || title ? 'rounded-b-lg' : 'rounded-lg'} 
 		{inputMode === 'info'
 			? title
