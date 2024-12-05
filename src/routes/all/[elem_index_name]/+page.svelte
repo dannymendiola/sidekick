@@ -177,7 +177,7 @@
 			<!-- desktop list -->
 			{#each $elements as element (element.id)}
 				<a
-					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					class="rounded-lg bg-donkey-100 p-6 font-title text-xl font-bold italic hover:bg-donkey-200 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 					href="/{elemPathSeg}?id={element.id}"
 					draggable={true}
 					ondragstart={(e) => handleDragStart(e, element.id)}
@@ -202,9 +202,9 @@
 							{/if}
 						</h4>
 					</div>
-					{#if 'desc' in element}
+					{#if 'tagline' in element}
 						<h5 class="mt-2 font-sans text-sm not-italic text-donkey-500 dark:text-donkey-600">
-							{element.desc}
+							{element.tagline}
 						</h5>
 					{/if}
 				</a>
@@ -231,9 +231,9 @@
 								{/if}
 							</h4>
 						</div>
-						{#if 'desc' in element}
+						{#if 'tagline' in element}
 							<h5 class="mt-2 font-sans text-sm not-italic text-donkey-500 dark:text-donkey-600">
-								{element.desc}
+								{element.tagline}
 							</h5>
 						{/if}
 					</a>

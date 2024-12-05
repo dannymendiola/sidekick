@@ -1,15 +1,18 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { skstate, vibrate } from '$lib';
+	import { vibrate } from '$lib';
 
 	let currIndex = $derived.by(() => {
 		return $page.route.id === '/all/[elem_index_name]' ? $page.params.elem_index_name : undefined;
 	});
+
+	let currElemType = $derived.by(() => {
+		return $page.route.id?.slice(1);
+	});
 </script>
 
 <span
-	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-100 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-start md:gap-8 md:bg-donkey-200 md:dark:bg-donkey-900"
+	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-start md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
 >
 	<a
 		class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
@@ -39,7 +42,9 @@
 		class="flex h-full flex-col items-center justify-center rounded-full px-2 text-sm md:h-min md:w-full md:p-4 {currIndex ===
 		buttonName
 			? 'bg-genie-600 drop-shadow-lg dark:bg-genie-950 [&>div]:text-genie-200'
-			: 'hover:bg-donkey-300 hover:dark:bg-donkey-800'}"
+			: currElemType === buttonName.slice(0, -1)
+				? 'bg-donkey-100 dark:bg-donkey-800 md:bg-donkey-200'
+				: 'hover:bg-donkey-300 hover:dark:bg-donkey-800'}"
 		onpointerup={() => {
 			vibrate();
 		}}

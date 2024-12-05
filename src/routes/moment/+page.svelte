@@ -34,15 +34,32 @@
 	let momentNameClean = $derived(momentName?.replaceAll('\n', ''));
 
 	const attrDisplayNames: {
-		[K in keyof MomentAttr]: string;
+		[K in keyof MomentAttr]: {
+			name: string;
+			placeholder?: string;
+		};
 	} = {
-		conflict: 'Conflict',
-		significance: 'Significance',
-		driving_force: 'Driving force',
-		start_point: 'How it starts',
-		end_point: 'How it ends',
-		outcome_reason: 'It ends this way because',
-		notes: 'Notes'
+		start_point: {
+			name: 'Starting point'
+		},
+		end_point: { name: 'Outcome' },
+		driving_force: {
+			name: 'Driving Force',
+			placeholder: 'The events of this moment happen because...'
+		},
+		outcome_reason: {
+			name: 'Reason for outcome',
+			placeholder: 'The moment ends this way because...'
+		},
+		conflict: {
+			name: 'Conflict',
+			placeholder: "This moment's conflict arises from..."
+		},
+		significance: {
+			name: 'Significance',
+			placeholder: 'This moment is matters to the story because...'
+		},
+		notes: { name: 'Notes' }
 	};
 
 	const getAttr = (key: keyof MomentAttr) => {
@@ -53,10 +70,6 @@
 
 	let attrBuf = $state<MomentAttr>({});
 
-	$effect(() => {
-		if (moment) {
-		}
-	});
 	let bodyDelta = $state<Delta>();
 	let bodyText = $state('');
 
@@ -84,29 +97,45 @@
 
 	{#await db.moments.get(momentId!) then m}
 		<div
-			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-100 py-3 dark:bg-donkey-950 md:sticky"
+			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
 		>
-			<div class=" w-full font-title font-bold">
-				<QLEditor
-					id="moment-name"
-					initText={m?.name || ''}
-					placeholder="Untitled moment"
-					inputMode="info"
-					twBG="bg-donkey-100 dark:bg-donkey-950"
-					twText="text-donkey-900 dark:text-donkey-50"
-					twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300 "
-					onkeyup={async () => {
-						if (momentId) {
-							await db.moments.update(momentId, { name: momentName });
-						}
-					}}
-					onfocusout={async () => {
-						if (momentId) {
-							await db.moments.update(momentId, { name: momentName });
-						}
-					}}
-					bind:text={momentName}
-				/>
+			<div class="flex grow items-center gap-3">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					class="hidden size-7 stroke-donkey-500 dark:stroke-donkey-400 md:block"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0 1 18 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0 1 18 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 0 1 6 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621-.504-1.125-1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621.504-1.125 1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M6 13.125C6 12.504 5.496 12 4.875 12m-1.5 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M19.125 12h1.5m0 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h1.5m14.25 0h1.5"
+					/>
+				</svg>
+
+				<div class=" w-full font-title font-bold">
+					<QLEditor
+						id="moment-name"
+						initText={m?.name || ''}
+						placeholder="Untitled moment"
+						inputMode="info"
+						twBG="bg-donkey-50 dark:bg-donkey-950"
+						twText="text-donkey-900 dark:text-donkey-50"
+						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300 "
+						onkeyup={async () => {
+							if (momentId) {
+								await db.moments.update(momentId, { name: momentName });
+							}
+						}}
+						onfocusout={async () => {
+							if (momentId) {
+								await db.moments.update(momentId, { name: momentName });
+							}
+						}}
+						bind:text={momentName}
+					/>
+				</div>
 			</div>
 			<button
 				class="rounded-md bg-robin-600 p-2 hover:bg-robin-500 dark:bg-robin-950 hover:dark:bg-robin-900"
@@ -133,6 +162,46 @@
 		</div>
 	{/await}
 	{#if moment}
+		<section class="mb-8 mt-4 flex flex-col gap-2">
+			<div class="mb-3 flex items-center gap-4">
+				<h2 class="cursor-default font-title text-xl font-bold italic">Foundation</h2>
+			</div>
+			{#each attrKeys as attrKey (`attr-${attrKey}`)}
+				{#if attrKey !== 'notes'}
+					<QLEditor
+						id={attrKey}
+						inputMode="info"
+						title={attrDisplayNames[attrKey]?.name}
+						placeholder={attrDisplayNames[attrKey]?.placeholder}
+						initText={getAttr(attrKey)}
+						onfocusout={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await moment?.cleanAttr();
+						}}
+						onkeyup={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+						}}
+						bind:text={attrBuf[attrKey]}
+					/>
+				{:else}
+					<QLEditor
+						id={attrKey}
+						inputMode="full"
+						title="Notes"
+						initText={getAttr(attrKey)}
+						twHeight="min-h-32"
+						onfocusout={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await moment?.cleanAttr();
+						}}
+						onkeyup={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+						}}
+						bind:delta={attrBuf[attrKey]}
+					/>
+				{/if}
+			{/each}
+		</section>
 		<section class="mb-8 mt-4 flex flex-col overflow-y-auto">
 			<div class="mb-3 flex items-center gap-4">
 				<h2 class="cursor-pointer font-title text-xl font-bold italic" aria-label="Body">
@@ -180,7 +249,6 @@
 					bind:delta={bodyDelta}
 				/>
 			{:else}
-				<!-- <div class="bg-donkey-200 w-full drop-shadow-lg dark:bg-donkey-900 dark:drop-shadow-none hover:dark:"></div> -->
 				<button
 					class="flex items-center gap-2 [&>*]:hover:text-genie-500 [&>svg]:hover:stroke-genie-500"
 					onpointerup={() => {
@@ -197,46 +265,6 @@
 					<p class="font-bold text-donkey-400 dark:text-donkey-600">View</p>
 				</button>
 			{/if}
-			<!-- </div> -->
-		</section>
-		<section class="mb-8 mt-4 flex flex-col gap-2">
-			<div class="mb-3 flex items-center gap-4">
-				<h2 class="cursor-default font-title text-xl font-bold italic">Foundation</h2>
-			</div>
-			{#each attrKeys as attrKey (`attr-${attrKey}`)}
-				{#if attrKey !== 'notes'}
-					<QLEditor
-						id={attrKey}
-						inputMode="info"
-						title={attrDisplayNames[attrKey]}
-						initText={getAttr(attrKey)}
-						onfocusout={async () => {
-							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-							await moment?.cleanAttr();
-						}}
-						onkeyup={async () => {
-							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-						}}
-						bind:text={attrBuf[attrKey]}
-					/>
-				{:else}
-					<QLEditor
-						id={attrKey}
-						inputMode="full"
-						title="Notes"
-						initText={getAttr(attrKey)}
-						twHeight="min-h-32"
-						onfocusout={async () => {
-							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-							await moment?.cleanAttr();
-						}}
-						onkeyup={async () => {
-							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-						}}
-						bind:delta={attrBuf[attrKey]}
-					/>
-				{/if}
-			{/each}
 		</section>
 	{/if}
 </div>
@@ -315,6 +343,6 @@
 
 <svelte:head>
 	<title>
-		{moment ? momentNameClean || 'Untitled moment' : 'Loading...'}
+		{momentNameClean ? `🎞️ ${momentNameClean}` : 'Untitled moment'}
 	</title>
 </svelte:head>

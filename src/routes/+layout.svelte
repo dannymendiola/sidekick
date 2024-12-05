@@ -50,10 +50,10 @@
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="absolute z-10 flex h-20 w-screen items-center justify-between p-4 md:bg-transparent md:pr-8 dark:md:bg-transparent"
+		class="absolute z-10 flex h-20 w-screen items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:bg-transparent md:pr-8 dark:md:bg-transparent"
 	>
 		<button
-			class="rounded-xl bg-donkey-200 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
+			class="rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
 			onpointerup={() => {
 				vibrate();
 				goto('/welcome');

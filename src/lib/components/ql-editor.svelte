@@ -46,6 +46,8 @@
 		onkeyup = () => {}
 	}: Props = $props();
 
+	placeholder = placeholder || ' ';
+
 	if (!skstate.quillInit) {
 		skstate.quillInit = true;
 	}
@@ -163,9 +165,9 @@
 		{@render Toolbar()}
 	{:else if title}
 		<div
-			class="z-[1] cursor-text rounded-t-xl bg-donkey-50 px-3 pt-1 text-left text-lg font-bold {focused
-				? 'dark:bg-donkey-800 '
-				: 'dark:bg-donkey-900'}"
+			class="z-[1] cursor-text rounded-t-xl px-3 pt-1 text-left text-lg font-bold {focused
+				? 'bg-donkey-200 dark:bg-donkey-800'
+				: 'bg-donkey-100 dark:bg-donkey-900'}"
 			onpointerup={() => {
 				quill!.focus();
 				focused = true;
@@ -176,7 +178,7 @@
 		</div>
 	{/if}
 	<div
-		class="ql-editor-wrapper cursor-text overflow-auto border-none text-[1rem] outline-none drop-shadow-md selection:bg-genie-500 selection:text-genie-50 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 [&>*]:outline-none [&>.ql-editor::before]:not-italic [&>.ql-editor::before]:text-donkey-400 [&>.ql-editor]:h-full [&>div]:max-h-full
+		class="ql-editor-wrapper cursor-text overflow-auto border-none text-[1rem] outline-none selection:bg-genie-500 selection:text-genie-50 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 [&>*]:outline-none [&>.ql-editor::before]:text-donkey-300 [&>.ql-editor::before]:dark:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
         {toolbar || title ? 'rounded-b-lg' : 'rounded-lg'} 
 		{inputMode === 'info'
 			? title
@@ -184,8 +186,7 @@
 				: '[&>.ql-editor]:py-3'
 			: ''}
 		{twText || 'text-donkey-950 dark:text-donkey-100'}
-		{twBG ||
-			`bg-donkey-50 ${focused && inputMode === 'info' ? 'dark:bg-donkey-800' : 'dark:bg-donkey-900'}`}
+		{twBG || `${focused ? 'bg-donkey-200 dark:bg-donkey-800' : 'bg-donkey-100 dark:bg-donkey-900'}`}
 		{twHeight || 'h-full'}
 		{twClass}"
 		id={ID}
@@ -216,8 +217,11 @@
 
 {#snippet Toolbar()}
 	<div
-		class="z-[1] flex min-h-14 flex-wrap content-start rounded-t-lg bg-donkey-50 px-4 pt-4 dark:bg-donkey-900
-		{title ? 'justify-between' : 'justify-end gap-2 [&>button]:select-none [&>button]:text-xl'}"
+		class="z-[1] flex min-h-14 flex-wrap content-start rounded-t-lg px-4 pt-4 {title
+			? 'justify-between'
+			: 'justify-end gap-2 [&>button]:select-none [&>button]:text-xl'} {focused
+			? 'bg-donkey-200 dark:bg-donkey-800'
+			: 'bg-donkey-100 dark:bg-donkey-900'}"
 	>
 		{#if title}
 			<h2 class="text-lg font-bold">{title}</h2>

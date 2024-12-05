@@ -12,14 +12,15 @@ export interface ThemeAttr {
 	thesis?: string;
 	conflict?: string;
 	journey?: string;
-	conclusion?: string;
-	conclusion_reason?: string;
+	manifestation?: string;
+	notes?: Delta;
 }
 
 export interface LocationAttr {
 	description?: string;
 	history?: string;
 	significance?: string;
+	notes?: Delta;
 }
 
 export interface CharacterAttr {
@@ -61,11 +62,8 @@ export interface CharacterAttr {
 	insecurities?: string;
 	emotional_intelligence?: string;
 	social_skills?: string;
-	charisma?: string;
 	coping_mechanisms?: string;
 	emotional_stability?: string;
-	ambition?: string;
-	phobias?: string;
 	habits?: string;
 	quirks?: string;
 	hobbies?: string;
