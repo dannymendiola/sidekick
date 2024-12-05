@@ -19,11 +19,6 @@
 		}
 	});
 
-	let editing = $state({
-		body: true,
-		attr: false
-	});
-
 	let themeQuery = liveQuery(() => {
 		return db.themes.get(themeId!);
 	});
@@ -49,7 +44,6 @@
 			name: 'Conflict',
 			placeholder: 'The theme is in conflict with...'
 		},
-		// journey: 'Journey',
 		manifestation: {
 			name: 'Manifestation',
 			placeholder: 'The theme comes to the surface through...'
@@ -67,13 +61,6 @@
 	const attrKeys = $derived(Object.keys(attrDisplayNames) as Array<keyof ThemeAttr>);
 
 	let attrBuf = $state<ThemeAttr>({});
-
-	let bodyDelta = $state<Delta>();
-	let bodyText = $state('');
-
-	// const characters = liveQuery(() => theme?.getCharacters() || []);
-	// const locations = liveQuery(() => theme?.getLocations() || []);
-	// const themes = liveQuery(() => theme?.getThemes() || []);
 
 	let showDeleteModal = $state(false);
 
@@ -95,7 +82,7 @@
 
 	{#await db.themes.get(themeId!) then t}
 		<div
-			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-100 py-3 dark:bg-donkey-950 md:sticky"
+			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
 		>
 			<div class="flex grow items-center gap-3">
 				<svg
@@ -118,7 +105,7 @@
 						initText={t?.name || ''}
 						placeholder="Untitled theme"
 						inputMode="info"
-						twBG="bg-donkey-100 dark:bg-donkey-950"
+						twBG="bg-donkey-50 dark:bg-donkey-950"
 						twText="text-donkey-900 dark:text-donkey-50"
 						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300 "
 						onkeyup={async () => {
@@ -164,7 +151,7 @@
 				initText={t?.tagline}
 				placeholder="No tagline..."
 				inputMode="info"
-				twBG="bg-donkey-100 dark:bg-donkey-950"
+				twBG="bg-donkey-50 dark:bg-donkey-950"
 				twText="text-donkey-900 dark:text-donkey-50"
 				twClass="ml-4 [&>.ql-editor]:pl-0 [&>.ql-editor]:pb-2 [&>.ql-editor]:pt-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:text-donkey-500   [&>.ql-editor>*]:dark:text-donkey-400  [&>.ql-editor::before]:dark:text-donkey-600 cursor-pointer"
 				maxLen={50}

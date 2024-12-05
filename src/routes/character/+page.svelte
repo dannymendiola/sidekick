@@ -219,7 +219,7 @@
 <div class="sk-content md:mt-16">
 	{#await db.characters.get(charId!) then char}
 		<div
-			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-100 py-3 dark:bg-donkey-950 md:sticky"
+			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
 		>
 			<div class="flex grow items-center gap-3">
 				<svg
@@ -240,7 +240,7 @@
 						id="char-name"
 						initText={char?.name}
 						inputMode="info"
-						twBG="bg-donkey-100 dark:bg-donkey-950"
+						twBG="bg-donkey-50 dark:bg-donkey-950"
 						twText="text-donkey-900 dark:text-donkey-50"
 						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer"
 						onkeyup={async () => {
@@ -286,7 +286,7 @@
 				initText={char?.tagline}
 				placeholder="No tagline..."
 				inputMode="info"
-				twBG="bg-donkey-100 dark:bg-donkey-950"
+				twBG="bg-donkey-50 dark:bg-donkey-950"
 				twText="text-donkey-900 dark:text-donkey-50"
 				twClass="ml-4 [&>.ql-editor]:pl-0 [&>.ql-editor]:pb-2 [&>.ql-editor]:pt-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:text-donkey-500   [&>.ql-editor>*]:dark:text-donkey-400  [&>.ql-editor::before]:dark:text-donkey-600 cursor-pointer"
 				maxLen={50}

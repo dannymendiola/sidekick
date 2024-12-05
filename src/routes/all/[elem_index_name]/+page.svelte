@@ -177,7 +177,7 @@
 			<!-- desktop list -->
 			{#each $elements as element (element.id)}
 				<a
-					class="rounded-lg bg-donkey-200 p-6 font-title text-xl font-bold italic hover:bg-donkey-300 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					class="rounded-lg bg-donkey-100 p-6 font-title text-xl font-bold italic hover:bg-donkey-200 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 					href="/{elemPathSeg}?id={element.id}"
 					draggable={true}
 					ondragstart={(e) => handleDragStart(e, element.id)}

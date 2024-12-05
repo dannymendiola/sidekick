@@ -12,7 +12,7 @@
 </script>
 
 <span
-	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-100 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-start md:gap-8 md:bg-donkey-200 md:dark:bg-donkey-900"
+	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-start md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
 >
 	<a
 		class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
@@ -43,7 +43,7 @@
 		buttonName
 			? 'bg-genie-600 drop-shadow-lg dark:bg-genie-950 [&>div]:text-genie-200'
 			: currElemType === buttonName.slice(0, -1)
-				? 'bg-donkey-200 dark:bg-donkey-800 md:bg-donkey-300'
+				? 'bg-donkey-100 dark:bg-donkey-800 md:bg-donkey-200'
 				: 'hover:bg-donkey-300 hover:dark:bg-donkey-800'}"
 		onpointerup={() => {
 			vibrate();
