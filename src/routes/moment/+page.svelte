@@ -71,7 +71,6 @@
 	let attrBuf = $state<MomentAttr>({});
 
 	let bodyDelta = $state<Delta>();
-	let bodyText = $state('');
 
 	const characters = liveQuery(() => moment?.getCharacters() || []);
 	const locations = liveQuery(() => moment?.getLocations() || []);
@@ -163,8 +162,11 @@
 	{/await}
 	{#if moment}
 		<section class="mb-8 mt-4 flex flex-col gap-2">
+			{@render Connections()}
+		</section>
+		<section class="mb-8 mt-4 flex flex-col gap-2">
 			<div class="mb-3 flex items-center gap-4">
-				<h2 class="cursor-default font-title text-xl font-bold italic">Foundation</h2>
+				<h2 class="text:xl cursor-default font-title font-bold md:text-2xl">Foundation</h2>
 			</div>
 			{#each attrKeys as attrKey (`attr-${attrKey}`)}
 				{#if attrKey !== 'notes'}
@@ -204,13 +206,12 @@
 		</section>
 		<section class="mb-8 mt-4 flex flex-col overflow-y-auto">
 			<div class="mb-3 flex items-center gap-4">
-				<h2 class="cursor-pointer font-title text-xl font-bold italic" aria-label="Body">
+				<h2 class="cursor-pointer font-title text-xl font-bold md:text-2xl" aria-label="Body">
 					<button
 						onpointerup={() => {
 							vibrate();
 							editing.body = !editing.body;
 						}}
-						class="italic"
 					>
 						Compose
 					</button>
@@ -309,8 +310,41 @@
 	</div>
 {/snippet}
 
+{#snippet Connections()}
+	{#if moment}
+		<div class="flex w-full justify-between">
+			{#await moment.getPrev() then prev}
+				{#if prev}
+					<a
+						class="flex max-w-[45%] items-center gap-1 rounded-full bg-genie-500 px-2 py-1 text-sm font-bold text-genie-100 dark:bg-genie-950 dark:text-genie-300"
+						href="/moment?id={prev.id}"
+						data-sveltekit-reload
+					>
+						{@render Icon('backward', {})}
+						{prev.name || 'Untitled moment'}
+					</a>
+				{:else}
+					<div></div>
+				{/if}
+			{/await}
+			{#await moment.getNext() then next}
+				{#if next}
+					<a
+						class="flex max-w-[45%] items-center gap-1 rounded-full bg-genie-500 px-2 py-1 text-sm font-bold text-genie-100 dark:bg-genie-950 dark:text-genie-300"
+						href="/moment?id={next.id}"
+						data-sveltekit-reload
+					>
+						{next.name || 'Untitled moment'}
+						{@render Icon('forward', {})}
+					</a>
+				{/if}
+			{/await}
+		</div>
+	{/if}
+{/snippet}
+
 {#snippet Icon(
-	name: 'pencil-square' | 'eye-slash',
+	name: 'pencil-square' | 'eye-slash' | 'backward' | 'forward',
 	{
 		twSize = 'size-5',
 		twColor = 'stroke-genie-100 dark:stroke-genie-300',
@@ -336,6 +370,18 @@
 				stroke-linecap="round"
 				stroke-linejoin="round"
 				d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+			/>
+		{:else if name === 'backward'}
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M21 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061A1.125 1.125 0 0 1 21 8.689v8.122ZM11.25 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061a1.125 1.125 0 0 1 1.683.977v8.122Z"
+			/>
+		{:else if name === 'forward'}
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M3 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811V8.69ZM12.75 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061a1.125 1.125 0 0 1-1.683-.977V8.69Z"
 			/>
 		{/if}
 	</svg>

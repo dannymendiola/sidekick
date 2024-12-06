@@ -31,6 +31,11 @@
 			| 'locations'
 	);
 
+	$effect(() => {
+		indexName;
+		touchReorderingId = undefined;
+	});
+
 	const elemPathSeg = $derived(indexName.slice(0, -1));
 
 	const tableName = $derived(indexName === 'character-dynamics' ? 'dynamics' : indexName);
@@ -214,7 +219,7 @@
 			{#each $elements as element (element.id)}
 				<div class="flex w-full" animate:flip={{ duration: 200, easing: quintOut }}>
 					<a
-						class="grow rounded-bl-lg rounded-tl-lg bg-donkey-200 p-6 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl"
+						class="grow rounded-bl-lg rounded-tl-lg bg-donkey-100 p-6 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl"
 						href="/{elemPathSeg}?id={element.id}"
 					>
 						<div class="flex w-full justify-between">
@@ -238,14 +243,14 @@
 						{/if}
 					</a>
 					<div
-						class="rounded-br-lg rounded-tr-lg bg-donkey-200 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl {touchReorderingId ===
+						class="rounded-br-lg rounded-tr-lg bg-donkey-100 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl {touchReorderingId ===
 						element.id
 							? 'px-6'
 							: 'p-6'}"
 					>
 						{#if touchReorderingId !== element.id}
 							<button
-								class="relative z-[1] h-full max-h-12 rounded-lg bg-donkey-100 p-1 dark:bg-donkey-800"
+								class="relative z-[1] h-full max-h-12 rounded-lg bg-donkey-200 p-1 dark:bg-donkey-800"
 								aria-label="Reorder"
 								onpointerdown={() => {
 									vibrate([1, 1, 1]);

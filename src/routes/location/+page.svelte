@@ -133,7 +133,7 @@
 				</div>
 			</div>
 			<button
-				class="rounded-md bg-robin-300 p-2 hover:bg-robin-600 dark:bg-robin-950 hover:dark:bg-robin-900 [&>svg]:hover:stroke-robin-200"
+				class="rounded-md bg-robin-600 p-2 hover:bg-robin-500 dark:bg-robin-950 hover:dark:bg-robin-900"
 				aria-label="Delete Location"
 				onpointerup={() => {
 					vibrate();
@@ -145,7 +145,7 @@
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke-width="1.5"
-					class="size-5 stroke-robin-900 dark:stroke-robin-400"
+					class="size-5 stroke-robin-100 dark:stroke-robin-400"
 				>
 					<path
 						stroke-linecap="round"

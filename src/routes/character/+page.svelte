@@ -312,7 +312,7 @@
 		{@render AttrSection('arc')}
 		{@render AttrSection('personality')}
 		{@render AttrSection('identity')}
-		<h2 class="mt-6 font-title text-xl font-bold italic">Relationships</h2>
+		<!-- <h2 class="mt-6 font-title text-xl font-bold italic">Relationships</h2>
 		{#if $dynamics?.length > 0}
 			{#each $dynamics as dynamic}
 				{#await dynamic.getOther(character.id) then other}
@@ -329,7 +329,7 @@
 			{:else}
 				no moments
 			{/if}
-		{/await}
+		{/await} -->
 	{/if}
 	{#if numAttr < 10}
 		<div class="h-[40vh]"></div>
@@ -342,7 +342,7 @@
 	{#if character}
 		<section class="mb-8 mt-4 flex flex-col gap-2">
 			<div class="mb-3 flex items-center gap-4">
-				<h2 class="cursor-pointer font-title text-xl font-bold italic">
+				<h2 class="cursor-pointer font-title text-xl font-bold italic md:text-2xl">
 					<button
 						onpointerup={() => {
 							vibrate();
