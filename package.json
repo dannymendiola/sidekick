@@ -4,8 +4,10 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host --port 3000",
+        "dev-pub": "vite dev --port 3000",
 		"build": "vite build",
 		"preview": "vite preview --host --open --port 2127",
+        "preview-pub": "vite preview --open --port 2127",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
