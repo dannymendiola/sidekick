@@ -106,7 +106,7 @@
 	{#await db.moments.get(momentId!) then m}
 		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
 			<div
-				class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
+				class="top-0 z-[11] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
 			>
 				<div class="flex grow items-center gap-3">
 					<svg

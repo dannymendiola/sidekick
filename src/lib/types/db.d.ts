@@ -11,6 +11,7 @@ export interface MomentAttr {
 export interface ThemeAttr {
 	thesis?: string;
 	conflict?: string;
+	leads_to?: string;
 	journey?: string;
 	manifestation?: string;
 	notes?: Delta;
