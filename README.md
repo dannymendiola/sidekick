@@ -2,13 +2,13 @@
 
 ## 🦸 Holy plot points!
 
-**Sidekick** is a creative storyteller's **trusty companion!** Effortlessly map out the connections between characters, locations, themes, and moments.
+**Sidekick** is a creative storyteller's trusty companion! Map out the connections between characters, locations, and moments.
 
-Currently under development for [SvelteHack 2024](https://hack.sveltesociety.dev/2024). This puts the target for release at January 10th, 2025
+ℹ️ This project is entered into [SvelteHack 2024](https://hack.sveltesociety.dev/2024), which starts its submission review phase on Jan 10, 2025. As per the rules, nothing will be merged to `main` (i.e. the deployment branch) during this phase. Development is ongoing, and updates to the deployment will resume once the review phase concludes.
 
-## 🤔 Why?
+## 🤔 Goal
 
-**Sidekick** aims to provide an intuitive way for writers to plan and **connect** important elements of their story. The goal is to facilitate the process of discovering connections and through-lines that serve your creative vision.
+Sidekick aims to provide an intuitive way for writers to plan and connect important elements of their story. The goal is to facilitate the process of discovering connections and through-lines that serve your creative vision.
 
 ## 🌱 Project Status
 
@@ -16,24 +16,31 @@ Currently under development for [SvelteHack 2024](https://hack.sveltesociety.dev
 
 ### **Core features**
 
-- ✅ **100% local**: Sidekick is a [local-only](https://dev.to/alexanderop/what-is-local-first-web-development-3mnd) app. Your projects never leave your device, keeping them away from servers, AI datasets, or anywhere else you may not want them. This applies whether run through your browser or installed as a web app (PWA).
-- ⏹️ **Export and import**: Easily save your story to a file, for safekeeping or to import on another device
-- ⏹️ **Progressive web app**: Install **Sidekick** as a PWA, allowing for an app-like experience on any device (or stick with the browser)
-- ⏹️ **Create story elements**: Flesh out your story with moments, themes, locations, and interrelated characters
-    - ⏹️ **Moments**: Create and easily flesh out story moments/scenes. Each can link to important characters, locations, and themes
-    - ⏹️ **Themes**: Lay out over-arching ideas that tie your story together, and easily view them from anywhere in the app
+✅: Completed<br>
+🔨: In progress<br>
+⏹️: Planned
+<br>
+
+- ✅ **100% local**: Sidekick is a [local-only](https://dev.to/alexanderop/what-is-local-first-web-development-3mnd) app. Your projects never leave your device, keeping them away from servers, AI datasets, or anywhere else you may not want them. 
+- 🔨️ **Export and import**: Easily save your project to a file, for safekeeping or to import on another device
+- ⏹️ **Progressive web app**: (Optionally) install Sidekick as a PWA, allowing for a native-like experience on any device
+- 🔨️ **Create story elements**: Flesh out your story with moments, themes, locations, and interrelated characters
+    - 🔨 **Moments**: Create and easily flesh out story moments/scenes. Each can link to related characters and locations
+    <!-- - ⏹️ **Themes**: Lay out over-arching ideas that tie your story together, and easily view them from anywhere in the app -->
     - ✅ **Characters**: Describe your story's characters with several useful prompts
-    - ⏹️ **Character dynamics**: Link characters to each other and describe their relationship
-    - ⏹️ **Locations**: Describe your story's vibrant settings
-- ⏹️ **Live link suggestions**: Mention an unlinked story element, and Sidekick will automatically suggest a link, making it easy to create potentially useful connections
+        - 🔨️ **Character dynamics**: Link characters to each other and describe their relationship
+    - ✅ ️ **Locations**: Describe your story's vibrant settings
+- ⏹️ **Link suggestions**: Mention an unlinked story element, and Sidekick will automatically suggest a link, making it easy to create potentially useful connections
+
+
 
 ## ✨ Getting started
 
-⚠️ This is a work in progress, and missing key features. If you're here for a functional app, please check again later
+⚠️ This is a work in progress, and missing key features. If you're here for a functional app, please check again later.
 
-When core features are implemented, this app will be available for use in any modern browser. 
+You can access the latest deployed version of the app at sidekick.dannymendiola.com
 
-If you'd prefer to run it on your own machine for full control, you can always do so straight from the source:
+If you'd like to contribute, or run the entire app locally, you can always get it straight from the source:
 
 1. Install [Git](https://git-scm.com/downloads) and [Node](https://nodejs.org/en) if necessary
 2. Open a terminal in the folder where you'd like to download Sidekick, and run:
@@ -52,20 +59,20 @@ To stop the app, type `q` in the running terminal and enter
 
 ## 🛠️ Contributing
 
-Sidekick is currently a solo project as part of a hackathon, so I won't be looking at any contributions until after submission (January 10), and will not make any merges until after final results.
+Sidekick is a submission for a [hackathon](https://hack.sveltesociety.dev/2024) that has ended, so nothing will be merged into `main` until after final results.
 
-That said, contributions are welcome! If you have any ideas, feel free to open an issue or PR.
+That said, contributions are welcome -- poke around as you see fit!
 
 ## 💡 Inspirations and Tools
 
 Sidekick owes much of its inspiration and existence to several tools and projects. Check 'em out:
 
 - Tools:
-    - [Svelte](https://svelte.dev/) my beloved
+    - [Svelte](https://svelte.dev/)
     - [Tailwindcss](https://tailwindcss.com/) and their [icon library](https://heroicons.com/)
-    - [Quill](https://quilljs.com/) for rich text
+    - [Quill](https://quilljs.com/)
 - Inspirations:
-    - [Pluot](https://pluot.app/): story planning app for Android
-    - [Obsidian](https://obsidian.md/): platform for a freeform network of notes
-    - [Home for Fiction](https://homeforfiction.com)'s apps, especially [Narrative Nods](https://homeforfiction.com/apps/#nnods) 💵
+    - [Pluot](https://pluot.app/)
+    - [Obsidian](https://obsidian.md/)
+    - [Home for Fiction](https://homeforfiction.com)'s apps, especially [Narrative Nods](https://homeforfiction.com/apps/#nnods)
     - [Some wise words](https://youtu.be/85LUuF6ZXaU)

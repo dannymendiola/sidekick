@@ -4,6 +4,7 @@
 	import { vibrate } from '$lib';
 	import { page } from '$app/stores';
 	import '../app.css';
+	import SaveLoadModal from '$lib/components/save-load-modal.svelte';
 
 	let { children } = $props();
 
@@ -37,6 +38,8 @@
 	requestPersistence();
 </script>
 
+<SaveLoadModal />
+
 {@render SkinnyTopbar()}
 
 <div class="wrapper flex h-screen flex-col-reverse md:flex-row">
@@ -50,7 +53,7 @@
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="absolute z-10 flex h-20 w-screen items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:bg-transparent md:pr-8 dark:md:bg-transparent"
+		class="absolute z-20 flex h-20 w-screen items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:bg-transparent md:pr-8 dark:md:bg-transparent"
 	>
 		<button
 			class="rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
@@ -66,14 +69,39 @@
 			/>
 		</button>
 		<div class="hidden md:block"></div>
-		<button
-			class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
-			onpointerup={() => {
-				skstate.updateSettings({ theme: skstate.darkMode ? 'light' : 'dark' });
-			}}
-		>
-			{@render ThemeIcon(skstate.darkMode ? 'sun' : 'moon')}
-		</button>
+		<div class="flex gap-4">
+			<button
+				class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
+				onpointerup={() => {
+					skstate.updateSettings({ theme: skstate.darkMode ? 'light' : 'dark' });
+				}}
+			>
+				{@render ThemeIcon(skstate.darkMode ? 'sun' : 'moon')}
+			</button>
+			<button
+				class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:hidden md:bg-donkey-200"
+				onpointerup={() => {
+					skstate.showSaveLoad = true;
+				}}
+				aria-label="Import/export project"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="size-6"
+				>
+					<title>Import/export</title>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z"
+					/>
+				</svg>
+			</button>
+		</div>
 	</div>
 {/snippet}
 

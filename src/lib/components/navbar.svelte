@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { vibrate } from '$lib';
+	import { vibrate, saveProject, skstate } from '$lib';
 
 	let currIndex = $derived.by(() => {
 		return $page.route.id === '/all/[elem_index_name]' ? $page.params.elem_index_name : undefined;
@@ -9,29 +9,60 @@
 	let currElemType = $derived.by(() => {
 		return $page.route.id?.slice(1);
 	});
+
+	const capitalize = (s: string) => {
+		return s
+			.split('-')
+			.map((word) => word[0].toUpperCase() + word.slice(1))
+			.join(' ');
+	};
 </script>
 
 <span
-	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-start md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
+	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
 >
-	<a
-		class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
-		onpointerup={() => {
-			vibrate();
-		}}
-		href="/welcome"
+	<div class="flex grow justify-center gap-6 md:flex-col md:justify-start md:gap-8">
+		<a
+			class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
+			onpointerup={() => {
+				vibrate();
+			}}
+			href="/welcome"
+		>
+			<title>Home</title>
+			<img
+				class="h-auto w-full drop-shadow-lg"
+				src="/logo-square-sm.png"
+				alt="The word 'Sidekick' in yellow serif font over a red oval"
+			/>
+		</a>
+		{@render IndexButton('moments')}
+		<!-- {@render IndexButton('themes')} -->
+		{@render IndexButton('locations')}
+		{@render IndexButton('characters')}
+		{@render IndexButton('character-dynamics')}
+	</div>
+	<button
+		class="hidden rounded-lg p-4 hover:bg-donkey-200 dark:hover:bg-donkey-800 md:block"
+		aria-label="Import/export project"
+		onclick={() => (skstate.showSaveLoad = true)}
 	>
-		<img
-			class="h-auto w-full drop-shadow-lg"
-			src="/logo-square-sm.png"
-			alt="The word 'Sidekick' in yellow serif font over a red oval"
-		/>
-	</a>
-	{@render IndexButton('moments')}
-	{@render IndexButton('themes')}
-	{@render IndexButton('characters')}
-	{@render IndexButton('character-dynamics')}
-	{@render IndexButton('locations')}
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke-width="1.5"
+			stroke="currentColor"
+			class="size-6"
+		>
+			<title>Import/export</title>
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z"
+			/>
+		</svg>
+	</button>
 </span>
 
 {#snippet IndexButton(
@@ -39,12 +70,12 @@
 )}
 	<a
 		href="/all/{buttonName}"
-		class="flex h-full flex-col items-center justify-center rounded-full px-2 text-sm md:h-min md:w-full md:p-4 {currIndex ===
+		class="flex h-full flex-col items-center justify-center rounded-full p-2 text-sm md:h-min md:w-full md:p-4 {currIndex ===
 		buttonName
 			? 'bg-genie-600 drop-shadow-lg dark:bg-genie-950 [&>div]:text-genie-200'
 			: currElemType === buttonName.slice(0, -1)
 				? 'bg-donkey-100 dark:bg-donkey-800 md:bg-donkey-200'
-				: 'hover:bg-donkey-300 hover:dark:bg-donkey-800'}"
+				: 'hover:bg-donkey-200 hover:dark:bg-donkey-800'}"
 		onpointerup={() => {
 			vibrate();
 		}}
@@ -59,6 +90,7 @@
 				? 'fill-genie-100 dark:fill-genie-300'
 				: 'stroke-donkey-700 dark:stroke-donkey-300'}"
 		>
+			<title>{capitalize(buttonName)}</title>
 			{@render IconInner(buttonName)}
 		</svg>
 	</a>

@@ -71,7 +71,15 @@
 	let attrBuf = $state<MomentAttr>({});
 
 	let bodyDelta = $state<Delta>();
-	let bodyText = $state('');
+
+	const prevQuery = liveQuery(() => moment?.getPrev());
+	const prev = $derived($prevQuery);
+	const nextQuery = liveQuery(() => moment?.getNext());
+	const next = $derived($nextQuery);
+	// const next = liveQuery(() => moment?.getNext());
+
+	// const prev = $derived.by(async () => await moment?.getPrev());
+	// const next = $derived.by(async () => await moment?.getNext());
 
 	const characters = liveQuery(() => moment?.getCharacters() || []);
 	const locations = liveQuery(() => moment?.getLocations() || []);
@@ -96,75 +104,110 @@
 	<h1 class="invisible absolute">{momentName}</h1>
 
 	{#await db.moments.get(momentId!) then m}
-		<div
-			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
-		>
-			<div class="flex grow items-center gap-3">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					class="hidden size-7 stroke-donkey-500 dark:stroke-donkey-400 md:block"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0 1 18 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0 1 18 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 0 1 6 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621-.504-1.125-1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621.504-1.125 1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M6 13.125C6 12.504 5.496 12 4.875 12m-1.5 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M19.125 12h1.5m0 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h1.5m14.25 0h1.5"
-					/>
-				</svg>
-
-				<div class=" w-full font-title font-bold">
-					<QLEditor
-						id="moment-name"
-						initText={m?.name || ''}
-						placeholder="Untitled moment"
-						inputMode="info"
-						twBG="bg-donkey-50 dark:bg-donkey-950"
-						twText="text-donkey-900 dark:text-donkey-50"
-						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300 "
-						onkeyup={async () => {
-							if (momentId) {
-								await db.moments.update(momentId, { name: momentName });
-							}
-						}}
-						onfocusout={async () => {
-							if (momentId) {
-								await db.moments.update(momentId, { name: momentName });
-							}
-						}}
-						bind:text={momentName}
-					/>
-				</div>
-			</div>
-			<button
-				class="rounded-md bg-robin-600 p-2 hover:bg-robin-500 dark:bg-robin-950 hover:dark:bg-robin-900"
-				aria-label="Delete Moment"
-				onpointerup={() => {
-					vibrate();
-					showDeleteModal = true;
-				}}
+		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
+			<div
+				class="top-0 z-[11] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					class="size-5 stroke-robin-100 dark:stroke-robin-400"
+				<div class="flex grow items-center gap-3">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						class="hidden size-7 stroke-donkey-500 dark:stroke-donkey-400 md:block"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0 1 18 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0 1 18 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 0 1 6 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621-.504-1.125-1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621.504-1.125 1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M6 13.125C6 12.504 5.496 12 4.875 12m-1.5 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M19.125 12h1.5m0 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h1.5m14.25 0h1.5"
+						/>
+					</svg>
+
+					<div class=" w-full font-title font-bold">
+						<QLEditor
+							id="moment-name"
+							initText={m?.name || ''}
+							placeholder="Untitled moment"
+							inputMode="info"
+							twBG="bg-donkey-50 dark:bg-donkey-950"
+							twText="text-donkey-900 dark:text-donkey-50"
+							twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300 "
+							onkeyup={async () => {
+								if (momentId) {
+									await db.moments.update(momentId, { name: momentName });
+								}
+							}}
+							onfocusout={async () => {
+								if (momentId) {
+									await db.moments.update(momentId, { name: momentName });
+								}
+							}}
+							bind:text={momentName}
+						/>
+					</div>
+				</div>
+				<button
+					class="rounded-md bg-robin-600 p-2 hover:bg-robin-500 dark:bg-robin-950 hover:dark:bg-robin-900"
+					aria-label="Delete Moment"
+					onpointerup={() => {
+						vibrate();
+						showDeleteModal = true;
+					}}
 				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-					/>
-				</svg>
-			</button>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						class="size-5 stroke-robin-100 dark:stroke-robin-400"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+						/>
+					</svg>
+				</button>
+			</div>
+			<div class="flex w-full justify-between pb-4">
+				{#await m?.getPrev() then prev}
+					{#if prev}
+						<a
+							class="flex max-w-[45%] items-center gap-1 rounded-full bg-genie-500 px-2 py-1 text-sm font-bold text-genie-100 dark:bg-genie-950 dark:text-genie-300"
+							href="/moment?id={prev.id}"
+							data-sveltekit-reload
+						>
+							{@render Icon('backward', {})}
+							{prev.name || 'Untitled moment'}
+						</a>
+					{:else}
+						<div></div>
+					{/if}
+				{/await}
+				{#await m?.getNext() then next}
+					{#if next}
+						<a
+							class="flex max-w-[45%] items-center gap-1 rounded-full bg-genie-500 px-2 py-1 text-sm font-bold text-genie-100 dark:bg-genie-950 dark:text-genie-300"
+							href="/moment?id={next.id}"
+							data-sveltekit-reload
+						>
+							{next.name || 'Untitled moment'}
+							{@render Icon('forward', {})}
+						</a>
+					{:else}
+						<div></div>
+					{/if}
+				{/await}
+			</div>
 		</div>
 	{/await}
 	{#if moment}
 		<section class="mb-8 mt-4 flex flex-col gap-2">
+			{@render Connections()}
+		</section>
+		<section class="mb-8 mt-4 flex flex-col gap-2">
 			<div class="mb-3 flex items-center gap-4">
-				<h2 class="cursor-default font-title text-xl font-bold italic">Foundation</h2>
+				<h2 class="text:xl cursor-default font-title font-bold md:text-2xl">Foundation</h2>
 			</div>
 			{#each attrKeys as attrKey (`attr-${attrKey}`)}
 				{#if attrKey !== 'notes'}
@@ -204,13 +247,12 @@
 		</section>
 		<section class="mb-8 mt-4 flex flex-col overflow-y-auto">
 			<div class="mb-3 flex items-center gap-4">
-				<h2 class="cursor-pointer font-title text-xl font-bold italic" aria-label="Body">
+				<h2 class="cursor-pointer font-title text-xl font-bold md:text-2xl" aria-label="Body">
 					<button
 						onpointerup={() => {
 							vibrate();
 							editing.body = !editing.body;
 						}}
-						class="italic"
 					>
 						Compose
 					</button>
@@ -309,8 +351,39 @@
 	</div>
 {/snippet}
 
+{#snippet Connections()}
+	<!-- {#if moment}
+		<div class="flex w-full justify-between">
+			{#if prev}
+				<a
+					class="flex max-w-[45%] items-center gap-1 rounded-full bg-genie-500 px-2 py-1 text-sm font-bold text-genie-100 dark:bg-genie-950 dark:text-genie-300"
+					href="/moment?id={prev.id}"
+					data-sveltekit-reload
+				>
+					{@render Icon('backward', {})}
+					{prev.name || 'Untitled moment'}
+				</a>
+			{:else}
+				<div></div>
+			{/if}
+			{#if next}
+				<a
+					class="flex max-w-[45%] items-center gap-1 rounded-full bg-genie-500 px-2 py-1 text-sm font-bold text-genie-100 dark:bg-genie-950 dark:text-genie-300"
+					href="/moment?id={next.id}"
+					data-sveltekit-reload
+				>
+					{next.name || 'Untitled moment'}
+					{@render Icon('forward', {})}
+				</a>
+			{:else}
+				<div></div>
+			{/if}
+		</div>
+	{/if} -->
+{/snippet}
+
 {#snippet Icon(
-	name: 'pencil-square' | 'eye-slash',
+	name: 'pencil-square' | 'eye-slash' | 'backward' | 'forward',
 	{
 		twSize = 'size-5',
 		twColor = 'stroke-genie-100 dark:stroke-genie-300',
@@ -336,6 +409,18 @@
 				stroke-linecap="round"
 				stroke-linejoin="round"
 				d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+			/>
+		{:else if name === 'backward'}
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M21 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061A1.125 1.125 0 0 1 21 8.689v8.122ZM11.25 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061a1.125 1.125 0 0 1 1.683.977v8.122Z"
+			/>
+		{:else if name === 'forward'}
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M3 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811V8.69ZM12.75 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061a1.125 1.125 0 0 1-1.683-.977V8.69Z"
 			/>
 		{/if}
 	</svg>

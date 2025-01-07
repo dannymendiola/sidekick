@@ -117,7 +117,7 @@ describe('Moments', () => {
 
 		const themeId = await db.themes.add({
 			name: 'Gruvbox',
-			desc: 'Earth tone!'
+			tagline: 'Earth tone!'
 		});
 		const theme = await db.themes.get(themeId);
 
@@ -125,7 +125,7 @@ describe('Moments', () => {
 
 		moment2!.link(theme!);
 
-		expect((await moment2!.getThemes())[0].desc).toBe('Earth tone!');
+		expect((await moment2!.getThemes())[0].tagline).toBe('Earth tone!');
 	});
 
 	it('Moment attr', async () => {
@@ -480,24 +480,24 @@ describe('Themes', () => {
 
 	it('Theme attr', async () => {
 		let themeId = await db.themes.add({
-			name: 'The meaning of life'
+			name: 'Material One'
 		});
 		let theme = (await db.themes.get(themeId))!;
 
 		theme.updateAttr({
-			conclusion: '42'
+			leads_to: 'Eye strain'
 		});
 
-		expect(theme.attr!.conclusion).toBe('42');
+		expect(theme.attr!.leads_to).toBe('Eye strain');
 	});
 
 	it('Clean attr', async () => {
 		let theme = (await addThemeAfter('tail', { name: "Writer's block" }))!;
-		theme.updateAttr({ conclusion: '', conflict: "I don't know where I'm going with this theme" });
+		theme.updateAttr({ thesis: '', conflict: "I don't know where I'm going with this theme" });
 
-		expect(theme.attr?.conclusion).toBe('');
+		expect(theme.attr?.thesis).toBe('');
 		await theme.cleanAttr();
-		expect(theme.attr?.conclusion).toBe(undefined);
+		expect(theme.attr?.thesis).toBe(undefined);
 		expect(theme.attr?.conflict).toBe("I don't know where I'm going with this theme");
 	});
 });
