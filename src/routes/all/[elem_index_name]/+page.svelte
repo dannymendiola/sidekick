@@ -132,6 +132,11 @@
 		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
 			{indexTitle}
 		</h1>
+		{#if $page.params.elem_index_name === 'character-dynamics'}
+			<p class="bold text-sm text-smithers-800 dark:text-smithers-600">
+				⚠️ These haven't been implemented yet
+			</p>
+		{/if}
 		{#if indexTitle !== 'Character Dynamics' && elemCount !== 0}
 			<a
 				class="flex items-center gap-2 rounded-full bg-genie-500 px-3 py-2 dark:bg-genie-950 md:p-2"

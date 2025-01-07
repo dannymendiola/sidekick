@@ -1,7 +1,11 @@
 <script lang="ts">
-	import { skstate, saveProject } from '$lib';
+	import { skstate, saveProject, loadProject, formatDate } from '$lib';
 
 	let drawing = $state(false);
+
+	let fileInput: HTMLInputElement | undefined = $state();
+
+	// fileInput?.click();
 
 	$effect(() => {
 		if (skstate.showSaveLoad) {
@@ -53,7 +57,10 @@
 					class="flex justify-center gap-2 rounded-lg bg-genie-100 px-2 py-4 font-bold hover:bg-genie-200 dark:bg-genie-950 dark:hover:bg-genie-900"
 					aria-label="Export project"
 					onclick={() => {
-						const filename = prompt('File name:', 'SidekickProject');
+						const filename = prompt(
+							'File name:',
+							`Project_${formatDate(new Date().toString(), 'short').replaceAll('/', '-')}`
+						);
 						if (filename !== null) {
 							saveProject(filename);
 							skstate.showSaveLoad = false;
@@ -81,7 +88,8 @@
 					aria-label="Import project"
 					onclick={() => {
 						// TODO
-						alert('This feature is not yet implemented');
+						// alert('This feature is not yet implemented');
+						fileInput?.click();
 					}}
 				>
 					<svg
@@ -101,6 +109,13 @@
 
 					Load project
 				</button>
+				<input
+					type="file"
+					accept=".sidekick"
+					onchange={(e) => loadProject(e)}
+					bind:this={fileInput}
+					hidden
+				/>
 			</div>
 		</div>
 	</div>
