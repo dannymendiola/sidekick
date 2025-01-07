@@ -1,5 +1,3 @@
-// export const prerender = false;
-
 import { EntryGenerator } from './$types';
 
 export const entries: EntryGenerator = () => [

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { vibrate } from '$lib';
+	import { vibrate, saveProject, skstate } from '$lib';
 
 	let currIndex = $derived.by(() => {
 		return $page.route.id === '/all/[elem_index_name]' ? $page.params.elem_index_name : undefined;
@@ -21,7 +21,7 @@
 <span
 	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
 >
-	<div class="flex grow gap-6 md:flex-col md:gap-8">
+	<div class="flex grow justify-center gap-6 md:flex-col md:justify-start md:gap-8">
 		<a
 			class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
 			onpointerup={() => {
@@ -37,14 +37,15 @@
 			/>
 		</a>
 		{@render IndexButton('moments')}
-		{@render IndexButton('themes')}
+		<!-- {@render IndexButton('themes')} -->
+		{@render IndexButton('locations')}
 		{@render IndexButton('characters')}
 		{@render IndexButton('character-dynamics')}
-		{@render IndexButton('locations')}
 	</div>
 	<button
 		class="hidden rounded-lg p-4 hover:bg-donkey-200 dark:hover:bg-donkey-800 md:block"
 		aria-label="Import/export project"
+		onclick={() => (skstate.showSaveLoad = true)}
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +70,7 @@
 )}
 	<a
 		href="/all/{buttonName}"
-		class="flex h-full flex-col items-center justify-center rounded-full px-2 text-sm md:h-min md:w-full md:p-4 {currIndex ===
+		class="flex h-full flex-col items-center justify-center rounded-full p-2 text-sm md:h-min md:w-full md:p-4 {currIndex ===
 		buttonName
 			? 'bg-genie-600 drop-shadow-lg dark:bg-genie-950 [&>div]:text-genie-200'
 			: currElemType === buttonName.slice(0, -1)
