@@ -130,7 +130,7 @@
 <div class="sk-content md:mt-28">
 	<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
 		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
-			{indexTitle}
+			{indexTitle === 'Moments' ? 'Outline' : indexTitle}
 		</h1>
 		{#if page.params.elem_index_name === 'character-dynamics'}
 			<p class="bold text-sm text-smithers-800 dark:text-smithers-600">
