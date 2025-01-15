@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import type { Character, Dynamic, Location, Moment, Theme } from '$lib/db';
 	import { db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
@@ -9,7 +9,7 @@
 	import { quintOut } from 'svelte/easing';
 
 	const indexTitle = $derived(
-		$page.params.elem_index_name
+		page.params.elem_index_name
 			.replace(/-/g, ' ')
 			.replace(/\w\S*/g, (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase())
 	);
@@ -23,7 +23,7 @@
 	});
 
 	const indexName = $derived(
-		$page.params.elem_index_name as
+		page.params.elem_index_name as
 			| 'moments'
 			| 'themes'
 			| 'characters'
@@ -132,7 +132,7 @@
 		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
 			{indexTitle}
 		</h1>
-		{#if $page.params.elem_index_name === 'character-dynamics'}
+		{#if page.params.elem_index_name === 'character-dynamics'}
 			<p class="bold text-sm text-smithers-800 dark:text-smithers-600">
 				⚠️ These haven't been implemented yet
 			</p>

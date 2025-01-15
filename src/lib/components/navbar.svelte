@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { vibrate, saveProject, skstate } from '$lib';
 
 	let currIndex = $derived.by(() => {
-		return $page.route.id === '/all/[elem_index_name]' ? $page.params.elem_index_name : undefined;
+		return page.route.id === '/all/[elem_index_name]' ? page.params.elem_index_name : undefined;
 	});
 
 	let currElemType = $derived.by(() => {
-		return $page.route.id?.slice(1);
+		return page.route.id?.slice(1);
 	});
 
 	const capitalize = (s: string) => {

@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { QLEditor, vibrate } from '$lib';
 	import { db, type Theme } from '$lib/db';
 	import { type ThemeAttr } from '$lib/types/db.d';
 	import { liveQuery } from 'dexie';
 	import Delta from 'quill-delta';
 
-	const themeId = $derived($page.url.searchParams.get('id'));
+	const themeId = $derived(page.url.searchParams.get('id'));
 
 	$effect(() => {
 		if (themeId) {

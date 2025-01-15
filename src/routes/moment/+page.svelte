@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { QLEditor, vibrate } from '$lib';
 	import { db } from '$lib/db';
 	import { type MomentAttr } from '$lib/types/db.d';
 	import { liveQuery } from 'dexie';
 	import Delta from 'quill-delta';
 
-	const momentId = $derived($page.url.searchParams.get('id'));
+	const momentId = $derived(page.url.searchParams.get('id'));
 
 	$effect(() => {
 		if (momentId) {
