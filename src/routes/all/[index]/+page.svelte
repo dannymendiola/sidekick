@@ -9,7 +9,7 @@
 	import { quintOut } from 'svelte/easing';
 
 	const indexTitle = $derived(
-		page.params.elem_index_name
+		page.params.index
 			.replace(/-/g, ' ')
 			.replace(/\w\S*/g, (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase())
 	);
@@ -23,12 +23,7 @@
 	});
 
 	const indexName = $derived(
-		page.params.elem_index_name as
-			| 'moments'
-			| 'themes'
-			| 'characters'
-			| 'character-dynamics'
-			| 'locations'
+		page.params.index as 'moments' | 'themes' | 'characters' | 'character-dynamics' | 'locations'
 	);
 
 	$effect(() => {
@@ -132,7 +127,7 @@
 		<h1 class="w-full -rotate-2 text-center font-brand text-3xl uppercase md:text-left md:text-4xl">
 			{indexTitle === 'Moments' ? 'Outline' : indexTitle}
 		</h1>
-		{#if page.params.elem_index_name === 'character-dynamics'}
+		{#if page.params.index === 'character-dynamics'}
 			<p class="bold text-sm text-smithers-800 dark:text-smithers-600">
 				⚠️ These haven't been implemented yet
 			</p>

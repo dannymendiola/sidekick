@@ -3,7 +3,7 @@
 	import { vibrate, saveProject, skstate } from '$lib';
 
 	let currIndex = $derived.by(() => {
-		return page.route.id === '/all/[elem_index_name]' ? page.params.elem_index_name : undefined;
+		return page.route.id === '/all/[index]' ? page.params.index : undefined;
 	});
 
 	let currElemType = $derived.by(() => {
@@ -45,7 +45,10 @@
 	<button
 		class="hidden rounded-lg p-4 hover:bg-donkey-200 dark:hover:bg-donkey-800 md:block"
 		aria-label="Import/export project"
-		onclick={() => (skstate.showSaveLoad = true)}
+		onclick={() => {
+			skstate.showSaveLoad = true;
+			console.log('showSaveLoad');
+		}}
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
