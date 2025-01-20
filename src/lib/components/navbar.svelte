@@ -19,11 +19,11 @@
 </script>
 
 <span
-	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
+	class="bottom-0 z-[100] flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
 >
 	<div class="flex grow justify-center gap-6 md:flex-col md:justify-start md:gap-8">
 		<a
-			class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
+			class="hidden rounded-full bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
 			onpointerup={() => {
 				vibrate();
 			}}

@@ -205,46 +205,6 @@
 		<section class="mb-8 mt-4 flex flex-col gap-2">
 			{@render Connections()}
 		</section>
-		<section class="mb-8 mt-4 flex flex-col gap-2">
-			<div class="mb-3 flex items-center gap-4">
-				<h2 class="text:xl cursor-default font-title font-bold md:text-2xl">Foundation</h2>
-			</div>
-			{#each attrKeys as attrKey (`attr-${attrKey}`)}
-				{#if attrKey !== 'notes'}
-					<QLEditor
-						id={attrKey}
-						inputMode="info"
-						title={attrDisplayNames[attrKey]?.name}
-						placeholder={attrDisplayNames[attrKey]?.placeholder}
-						initText={getAttr(attrKey)}
-						onfocusout={async () => {
-							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-							await moment?.cleanAttr();
-						}}
-						onkeyup={async () => {
-							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-						}}
-						bind:text={attrBuf[attrKey]}
-					/>
-				{:else}
-					<QLEditor
-						id={attrKey}
-						inputMode="full"
-						title="Notes"
-						initText={getAttr(attrKey)}
-						twHeight="min-h-32"
-						onfocusout={async () => {
-							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-							await moment?.cleanAttr();
-						}}
-						onkeyup={async () => {
-							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-						}}
-						bind:delta={attrBuf[attrKey]}
-					/>
-				{/if}
-			{/each}
-		</section>
 		<section class="mb-8 mt-4 flex flex-col overflow-y-auto">
 			<div class="mb-3 flex items-center gap-4">
 				<h2 class="cursor-pointer font-title text-xl font-bold md:text-2xl" aria-label="Body">
@@ -254,7 +214,7 @@
 							editing.body = !editing.body;
 						}}
 					>
-						Compose
+						Outline
 					</button>
 				</h2>
 				<button
@@ -307,6 +267,46 @@
 					<p class="font-bold text-donkey-400 dark:text-donkey-600">View</p>
 				</button>
 			{/if}
+		</section>
+		<section class="mb-8 mt-4 flex flex-col gap-2">
+			<div class="mb-3 flex items-center gap-4">
+				<h2 class="text:xl cursor-default font-title font-bold md:text-2xl">Foundation</h2>
+			</div>
+			{#each attrKeys as attrKey (`attr-${attrKey}`)}
+				{#if attrKey !== 'notes'}
+					<QLEditor
+						id={attrKey}
+						inputMode="info"
+						title={attrDisplayNames[attrKey]?.name}
+						placeholder={attrDisplayNames[attrKey]?.placeholder}
+						initText={getAttr(attrKey)}
+						onfocusout={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await moment?.cleanAttr();
+						}}
+						onkeyup={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+						}}
+						bind:text={attrBuf[attrKey]}
+					/>
+				{:else}
+					<QLEditor
+						id={attrKey}
+						inputMode="full"
+						title="Notes"
+						initText={getAttr(attrKey)}
+						twHeight="min-h-32"
+						onfocusout={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await moment?.cleanAttr();
+						}}
+						onkeyup={async () => {
+							await moment?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+						}}
+						bind:delta={attrBuf[attrKey]}
+					/>
+				{/if}
+			{/each}
 		</section>
 	{/if}
 </div>

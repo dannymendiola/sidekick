@@ -53,7 +53,7 @@
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="absolute z-20 flex h-20 w-screen items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:bg-transparent md:pr-8 dark:md:bg-transparent"
+		class="absolute z-20 flex h-20 w-screen items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:hidden md:pr-8 dark:md:bg-transparent"
 	>
 		<button
 			class="rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
@@ -102,6 +102,18 @@
 				</svg>
 			</button>
 		</div>
+	</div>
+	<div
+		class="absolute z-10 hidden h-20 w-screen items-center justify-end bg-donkey-50 p-4 dark:bg-donkey-950 md:flex md:pr-8"
+	>
+		<button
+			class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
+			onpointerup={() => {
+				skstate.updateSettings({ theme: skstate.darkMode ? 'light' : 'dark' });
+			}}
+		>
+			{@render ThemeIcon(skstate.darkMode ? 'sun' : 'moon')}
+		</button>
 	</div>
 {/snippet}
 
