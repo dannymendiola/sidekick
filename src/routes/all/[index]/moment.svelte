@@ -16,7 +16,7 @@
 	const focused = $derived(bodyFocused || titleFocused);
 
 	const placeholders = [
-		'And then they kissed',
+		'And then everything worked out',
 		'Insert fight sequence',
 		'The protagonist is given a choice',
 		'Events occur',
@@ -26,7 +26,7 @@
 
 <div
 	class="rounded-xl border-l px-2 py-1 transition-colors duration-[50ms] {focused
-		? 'border-genie-500 dark:border-genie-950'
+		? 'border-genie-600 dark:border-genie-900'
 		: 'border-donkey-200 dark:border-donkey-900'}"
 >
 	<!-- <div class="mb-2 font-serif text-2xl font-bold">{title}</div> -->
