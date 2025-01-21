@@ -11,6 +11,7 @@
 		title?: string;
 		delta?: Delta; // for binding
 		text?: string; // for binding
+		focused?: boolean;
 		initText?: string | Delta;
 		toolbar?: boolean;
 		inputMode?: 'full' | 'info';
@@ -33,6 +34,7 @@
 		title = '',
 		delta = $bindable(),
 		text = $bindable(),
+		focused = $bindable(false),
 		inputMode = 'full',
 		toolbar = inputMode === 'full',
 		spellcheck = false,
@@ -52,7 +54,7 @@
 		skstate.quillInit = true;
 	}
 
-	let focused = $state(false);
+	// let focused = $state(false);
 
 	const ALLOWED_FMTS =
 		inputMode === 'full' ? ['bold', 'italic', 'underline', 'indent', 'list', 'align'] : [];
