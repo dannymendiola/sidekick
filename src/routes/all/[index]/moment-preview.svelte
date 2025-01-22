@@ -42,7 +42,7 @@
 		: 'border-donkey-200 dark:border-donkey-800'}"
 >
 	<div class="flex items-center justify-between">
-		<div class="max-w-[66%]">
+		<div class="max-w-[80%]">
 			<QLEditor
 				initText={title}
 				id={`t-${id}`}
@@ -65,8 +65,8 @@
 				bind:text={currTitle}
 			/>
 		</div>
-		<a href={`/moment?id=${id}`} aria-label="Expanded moment"
-			><svg
+		<a href={`/moment?id=${id}`} aria-label="Expanded moment">
+			<!-- <svg
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 24 24"
 				fill="currentColor"
@@ -79,6 +79,19 @@
 				/>
 				<path
 					d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z"
+				/>
+			</svg> -->
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				class="size-5 stroke-2"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
 				/>
 			</svg>
 		</a>

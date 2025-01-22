@@ -7,7 +7,7 @@
 	import { liveQuery, type Observable } from 'dexie';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
-	import MomentPeek from './moment-peek.svelte';
+	import MomentPreview from './moment-preview.svelte';
 
 	const indexTitle = $derived(
 		page.params.index
@@ -180,9 +180,10 @@
 {#snippet Elements(touchscreen: boolean)}
 	{#if $elements && $elements.length > 0}
 		<!-- {#if !touchscreen} -->
-		{#if indexTitle !== 'Moments'}
+		<!-- {#if indexTitle !== 'Moments'} -->
+		{#if indexTitle === 'Characters'}
 			<!-- desktop list -->
-			{#each $elements as element (element.id)}
+			<!-- {#each $elements as element (element.id)}
 				<a
 					class="rounded-lg bg-donkey-100 p-6 font-title text-xl font-bold italic hover:bg-donkey-200 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
 					href="/{elemPathSeg}?id={element.id}"
@@ -215,10 +216,23 @@
 						</h5>
 					{/if}
 				</a>
-			{/each}
-		{:else}
+			{/each} -->
 			{#each $elements as element (element.id)}
-				<MomentPeek
+				<a href="/character?id={element.id}">{(element as Character).name}</a>
+			{/each}
+		{:else if indexTitle === 'Character Dynamics'}
+			{#each $elements as element (element.id)}
+				<!-- <div>character dynamic</div> -->
+				<a href="/character-dynamic?id={element.id}">{(element as Dynamic).id}</a>
+			{/each}
+		{:else if indexTitle === 'Locations'}
+			{#each $elements as element (element.id)}
+				<!-- <div>location</div> -->
+				<a href="/location?id={element.id}">{(element as Location).name}</a>
+			{/each}
+		{:else if indexTitle === 'Moments'}
+			{#each $elements as element (element.id)}
+				<MomentPreview
 					title={(element as Moment).name}
 					body={(element as Moment).body}
 					id={element.id}

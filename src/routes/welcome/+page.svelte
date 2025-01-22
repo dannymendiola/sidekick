@@ -14,7 +14,7 @@
 	{#if mounted}
 		<h1
 			in:scale={{ duration: 600, easing: elasticOut }}
-			class="mt-[15vh] -rotate-3 select-none text-center font-brand text-5xl uppercase text-robin-700 dark:text-smithers-600"
+			class="mt-[15vh] -rotate-3 select-none text-center font-brand text-5xl uppercase text-robin-500 dark:text-smithers-600"
 		>
 			Sidekick
 		</h1>
