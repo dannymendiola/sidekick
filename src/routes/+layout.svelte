@@ -53,17 +53,17 @@
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="absolute z-20 flex h-20 w-screen items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:hidden md:pr-8 dark:md:bg-transparent"
+		class="absolute z-20 flex h-20 w-screen items-center justify-between bg-donkey-50 bg-transparent p-4 dark:bg-donkey-950 md:hidden md:pr-8 dark:md:bg-transparent"
 	>
 		<button
-			class="rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
+			class="rounded-xl bg-donkey-50 hover:bg-donkey-300 dark:bg-donkey-900 hover:dark:bg-donkey-800 md:hidden"
 			onpointerup={() => {
 				vibrate();
 				goto('/welcome');
 			}}
 		>
 			<img
-				class="h-auto w-16 drop-shadow-lg"
+				class="h-auto w-16 drop-shadow-md dark:drop-shadow-none"
 				src="/logo-square-sm.png"
 				alt="The word 'Sidekick' in yellow serif font over a red oval"
 			/>
@@ -104,7 +104,7 @@
 		</div>
 	</div>
 	<div
-		class="absolute z-10 hidden h-20 w-screen items-center justify-end bg-donkey-50 p-4 dark:bg-donkey-950 md:flex md:pr-8"
+		class="absolute z-10 hidden h-20 w-screen items-center justify-end bg-transparent p-4 md:flex md:pr-8"
 	>
 		<button
 			class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"

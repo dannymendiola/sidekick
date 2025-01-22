@@ -20,10 +20,10 @@
 		</h1>
 	{/if}
 	<div class="mt-6 flex flex-col items-center justify-center gap-8">
-		<p class="select-none font-title font-bold text-donkey-600 dark:text-donkey-400">
-			- Map your story -
-		</p>
-		<p class="text-center dark:text-donkey-500 md:px-32">
+		<h2 class="select-none font-title text-lg font-bold text-donkey-600 dark:text-donkey-400">
+			Map your story
+		</h2>
+		<p class=" max-w-xl text-center dark:text-donkey-500 md:px-32">
 			⚠️ This is a pre-beta version complete with bugs, limited functionality, and potential
 			breaking changes. For a stable, fully-featured app, please check back later.
 		</p>

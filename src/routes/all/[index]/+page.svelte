@@ -7,7 +7,7 @@
 	import { liveQuery, type Observable } from 'dexie';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
-	import MomentElem from './moment.svelte';
+	import MomentPeek from './moment-peek.svelte';
 
 	const indexTitle = $derived(
 		page.params.index
@@ -179,55 +179,55 @@
 
 {#snippet Elements(touchscreen: boolean)}
 	{#if $elements && $elements.length > 0}
-		{#if !touchscreen}
-			{#if indexTitle !== 'Moments'}
-				<!-- desktop list -->
-				{#each $elements as element (element.id)}
-					<a
-						class="rounded-lg bg-donkey-100 p-6 font-title text-xl font-bold italic hover:bg-donkey-200 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
-						href="/{elemPathSeg}?id={element.id}"
-						draggable={true}
-						ondragstart={(e) => handleDragStart(e, element.id)}
-						ondragend={(e) => handleDragEnd(e)}
-						ondragover={(e) => e.preventDefault()}
-						ondragenter={async () => handleDragEnter(element.id)}
-						ondragleave={handleDragLeave}
-						ondrop={() => handleDrop()}
-						animate:flip={{ duration: 200, easing: quintOut }}
-					>
-						<div class="flex w-full justify-between">
-							<h4 class="text-left">
-								{indexTitle === 'Moments'
-									? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
-									: indexTitle === 'Character Dynamics'
-										? ''
-										: (element as Character | Theme | Location).name}
-								{#if indexTitle === 'Character Dynamics'}
-									{#await element.toString() then name}
-										{name}
-									{/await}
-								{/if}
-							</h4>
-						</div>
-						{#if 'tagline' in element}
-							<h5 class="mt-2 font-sans text-sm not-italic text-donkey-500 dark:text-donkey-600">
-								{element.tagline}
-							</h5>
-						{/if}
-					</a>
-				{/each}
-			{:else}
-				{#each $elements as element (element.id)}
-					<MomentElem
-						title={(element as Moment).name}
-						body={(element as Moment).body}
-						id={element.id}
-					/>
-				{/each}
-			{/if}
-		{:else}
-			<!-- mobile list -->
+		<!-- {#if !touchscreen} -->
+		{#if indexTitle !== 'Moments'}
+			<!-- desktop list -->
 			{#each $elements as element (element.id)}
+				<a
+					class="rounded-lg bg-donkey-100 p-6 font-title text-xl font-bold italic hover:bg-donkey-200 dark:bg-donkey-900 dark:text-donkey-400 hover:dark:bg-donkey-800 md:text-2xl"
+					href="/{elemPathSeg}?id={element.id}"
+					draggable={true}
+					ondragstart={(e) => handleDragStart(e, element.id)}
+					ondragend={(e) => handleDragEnd(e)}
+					ondragover={(e) => e.preventDefault()}
+					ondragenter={async () => handleDragEnter(element.id)}
+					ondragleave={handleDragLeave}
+					ondrop={() => handleDrop()}
+					animate:flip={{ duration: 200, easing: quintOut }}
+				>
+					<div class="flex w-full justify-between">
+						<h4 class="text-left">
+							{indexTitle === 'Moments'
+								? (element as Moment).name?.replaceAll('\n', '') || 'Untitled Moment'
+								: indexTitle === 'Character Dynamics'
+									? ''
+									: (element as Character | Theme | Location).name}
+							{#if indexTitle === 'Character Dynamics'}
+								{#await element.toString() then name}
+									{name}
+								{/await}
+							{/if}
+						</h4>
+					</div>
+					{#if 'tagline' in element}
+						<h5 class="mt-2 font-sans text-sm not-italic text-donkey-500 dark:text-donkey-600">
+							{element.tagline}
+						</h5>
+					{/if}
+				</a>
+			{/each}
+		{:else}
+			{#each $elements as element (element.id)}
+				<MomentPeek
+					title={(element as Moment).name}
+					body={(element as Moment).body}
+					id={element.id}
+				/>
+			{/each}
+		{/if}
+		<!-- {:else} -->
+		<!-- mobile list -->
+		<!-- {#each $elements as element (element.id)}
 				<div class="flex w-full" animate:flip={{ duration: 200, easing: quintOut }}>
 					<a
 						class="grow rounded-bl-lg rounded-tl-lg bg-donkey-100 p-6 font-title text-xl font-bold italic dark:bg-donkey-900 dark:text-donkey-400 md:text-2xl"
@@ -329,7 +329,7 @@
 					</div>
 				</div>
 			{/each}
-		{/if}
+		{/if} -->
 	{/if}
 {/snippet}
 

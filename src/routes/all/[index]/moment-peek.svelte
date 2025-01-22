@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Delta } from 'quill/core';
 	import { QLEditor } from '$lib';
+	import { liveQuery } from 'dexie';
+	import { db } from '$lib/db';
 
 	interface Props {
 		title?: string;
@@ -15,21 +17,30 @@
 
 	const focused = $derived(bodyFocused || titleFocused);
 
+	let currTitle = $state(title);
+	let currBody = $state(body);
+
+	// const momentQuery = liveQuery(() => db.moments.get(id));
+	// const moment = $derived($momentQuery);
+
+	// $inspect(moment);
+
 	const placeholders = [
 		'And then everything worked out',
 		'Insert fight sequence',
 		'The protagonist is given a choice',
 		'Events occur',
-		'That thing that was hinted at earlier comes back to bite everyone'
+		'That thing that was hinted at earlier comes back to bite everyone',
+		"The antagonist's master plan is revealed",
+		'The protagonist suffers unforeseen consequences'
 	];
 </script>
 
 <div
-	class="rounded-xl border-l px-2 py-1 transition-colors duration-[50ms] {focused
-		? 'border-genie-600 dark:border-genie-900'
-		: 'border-donkey-200 dark:border-donkey-900'}"
+	class="rounded-xl border-l px-2 py-1 {focused
+		? 'border-smithers-600 dark:border-smithers-800'
+		: 'border-donkey-200 dark:border-donkey-800'}"
 >
-	<!-- <div class="mb-2 font-serif text-2xl font-bold">{title}</div> -->
 	<div class="flex items-center justify-between">
 		<div class="max-w-[66%]">
 			<QLEditor
@@ -38,8 +49,20 @@
 				twBG="bg-donkey-50 dark:bg-donkey-950"
 				toolbar={false}
 				twClass="[&>.ql-editor>*]:font-serif [&>.ql-editor>*]:text-2xl [&>.ql-editor>*]:font-bold [&>.ql-editor::before]:font-serif [&>.ql-editor::before]:text-2xl [&>.ql-editor::before]:font-bold"
-				bind:focused={titleFocused}
 				placeholder="Untitled moment"
+				inputMode="info"
+				onkeyup={async () => {
+					if (id) {
+						await db.moments.update(id, { name: currTitle });
+					}
+				}}
+				onfocusout={async () => {
+					if (id) {
+						await db.moments.update(id, { name: currTitle });
+					}
+				}}
+				bind:focused={titleFocused}
+				bind:text={currTitle}
 			/>
 		</div>
 		<a href={`/moment?id=${id}`} aria-label="Expanded moment"
@@ -66,7 +89,18 @@
 		{id}
 		twBG="bg-donkey-50 dark:bg-donkey-950"
 		toolbar={false}
-		bind:focused={bodyFocused}
 		placeholder={placeholders[Math.floor(Math.random() * placeholders.length)]}
+		onkeyup={async () => {
+			if (id) {
+				await db.moments.update(id, { body: currBody });
+			}
+		}}
+		onfocusout={async () => {
+			if (id) {
+				await db.moments.update(id, { body: currBody });
+			}
+		}}
+		bind:focused={bodyFocused}
+		bind:delta={currBody}
 	/>
 </div>
