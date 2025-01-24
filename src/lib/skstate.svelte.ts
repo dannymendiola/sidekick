@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, type SKSettings } from '$lib';
+import { DEFAULT_SETTINGS } from '$lib';
 
 class SKState {
 	#settings: typeof DEFAULT_SETTINGS | undefined = $state();

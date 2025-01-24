@@ -146,7 +146,7 @@
 	</div>
 	{#if $elements && $elements.length > 0}
 		<div class="mt-4 flex flex-col gap-6 md:mt-16">
-			{@render Elements(skstate.touchscreen)}
+			{@render Elements()}
 		</div>
 	{:else}
 		<div class="flex w-full flex-col items-center justify-center">
@@ -177,7 +177,7 @@
 	<div class="h-24"></div>
 </div>
 
-{#snippet Elements(touchscreen: boolean)}
+{#snippet Elements()}
 	{#if $elements && $elements.length > 0}
 		<!-- {#if !touchscreen} -->
 		<!-- {#if indexTitle !== 'Moments'} -->
@@ -222,12 +222,10 @@
 			{/each}
 		{:else if indexTitle === 'Character Dynamics'}
 			{#each $elements as element (element.id)}
-				<!-- <div>character dynamic</div> -->
 				<a href="/character-dynamic?id={element.id}">{(element as Dynamic).id}</a>
 			{/each}
 		{:else if indexTitle === 'Locations'}
 			{#each $elements as element (element.id)}
-				<!-- <div>location</div> -->
 				<a href="/location?id={element.id}">{(element as Location).name}</a>
 			{/each}
 		{:else if indexTitle === 'Moments'}

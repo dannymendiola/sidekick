@@ -2,9 +2,11 @@
 	import { skstate, DEFAULT_SETTINGS, Navbar } from '$lib';
 	import { goto } from '$app/navigation';
 	import { vibrate } from '$lib';
-	import { page } from '$app/stores';
+	// import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import '../app.css';
 	import SaveLoadModal from '$lib/components/save-load-modal.svelte';
+	import { untrack } from 'svelte';
 
 	let { children } = $props();
 
@@ -19,12 +21,12 @@
 		}
 
 		const metaTheme = document.querySelector('meta[name="theme-color"]');
-		metaTheme?.setAttribute('content', skstate.darkMode ? '#161619' : '#ced1d3');
+		metaTheme?.setAttribute('content', skstate.darkMode ? '#130c02' : '#f2e8d6');
 	});
 
-	page.subscribe((v) => {
-		if (v.url && v.url.pathname !== '/') {
-			skstate.updateSettings({ currPath: `${v.url.pathname}${v.url.search}` });
+	$effect(() => {
+		if (page.url && page.url.pathname !== '/') {
+			untrack(() => skstate.updateSettings({ currPath: `${page.url.pathname}${page.url.search}` }));
 		}
 	});
 
