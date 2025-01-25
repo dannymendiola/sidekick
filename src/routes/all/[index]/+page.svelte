@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import type { Character, Dynamic, Location, Moment, Theme } from '$lib/db';
-	import { db } from '$lib/db';
+	import { addMomentAfter, db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
 	import { goto } from '$app/navigation';
 	import { liveQuery, type Observable } from 'dexie';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
-	import MomentPreview from './moment-preview.svelte';
+	// import MomentPreview from './moment-preview.svelte';
+	// import CharacterPreview from './character-preview.svelte';
+	import ElemPreview from './elem-preview.svelte';
 
 	const indexTitle = $derived(
 		page.params.index
@@ -24,7 +26,7 @@
 	});
 
 	const indexName = $derived(
-		page.params.index as 'moments' | 'themes' | 'characters' | 'character-dynamics' | 'locations'
+		page.params.index as 'moments' | 'characters' | 'character-dynamics' | 'locations'
 	);
 
 	$effect(() => {
@@ -36,16 +38,13 @@
 
 	const tableName = $derived(indexName === 'character-dynamics' ? 'dynamics' : indexName);
 
-	type StoryElem = Moment | Theme | Character | Dynamic | Location;
+	type StoryElem = Moment | Character | Dynamic | Location;
 
 	let elements: Observable<StoryElem[]> | undefined = $state();
 	$effect(() => {
 		switch (indexName) {
 			case 'moments':
 				elements = liveQuery(() => db.moments.orderBy('order').toArray());
-				break;
-			case 'themes':
-				elements = liveQuery(() => db.themes.orderBy('order').toArray());
 				break;
 			case 'characters':
 				elements = liveQuery(() => db.characters.orderBy('order').toArray());
@@ -125,7 +124,12 @@
 
 <div class="sk-content md:mt-28">
 	<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
-		<h1 class="w-full text-center font-serif text-3xl font-bold md:text-left md:text-4xl">
+		<h1
+			class="w-full text-center font-serif text-3xl font-bold md:text-left md:text-4xl"
+			onpointerup={() => {
+				addMomentAfter('root', {});
+			}}
+		>
 			{indexTitle === 'Moments' ? 'Outline' : indexTitle}
 		</h1>
 		{#if page.params.index === 'character-dynamics'}
@@ -179,6 +183,31 @@
 
 {#snippet Elements()}
 	{#if $elements && $elements.length > 0}
+		<!-- {#if indexTitle === 'Characters'}
+			{#each $elements as element (element.id)}
+				<ElemPreview id={element.id} table="characters" />
+			{/each}
+		{:else if indexTitle === 'Character Dynamics'}
+			{#each $elements as element (element.id)}
+				<a href="/character-dynamic?id={element.id}">{(element as Dynamic).id}</a>
+			{/each}
+		{:else if indexTitle === 'Locations'}
+			{#each $elements as element (element.id)}
+				<ElemPreview id={element.id} table="locations" />
+			{/each}
+		{:else if indexTitle === 'Moments'}
+			{#each $elements as element (element.id)}
+				<ElemPreview id={element.id} table="moments" />
+			{/each}
+		{/if} -->
+		{#each $elements as element (element.id)}
+			<ElemPreview id={element.id} table={tableName} collapsed={element.previewCollapsed} />
+		{/each}
+	{/if}
+{/snippet}
+
+{#snippet ElementsDeleteMe()}
+	{#if $elements && $elements.length > 0}
 		<!-- {#if !touchscreen} -->
 		<!-- {#if indexTitle !== 'Moments'} -->
 		{#if indexTitle === 'Characters'}
@@ -218,7 +247,8 @@
 				</a>
 			{/each} -->
 			{#each $elements as element (element.id)}
-				<a href="/character?id={element.id}">{(element as Character).name}</a>
+				<!-- <a href="/character?id={element.id}">{(element as Character).name}</a> -->
+				<ElemPreview id={element.id} table="characters" />
 			{/each}
 		{:else if indexTitle === 'Character Dynamics'}
 			{#each $elements as element (element.id)}
@@ -226,15 +256,17 @@
 			{/each}
 		{:else if indexTitle === 'Locations'}
 			{#each $elements as element (element.id)}
-				<a href="/location?id={element.id}">{(element as Location).name}</a>
+				<!-- <a href="/location?id={element.id}">{(element as Location).name}</a> -->
+				<ElemPreview id={element.id} table="locations" />
 			{/each}
 		{:else if indexTitle === 'Moments'}
 			{#each $elements as element (element.id)}
-				<MomentPreview
+				<!-- <MomentPreview
 					title={(element as Moment).name}
 					body={(element as Moment).body}
 					id={element.id}
-				/>
+				/> -->
+				<ElemPreview id={element.id} table="moments" />
 			{/each}
 		{/if}
 		<!-- {:else} -->

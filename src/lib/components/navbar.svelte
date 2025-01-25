@@ -21,20 +21,20 @@
 		switch (buttonName) {
 			case 'locations':
 				return target === 'bg'
-					? 'bg-wazowski-600 dark:bg-wazowski-950'
-					: 'fill-wazowski-100 dark:fill-wazowski-300';
+					? 'bg-wazowski-200 dark:bg-wazowski-950'
+					: 'fill-wazowski-900 dark:fill-wazowski-300';
 			case 'moments':
 				return target === 'bg'
-					? 'bg-smithers-600 dark:bg-smithers-950'
-					: 'fill-smithers-50 dark:fill-smithers-300';
+					? 'bg-smithers-400 dark:bg-smithers-950'
+					: 'fill-smithers-950 dark:fill-smithers-300';
 			case 'characters':
 				return target === 'bg'
-					? 'bg-genie-600 dark:bg-genie-950'
-					: 'fill-genie-100 dark:fill-genie-400';
+					? 'bg-genie-400 dark:bg-genie-950'
+					: 'fill-genie-950 dark:fill-genie-400';
 			case 'character-dynamics':
 				return target === 'bg'
-					? 'bg-donnie-600 dark:bg-donnie-950'
-					: 'fill-donnie-50 dark:fill-donnie-200';
+					? 'bg-donnie-200 dark:bg-donnie-950'
+					: 'fill-donnie-950 dark:fill-donnie-200';
 		}
 	};
 </script>

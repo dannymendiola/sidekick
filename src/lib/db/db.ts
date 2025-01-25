@@ -120,12 +120,13 @@ class Moment {
 	id!: string;
 	order?: number;
 	name?: string;
-	tagline?: string;
+	// tagline?: string;
 	body?: Delta;
 	attr?: MomentAttr;
 	locations?: string[];
 	characters?: string[];
 	themes?: string[];
+	previewCollapsed?: boolean;
 
 	/**
 	 * Set the order of the element from the given preceding element
@@ -259,6 +260,7 @@ class Theme {
 	tagline?: string;
 	// body?: string;
 	attr?: ThemeAttr;
+	previewCollapsed?: boolean;
 
 	orderAfter(preceding: Theme | 'root' | 'tail'): Promise<Theme> {
 		return orderAfter(this, preceding, db.themes);
@@ -352,9 +354,11 @@ class Location {
 	id!: string;
 	order?: number;
 	name?: string;
-	tagline?: string;
+	// tagline?: string;
+	body?: Delta;
 	attr?: LocationAttr;
 	themes?: string[];
+	previewCollapsed?: boolean;
 
 	orderAfter(preceding: Location | 'root' | 'tail'): Promise<Location> {
 		return orderAfter(this, preceding, db.locations);
@@ -438,12 +442,14 @@ db.locations.hook('creating', (pk, obj, _) => {
 
 class Character {
 	id!: string;
-	tagline?: string;
+	// tagline?: string;
 	name?: string;
+	body?: Delta;
 	order?: number;
 	attr?: CharacterAttr;
 	locations?: string[];
 	themes?: string[];
+	previewCollapsed?: boolean;
 
 	orderAfter(preceding: Character | 'root' | 'tail'): Promise<Character> {
 		return orderAfter(this, preceding, db.characters);
@@ -564,8 +570,11 @@ class Dynamic {
 	order?: number;
 	aCharId!: string;
 	bCharId!: string;
+	name: string = '';
+	body?: Delta;
 	attr?: DynamicAttr;
 	themes?: string[];
+	previewCollapsed?: boolean;
 
 	orderAfter(preceding: Dynamic | 'root' | 'tail') {
 		return orderAfter(this, preceding, db.dynamics);

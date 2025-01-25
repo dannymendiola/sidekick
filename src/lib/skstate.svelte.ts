@@ -1,9 +1,11 @@
 import { DEFAULT_SETTINGS } from '$lib';
+import { prefersReducedMotion } from 'svelte/motion';
 
 class SKState {
 	#settings: typeof DEFAULT_SETTINGS | undefined = $state();
 	quillInit = $state(false);
 	showSaveLoad = $state(false);
+	prefersReducedMotion = $derived(prefersReducedMotion.current);
 
 	get settings() {
 		return this.#settings ? this.#settings : DEFAULT_SETTINGS;
