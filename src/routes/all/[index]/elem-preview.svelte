@@ -24,6 +24,8 @@
 
 	const element = liveQuery(async () => await db[table].get(id));
 
+	const expandHref = $derived(table === 'dynamics' ? 'character-dynamic' : table.slice(0, -1));
+
 	const twFocusedBorder = $derived.by(() => {
 		switch (table) {
 			case 'characters':
@@ -95,16 +97,6 @@
 						await db[table].update(id, { previewCollapsed: !collapsed });
 					}}
 				>
-					<!-- <svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-4 md:size-5"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-					</svg> -->
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 20 20"
@@ -137,10 +129,8 @@
 					bind:focused={titleFocused}
 					bind:text={currName}
 				/>
-				<!-- </div> -->
 			</div>
-			<!-- <div class="flex items-center gap-4"> -->
-			<a href="/character?id={id}" aria-label="Open character">
+			<a href="/{expandHref}?id={id}" aria-label="Open character">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -155,7 +145,6 @@
 					/>
 				</svg>
 			</a>
-			<!-- </div> -->
 		</div>
 
 		{#if !collapsed}

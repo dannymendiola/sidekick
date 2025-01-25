@@ -280,7 +280,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="w-full font-bold">
+		<!-- <div class="w-full font-bold">
 			<QLEditor
 				id="char-desc"
 				initText={char?.tagline}
@@ -306,7 +306,7 @@
 				}}
 				bind:text={charTagline}
 			/>
-		</div>
+		</div> -->
 	{/await}
 	{#if character}
 		{@render AttrSection('arc')}
