@@ -10,9 +10,10 @@
 		table: 'characters' | 'moments' | 'locations' | 'dynamics';
 		id: string;
 		collapsed?: boolean;
+		selectionColor?: 'blue' | 'green' | 'yellow' | 'purple';
 	}
 
-	const { table, id, collapsed }: Props = $props();
+	const { table, id, collapsed, selectionColor }: Props = $props();
 
 	let bodyFocused = $state(false);
 	let titleFocused = $state(false);
@@ -90,7 +91,7 @@
 		<div class="flex items-center justify-between">
 			<div class="flex max-w-[80%] gap-1">
 				<button
-					class={`mt-[1.375rem] h-fit md:mt-5 ${collapsed && 'rotate-180 '}${skstate.prefersReducedMotion ? 'transition-none' : 'transition-transform duration-300 ease-out'}`}
+					class={`mt-[1.375rem] h-fit md:mt-5 ${collapsed && 'rotate-180 '}${skstate.prefersReducedMotion ? 'transition-none' : 'transition-transform duration-200 ease-out'}`}
 					aria-label={collapsed ? 'Expand' : 'Collapse'}
 					onclick={async () => {
 						// @ts-ignore
@@ -126,6 +127,7 @@
 						// @ts-ignore
 						await db[table].update(id, { name: currName });
 					}}
+					{selectionColor}
 					bind:focused={titleFocused}
 					bind:text={currName}
 				/>
@@ -149,7 +151,7 @@
 
 		{#if !collapsed}
 			<div
-				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 400, easing: quintInOut }}
+				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 200, easing: quintInOut }}
 			>
 				<QLEditor
 					initText={$element.body}
@@ -165,6 +167,7 @@
 						// @ts-ignore
 						await db[table].update(id, { body: currBody });
 					}}
+					{selectionColor}
 					bind:focused={bodyFocused}
 					bind:delta={currBody}
 				/>

@@ -29,6 +29,19 @@
 		page.params.index as 'moments' | 'characters' | 'character-dynamics' | 'locations'
 	);
 
+	const selectionColor = $derived.by(() => {
+		switch (indexName) {
+			case 'moments':
+				return 'yellow';
+			case 'character-dynamics':
+				return 'purple';
+			case 'characters':
+				return 'blue';
+			case 'locations':
+				return 'green';
+		}
+	});
+
 	$effect(() => {
 		indexName;
 		touchReorderingId = undefined;
@@ -183,25 +196,13 @@
 
 {#snippet Elements()}
 	{#if $elements && $elements.length > 0}
-		<!-- {#if indexTitle === 'Characters'}
-			{#each $elements as element (element.id)}
-				<ElemPreview id={element.id} table="characters" />
-			{/each}
-		{:else if indexTitle === 'Character Dynamics'}
-			{#each $elements as element (element.id)}
-				<a href="/character-dynamic?id={element.id}">{(element as Dynamic).id}</a>
-			{/each}
-		{:else if indexTitle === 'Locations'}
-			{#each $elements as element (element.id)}
-				<ElemPreview id={element.id} table="locations" />
-			{/each}
-		{:else if indexTitle === 'Moments'}
-			{#each $elements as element (element.id)}
-				<ElemPreview id={element.id} table="moments" />
-			{/each}
-		{/if} -->
 		{#each $elements as element (element.id)}
-			<ElemPreview id={element.id} table={tableName} collapsed={element.previewCollapsed} />
+			<ElemPreview
+				id={element.id}
+				table={tableName}
+				collapsed={element.previewCollapsed}
+				{selectionColor}
+			/>
 		{/each}
 	{/if}
 {/snippet}
