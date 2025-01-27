@@ -111,26 +111,32 @@
 						/>
 					</svg>
 				</button>
-				<QLEditor
-					initText={$element.name}
-					id={`t-${id}`}
-					twBG="bg-donkey-50 dark:bg-donkey-950"
-					twClass="[&>.ql-editor>*]:font-serif [&>.ql-editor>*]:text-2xl [&>.ql-editor>*]:font-bold [&>.ql-editor::before]:font-serif [&>.ql-editor::before]:text-2xl [&>.ql-editor::before]:font-bold [&>.ql-editor]:pl-0"
-					toolbar={false}
-					placeholder={titlePlaceholder}
-					inputMode="info"
-					onkeyup={async () => {
-						// @ts-ignore
-						await db[table].update(id, { name: currName });
-					}}
-					onfocusout={async () => {
-						// @ts-ignore
-						await db[table].update(id, { name: currName });
-					}}
-					{selectionColor}
-					bind:focused={titleFocused}
-					bind:text={currName}
-				/>
+				{#if table === 'dynamics'}
+					{#await $element.toString() then name}
+						<div class="my-3 font-serif text-2xl font-bold">{name}</div>
+					{/await}
+				{:else}
+					<QLEditor
+						initText={$element.name}
+						id={`t-${id}`}
+						twBG="bg-donkey-50 dark:bg-donkey-950"
+						twClass="[&>.ql-editor>*]:font-serif [&>.ql-editor>*]:text-2xl [&>.ql-editor>*]:font-bold [&>.ql-editor::before]:font-serif [&>.ql-editor::before]:text-2xl [&>.ql-editor::before]:font-bold [&>.ql-editor]:pl-0"
+						toolbar={false}
+						placeholder={titlePlaceholder}
+						inputMode="info"
+						onkeyup={async () => {
+							// @ts-ignore
+							await db[table].update(id, { name: currName });
+						}}
+						onfocusout={async () => {
+							// @ts-ignore
+							await db[table].update(id, { name: currName });
+						}}
+						{selectionColor}
+						bind:focused={titleFocused}
+						bind:text={currName}
+					/>
+				{/if}
 			</div>
 			<a href="/{expandHref}?id={id}" aria-label="Open character">
 				<svg

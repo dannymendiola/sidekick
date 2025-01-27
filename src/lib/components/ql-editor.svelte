@@ -70,7 +70,7 @@
 	});
 
 	const ALLOWED_FMTS =
-		inputMode === 'full' ? ['bold', 'italic', 'underline', 'indent', 'list', 'align'] : [];
+		inputMode === 'full' ? ['bold', 'italic', 'underline', 'indent', 'list'] : [];
 
 	const twActiveButton = $derived(
 		skstate.darkMode ? 'bg-genie-800 text-genie-100' : 'bg-genie-500 text-genie-100'
