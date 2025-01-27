@@ -65,7 +65,7 @@
 					'Causes a lot of problems'
 				];
 			case 'locations':
-				return [];
+				return ['The place where the magic happens'];
 			case 'moments':
 				return [
 					'And then everything worked out',
@@ -151,6 +151,7 @@
 
 		{#if !collapsed}
 			<div
+				class="ml-3"
 				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 200, easing: quintInOut }}
 			>
 				<QLEditor
