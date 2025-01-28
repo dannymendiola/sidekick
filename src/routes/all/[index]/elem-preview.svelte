@@ -91,9 +91,6 @@
 </script>
 
 {#if $element}
-	{#if table !== 'dynamics'}
-		<ElemLinks {table} {id} bind:other />
-	{/if}
 	<div
 		class="rounded-xl border-l px-2 py-1 {focused
 			? twFocusedBorder
@@ -165,6 +162,12 @@
 				</svg>
 			</a>
 		</div>
+
+		{#if table !== 'dynamics'}
+			<div class="ml-5">
+				<ElemLinks {table} {id} bind:other />
+			</div>
+		{/if}
 
 		{#if !collapsed}
 			<div

@@ -7,6 +7,8 @@
 	import '../app.css';
 	import SaveLoadModal from '$lib/components/save-load-modal.svelte';
 	import { untrack } from 'svelte';
+	import { db } from '$lib/db';
+	import { liveQuery } from 'dexie';
 
 	let { children } = $props();
 
@@ -30,14 +32,14 @@
 		}
 	});
 
-	const requestPersistence = async () => {
-		if (navigator.storage && !(await navigator.storage.persisted())) {
-			// TODO Show modal explainer:
-			// Your browser might ask if you want to allow Sidekick access to persistent storage on your device. This is optional, but it tells your browser that your work should be protected from automatic deletion in the case of low storage.
-			const granted = await navigator.storage.persist();
-		}
-	};
-	requestPersistence();
+	// const requestPersistence = async () => {
+	// 	if (navigator.storage && !(await navigator.storage.persisted())) {
+	// 		// TODO Show modal explainer:
+	// 		// Your browser might ask if you want to allow Sidekick access to persistent storage on your device. This is optional, but it tells your browser that your work should be protected from automatic deletion in the case of low storage.
+	// 		const granted = await navigator.storage.persist();
+	// 	}
+	// };
+	// requestPersistence();
 </script>
 
 <SaveLoadModal />

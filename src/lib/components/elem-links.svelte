@@ -90,8 +90,22 @@
 	});
 </script>
 
-<!-- {#if other && !noLinks}
-	<pre>{JSON.stringify(other, null, 2)}</pre>
+{#if other && !noLinks}
+	<!-- <pre>{JSON.stringify(other, null, 2)}</pre> -->
+	<div class="flex gap-1">
+		{#each linkable as link}
+			{#if other[link] && other[link].length > 0}
+				{@render LinksExpander(link)}
+			{/if}
+		{/each}
+	</div>
 {:else}
 	<p>No links</p>
-{/if} -->
+{/if}
+
+{#snippet LinksExpander(to: 'characters' | 'moments' | 'locations' | 'dynamics')}
+	<button
+		class="w-fit rounded-lg border border-donkey-300 px-2 py-1 hover:bg-donkey-100 dark:border-donkey-700 hover:dark:bg-donkey-900"
+		aria-label="Links to {to}">{to}</button
+	>
+{/snippet}
