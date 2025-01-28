@@ -40,6 +40,20 @@
 	// 	}
 	// };
 	// requestPersistence();
+
+	// const deleteme = async () => {
+	// 	const tony = await db.characters.get({ name: 'Tony' });
+	// 	const therapist = await db.characters.get({ name: 'Therapist\n' });
+	// 	// const therapy = await db.moments.get({ name: 'Unlicensed ghost therapy\n' });
+	// 	// 	// 	const office = await db.locations.get({ name: 'Abandoned therapy office' });
+	// 	// 	// 	console.log(office);
+	// 	// 	therapy?.link(tony!);
+	// 	// 	// 	therapy?.link(therapist!);
+	// 	// 	// 	therapy?.link(office!);
+
+	// 	tony?.createDynamic(therapist!.id);
+	// };
+	// deleteme();
 </script>
 
 <SaveLoadModal />

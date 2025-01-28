@@ -163,17 +163,16 @@
 			</a>
 		</div>
 
-		{#if table !== 'dynamics'}
-			<div class="ml-5">
-				<ElemLinks {table} {id} bind:other />
-			</div>
-		{/if}
-
 		{#if !collapsed}
 			<div
 				class="ml-3"
 				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 200, easing: quintInOut }}
 			>
+				{#if table !== 'dynamics'}
+					<div class="ml-3">
+						<ElemLinks {table} {id} bind:linked={other} />
+					</div>
+				{/if}
 				<QLEditor
 					initText={$element.body}
 					{id}
