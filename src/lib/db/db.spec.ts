@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
-import { addMomentAfter, addLocationAfter, addCharacterAfter, addThemeAfter } from './api';
-import { db, ORDER_STEP, ORDER_MIN_FRAC, Character } from './db';
+import { addMomentAfter, addLocationAfter, addCharacterAfter } from './api';
+import { db, ORDER_STEP, ORDER_MIN_FRAC } from './db';
 
 const slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
 
@@ -92,7 +92,7 @@ describe('Moments', () => {
 		expect(lastFrac).toEqual(0);
 	});
 
-	it('Links between moments and other entities', async () => {
+	it('Links between moments and other elements', async () => {
 		let moment1 = await addMomentAfter('root', { name: 'Moment 1' });
 		let moment2 = await addMomentAfter(moment1!, { name: 'Moment 2' });
 
@@ -114,18 +114,6 @@ describe('Moments', () => {
 
 		expect((await moment2!.getCharacters())[0].name).toBe('Character 1');
 		expect((await character1!.getMoments())[0].id).toBe(moment2!.id);
-
-		const themeId = await db.themes.add({
-			name: 'Gruvbox',
-			tagline: 'Earth tone!'
-		});
-		const theme = await db.themes.get(themeId);
-
-		expect((await moment2!.getThemes()).length).toBe(0);
-
-		moment2!.link(theme!);
-
-		expect((await moment2!.getThemes())[0].tagline).toBe('Earth tone!');
 	});
 
 	it('Moment attr', async () => {
@@ -177,6 +165,14 @@ describe('Locations', () => {
 		berlin.delete();
 
 		expect((await costco.getPrev())!.name).toBe('Alcatraz');
+	});
+
+	it('Character <-> Location', async () => {
+		let alcatraz = (await addLocationAfter('root', { name: 'Alcatraz' }))!;
+		let alCapone = (await addCharacterAfter('root', { name: 'Al Capone' }))!;
+		alCapone.addLocation(alcatraz.id);
+		expect((await alcatraz.getCharacters())[0].name).toBe('Al Capone');
+		expect((await alCapone.getLocations())[0].name).toBe('Alcatraz');
 	});
 
 	it('Location attr', async () => {
@@ -372,132 +368,5 @@ describe('Characters', () => {
 		await dynamic.cleanAttr();
 		expect(dynamic.attr?.chemistry).toBe(undefined);
 		expect(dynamic.attr?.conflict_sources).toBe('Simply incompatible');
-	});
-});
-
-describe('Themes', () => {
-	afterAll(async () => {
-		await Promise.all(db.tables.map((table) => table.clear()));
-	});
-
-	let themeId1: string;
-	let characterId1: string;
-
-	it('Order', async () => {
-		let dark = (await addThemeAfter('root', { name: 'Dark mode' }))!;
-		let light = (await addThemeAfter('root', { name: 'Light mode' }))!;
-
-		expect((await light.getNext())!.name).toBe('Dark mode');
-		expect((await dark.getPrev())!.name).toBe('Light mode');
-
-		let gruvbox = (await addThemeAfter(light, { name: 'Gruvbox' }))!;
-
-		expect((await gruvbox.getPrev())!.name).toBe('Light mode');
-		expect((await gruvbox.getNext())!.name).toBe('Dark mode');
-		expect((await light.getNext())!.name).toBe('Gruvbox');
-
-		await gruvbox.orderAfter('root');
-
-		expect((await gruvbox.getNext())!.name).toBe('Light mode');
-		expect((await light.getNext())!.name).toBe('Dark mode');
-		expect((await dark.getPrev())!.name).toBe('Light mode');
-
-		await dark.delete();
-
-		expect((await gruvbox.getNext())!.name).toBe('Light mode');
-
-		await Promise.all(db.tables.map((table) => table.clear()));
-	});
-
-	it('Theme <-> Location', async () => {
-		const locationId = await db.locations.add({ name: 'This app' });
-		let location = await db.locations.get(locationId);
-		themeId1 = await db.themes.add({ name: 'Dark mode' });
-		let theme = await db.themes.get(themeId1);
-
-		location?.addTheme(theme!);
-		const themeFromLocation = (await location!.getThemes())[0];
-
-		expect(themeFromLocation.name).toBe('Dark mode');
-
-		const locationFromTheme = (await theme!.getLocations())[0];
-		expect(locationFromTheme.id).toBe(locationId);
-
-		expect((await location!.getThemes()).length).toBe(1);
-		location?.removeTheme(theme!);
-		expect((await location!.getThemes()).length).toBe(0);
-	});
-
-	it('Theme <-> Character', async () => {
-		let theme = (await db.themes.get(themeId1))!;
-		expect(theme.name).toBe('Dark mode');
-
-		characterId1 = await db.characters.add({ name: 'Dr. Jekyll' });
-		let character = (await db.characters.get(characterId1))!;
-
-		character.addTheme(theme);
-
-		const themeFromChar = (await character.getThemes())[0];
-		expect(themeFromChar.name).toBe('Dark mode');
-
-		const charFromTheme = (await theme.getCharacters())[0];
-		expect(charFromTheme.name).toBe('Dr. Jekyll');
-	});
-
-	it('Theme <-> Dynamic', async () => {
-		let theme = (await db.themes.get(themeId1))!;
-
-		let jekyll = (await db.characters.get(characterId1))!;
-		expect(jekyll.name).toBe('Dr. Jekyll');
-
-		let dynamic = (await jekyll.createDynamic(await db.characters.add({ name: 'Mr. Hyde' })))!;
-
-		dynamic.addTheme(theme);
-
-		const themeFromDynamic = (await dynamic.getThemes())[0];
-		expect(themeFromDynamic.name).toBe('Dark mode');
-
-		const dynamicFromTheme = (await theme.getDynamics())[0];
-		expect(dynamicFromTheme.id).toBe(dynamic.id);
-	});
-
-	it('Theme <-> Moment', async () => {
-		let theme = (await db.themes.get(themeId1))!;
-		const momentId = await db.moments.add({ name: 'Transformation' });
-		let moment = (await db.moments.get(momentId))!;
-
-		moment.link(theme);
-
-		const themeFromMoment = (await moment.getThemes())[0];
-		expect(themeFromMoment.name).toBe('Dark mode');
-
-		const momentFromTheme = (await theme.getMoments())[0];
-		expect(momentFromTheme.id).toBe(moment.id);
-
-		moment.unlink(theme);
-		expect((await moment.getThemes()).length).toBe(0);
-	});
-
-	it('Theme attr', async () => {
-		let themeId = await db.themes.add({
-			name: 'Material One'
-		});
-		let theme = (await db.themes.get(themeId))!;
-
-		theme.updateAttr({
-			leads_to: 'Eye strain'
-		});
-
-		expect(theme.attr!.leads_to).toBe('Eye strain');
-	});
-
-	it('Clean attr', async () => {
-		let theme = (await addThemeAfter('tail', { name: "Writer's block" }))!;
-		theme.updateAttr({ thesis: '', conflict: "I don't know where I'm going with this theme" });
-
-		expect(theme.attr?.thesis).toBe('');
-		await theme.cleanAttr();
-		expect(theme.attr?.thesis).toBe(undefined);
-		expect(theme.attr?.conflict).toBe("I don't know where I'm going with this theme");
 	});
 });

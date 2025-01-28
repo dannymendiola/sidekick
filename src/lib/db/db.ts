@@ -12,7 +12,7 @@ const ORDER_MIN_FRAC = 0.00001;
  */
 const db = new Dexie('sidekick') as Dexie & {
 	moments: EntityTable<Moment, 'id'>;
-	themes: EntityTable<Theme, 'id'>;
+	// themes: EntityTable<Theme, 'id'>;
 	locations: EntityTable<Location, 'id'>;
 	characters: EntityTable<Character, 'id'>;
 	dynamics: EntityTable<Dynamic, 'id'>;
@@ -26,7 +26,7 @@ db.version(1).stores({
 	dynamics: 'id, order, &[aCharId+bCharId], aCharId, bCharId, *themes'
 });
 
-type Entity = Moment | Theme | Location | Character | Dynamic;
+type Entity = Moment | Location | Character | Dynamic;
 
 const orderAfter = async <T extends Entity>(
 	elem: T,
@@ -116,16 +116,14 @@ const orderAfter = async <T extends Entity>(
 	return elem;
 };
 
-class Moment {
+export class Moment {
 	id!: string;
 	order?: number;
 	name?: string;
-	// tagline?: string;
 	body?: Delta;
 	attr?: MomentAttr;
 	locations?: string[];
 	characters?: string[];
-	themes?: string[];
 	previewCollapsed?: boolean;
 
 	/**
@@ -163,14 +161,6 @@ class Moment {
 			.toArray();
 	}
 
-	async getThemes(): Promise<Theme[]> {
-		const curr = await this.refresh();
-		return db.themes
-			.where('id')
-			.anyOf(curr.themes || [])
-			.toArray();
-	}
-
 	refresh(): Promise<Moment> {
 		return db.moments.get(this.id) as Promise<Moment>;
 	}
@@ -180,7 +170,7 @@ class Moment {
 	 *
 	 * @param other a Location, Character, or Theme
 	 */
-	async link(other: Location | Character | Theme) {
+	async link(other: Location | Character) {
 		if (other instanceof Location) {
 			const newLocations = [...new Set([...(this.locations || []), other.id])];
 			await db.moments.update(this.id, { locations: newLocations });
@@ -189,10 +179,6 @@ class Moment {
 			const newCharacters = [...new Set([...(this.characters || []), other.id])];
 			await db.moments.update(this.id, { characters: newCharacters });
 			this.characters = newCharacters;
-		} else if (other instanceof Theme) {
-			const newThemes = [...new Set([...(this.themes || []), other.id])];
-			await db.moments.update(this.id, { themes: newThemes });
-			this.themes = newThemes;
 		}
 	}
 
@@ -201,7 +187,7 @@ class Moment {
 	 *
 	 * @param other Location, Character, or Theme
 	 */
-	async unlink(other: Location | Character | Theme) {
+	async unlink(other: Location | Character) {
 		if (other instanceof Location) {
 			const newLocations = (this.locations || []).filter((id) => id !== other.id);
 			await db.moments.update(this.id, { locations: newLocations });
@@ -210,10 +196,6 @@ class Moment {
 			const newCharacters = (this.characters || []).filter((id) => id !== other.id);
 			this.characters = newCharacters;
 			await db.moments.update(this.id, { characters: newCharacters });
-		} else if (other instanceof Theme) {
-			const newThemes = (this.themes || []).filter((id) => id !== other.id);
-			await db.moments.update(this.id, { themes: newThemes });
-			this.themes = newThemes;
 		}
 	}
 
@@ -253,111 +235,109 @@ db.moments.hook('creating', (pk, obj, _) => {
 	}
 });
 
-class Theme {
+// export class Theme {
+// 	id!: string;
+// 	order?: number;
+// 	name?: string;
+// 	tagline?: string;
+// 	// body?: string;
+// 	attr?: ThemeAttr;
+// 	previewCollapsed?: boolean;
+
+// 	orderAfter(preceding: Theme | 'root' | 'tail'): Promise<Theme> {
+// 		return orderAfter(this, preceding, db.themes);
+// 	}
+
+// 	async getNext(): Promise<Theme | undefined> {
+// 		const curr = await this.refresh();
+// 		const themesAfter = db.themes.orderBy('order').filter((m) => m.order! > curr.order!);
+// 		return themesAfter.first();
+// 	}
+
+// 	async getPrev(): Promise<Theme | undefined> {
+// 		const curr = await this.refresh();
+// 		const themesBefore = db.themes.orderBy('order').filter((m) => m.order! < curr.order!);
+// 		return themesBefore.last();
+// 	}
+
+// 	getMoments(): Promise<Moment[]> {
+// 		return db.moments.where('themes').anyOf(this.id).sortBy('order');
+// 	}
+
+// 	getLocations(): Promise<Location[]> {
+// 		return db.locations.where('themes').anyOf(this.id).toArray();
+// 	}
+
+// 	getCharacters(): Promise<Character[]> {
+// 		return db.characters.where('themes').anyOf(this.id).toArray();
+// 	}
+
+// 	getDynamics(): Promise<Dynamic[]> {
+// 		return db.dynamics.where('themes').anyOf(this.id).toArray();
+// 	}
+
+// 	async updateAttr(attr: Partial<ThemeAttr>) {
+// 		const currAttr = this.attr || {};
+// 		const newAttr = { ...currAttr, ...attr };
+// 		this.attr = newAttr;
+// 		await db.themes.update(this.id, { attr: this.attr });
+// 	}
+
+// 	async cleanAttr() {
+// 		const newAttr = Object.fromEntries(
+// 			Object.entries(this.attr || {}).filter(([_, v]) => {
+// 				if ((v as Delta).ops) {
+// 					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
+// 				} else {
+// 					return v?.trim() !== '';
+// 				}
+// 			})
+// 		);
+// 		this.attr = newAttr;
+// 		await db.themes.update(this.id, { attr: newAttr });
+// 	}
+
+// 	refresh(): Promise<Theme> {
+// 		return db.themes.get(this.id) as Promise<Theme>;
+// 	}
+
+// 	async delete() {
+// 		await Promise.all([
+// 			db.moments
+// 				.where('themes')
+// 				.anyOf(this.id)
+// 				.each((m) => m.unlink(this)),
+// 			// db.locations
+// 			// 	.where('themes')
+// 			// 	.anyOf(this.id)
+// 			// 	.each((l) => l.removeTheme(this)),
+// 			db.characters
+// 				.where('themes')
+// 				.anyOf(this.id)
+// 				.each((c) => c.removeTheme(this)),
+// 			db.dynamics
+// 				.where('themes')
+// 				.anyOf(this.id)
+// 				.each((d) => d.removeTheme(this))
+// 		]);
+// 		await db.themes.delete(this.id);
+// 		this.id = '';
+// 	}
+// }
+
+// db.themes.mapToClass(Theme);
+// db.themes.hook('creating', (pk, obj, _) => {
+// 	if (!pk) {
+// 		obj.id = ulid();
+// 	}
+// });
+
+export class Location {
 	id!: string;
 	order?: number;
 	name?: string;
-	tagline?: string;
-	// body?: string;
-	attr?: ThemeAttr;
-	previewCollapsed?: boolean;
-
-	orderAfter(preceding: Theme | 'root' | 'tail'): Promise<Theme> {
-		return orderAfter(this, preceding, db.themes);
-	}
-
-	async getNext(): Promise<Theme | undefined> {
-		const curr = await this.refresh();
-		const themesAfter = db.themes.orderBy('order').filter((m) => m.order! > curr.order!);
-		return themesAfter.first();
-	}
-
-	async getPrev(): Promise<Theme | undefined> {
-		const curr = await this.refresh();
-		const themesBefore = db.themes.orderBy('order').filter((m) => m.order! < curr.order!);
-		return themesBefore.last();
-	}
-
-	getMoments(): Promise<Moment[]> {
-		return db.moments.where('themes').anyOf(this.id).sortBy('order');
-	}
-
-	getLocations(): Promise<Location[]> {
-		return db.locations.where('themes').anyOf(this.id).toArray();
-	}
-
-	getCharacters(): Promise<Character[]> {
-		return db.characters.where('themes').anyOf(this.id).toArray();
-	}
-
-	getDynamics(): Promise<Dynamic[]> {
-		return db.dynamics.where('themes').anyOf(this.id).toArray();
-	}
-
-	async updateAttr(attr: Partial<ThemeAttr>) {
-		const currAttr = this.attr || {};
-		const newAttr = { ...currAttr, ...attr };
-		this.attr = newAttr;
-		await db.themes.update(this.id, { attr: this.attr });
-	}
-
-	async cleanAttr() {
-		const newAttr = Object.fromEntries(
-			Object.entries(this.attr || {}).filter(([_, v]) => {
-				if ((v as Delta).ops) {
-					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
-				} else {
-					return v?.trim() !== '';
-				}
-			})
-		);
-		this.attr = newAttr;
-		await db.themes.update(this.id, { attr: newAttr });
-	}
-
-	refresh(): Promise<Theme> {
-		return db.themes.get(this.id) as Promise<Theme>;
-	}
-
-	async delete() {
-		await Promise.all([
-			db.moments
-				.where('themes')
-				.anyOf(this.id)
-				.each((m) => m.unlink(this)),
-			db.locations
-				.where('themes')
-				.anyOf(this.id)
-				.each((l) => l.removeTheme(this)),
-			db.characters
-				.where('themes')
-				.anyOf(this.id)
-				.each((c) => c.removeTheme(this)),
-			db.dynamics
-				.where('themes')
-				.anyOf(this.id)
-				.each((d) => d.removeTheme(this))
-		]);
-		await db.themes.delete(this.id);
-		this.id = '';
-	}
-}
-
-db.themes.mapToClass(Theme);
-db.themes.hook('creating', (pk, obj, _) => {
-	if (!pk) {
-		obj.id = ulid();
-	}
-});
-
-class Location {
-	id!: string;
-	order?: number;
-	name?: string;
-	// tagline?: string;
 	body?: Delta;
 	attr?: LocationAttr;
-	themes?: string[];
 	previewCollapsed?: boolean;
 
 	orderAfter(preceding: Location | 'root' | 'tail'): Promise<Location> {
@@ -380,23 +360,8 @@ class Location {
 		return db.moments.where('locations').anyOf(this.id).toArray();
 	}
 
-	getThemes(): Promise<Theme[]> {
-		return db.themes
-			.where('id')
-			.anyOf(this.themes || [])
-			.toArray();
-	}
-
-	async addTheme(theme: Theme) {
-		const newThemes = [...new Set([...(this.themes || []), theme.id])];
-		this.themes = newThemes;
-		await db.locations.update(this.id, { themes: newThemes });
-	}
-
-	async removeTheme(theme: Theme) {
-		const newThemes = (this.themes || []).filter((t) => t !== theme.id);
-		this.themes = newThemes;
-		await db.locations.update(this.id, { themes: newThemes });
+	getCharacters(): Promise<Character[]> {
+		return db.characters.where('locations').anyOf(this.id).toArray();
 	}
 
 	async updateAttr(attr: Partial<LocationAttr>) {
@@ -440,15 +405,13 @@ db.locations.hook('creating', (pk, obj, _) => {
 	obj.id = pk || ulid();
 });
 
-class Character {
+export class Character {
 	id!: string;
-	// tagline?: string;
 	name?: string;
 	body?: Delta;
 	order?: number;
 	attr?: CharacterAttr;
 	locations?: string[];
-	themes?: string[];
 	previewCollapsed?: boolean;
 
 	orderAfter(preceding: Character | 'root' | 'tail'): Promise<Character> {
@@ -467,8 +430,25 @@ class Character {
 		return charsBefore.last();
 	}
 
+	addLocation(locId: string) {
+		this.locations = this.locations || [];
+		this.locations = [...new Set(this.locations).add(locId)];
+		db.characters.update(this.id, { locations: this.locations });
+	}
+
+	getLocations(): Promise<Location[]> {
+		return db.locations
+			.where('id')
+			.anyOf(this.locations || [])
+			.toArray();
+	}
+
 	getDynamics(): Promise<Dynamic[]> {
 		return db.dynamics.where('aCharId').equals(this.id).or('bCharId').equals(this.id).toArray();
+	}
+
+	getMoments(): Promise<Moment[]> {
+		return db.moments.where('characters').anyOf(this.id).toArray();
 	}
 
 	async relatedCharacters(): Promise<Character[]> {
@@ -481,10 +461,6 @@ class Character {
 		if (this.id === otherId) return;
 		const [aId, bId] = this.id < otherId ? [this.id, otherId] : [otherId, this.id];
 		return await db.dynamics.where('[aCharId+bCharId]').equals([aId, bId]).first();
-	}
-
-	getMoments(): Promise<Moment[]> {
-		return db.moments.where('characters').anyOf(this.id).toArray();
 	}
 
 	async createDynamic(otherId: string) {
@@ -505,24 +481,24 @@ class Character {
 		if (dynamic) await dynamic.delete();
 	}
 
-	getThemes(): Promise<Theme[]> {
-		return db.themes
-			.where('id')
-			.anyOf(this.themes || [])
-			.toArray();
-	}
+	// getThemes(): Promise<Theme[]> {
+	// 	return db.themes
+	// 		.where('id')
+	// 		.anyOf(this.themes || [])
+	// 		.toArray();
+	// }
 
-	async addTheme(theme: Theme) {
-		const newThemes = [...new Set([...(this.themes || []), theme.id])];
-		this.themes = newThemes;
-		await db.characters.update(this.id, { themes: newThemes });
-	}
+	// async addTheme(theme: Theme) {
+	// 	const newThemes = [...new Set([...(this.themes || []), theme.id])];
+	// 	this.themes = newThemes;
+	// 	await db.characters.update(this.id, { themes: newThemes });
+	// }
 
-	async removeTheme(theme: Theme) {
-		const newThemes = (this.themes || []).filter((t) => t !== theme.id);
-		this.themes = newThemes;
-		await db.characters.update(this.id, { themes: newThemes });
-	}
+	// async removeTheme(theme: Theme) {
+	// 	const newThemes = (this.themes || []).filter((t) => t !== theme.id);
+	// 	this.themes = newThemes;
+	// 	await db.characters.update(this.id, { themes: newThemes });
+	// }
 
 	async updateAttr(attr: CharacterAttr) {
 		const currAttr = this.attr || {};
@@ -565,7 +541,7 @@ db.characters.hook('creating', (pk, obj, _) => {
 	}
 });
 
-class Dynamic {
+export class Dynamic {
 	id!: string;
 	order?: number;
 	aCharId!: string;
@@ -573,7 +549,6 @@ class Dynamic {
 	name: string = '';
 	body?: Delta;
 	attr?: DynamicAttr;
-	themes?: string[];
 	previewCollapsed?: boolean;
 
 	orderAfter(preceding: Dynamic | 'root' | 'tail') {
@@ -610,24 +585,24 @@ class Dynamic {
 		return undefined;
 	}
 
-	getThemes(): Promise<Theme[]> {
-		return db.themes
-			.where('id')
-			.anyOf(this.themes || [])
-			.toArray();
-	}
+	// getThemes(): Promise<Theme[]> {
+	// 	return db.themes
+	// 		.where('id')
+	// 		.anyOf(this.themes || [])
+	// 		.toArray();
+	// }
 
-	async addTheme(theme: Theme) {
-		const newThemes = [...new Set([...(this.themes || []), theme.id])];
-		this.themes = newThemes;
-		await db.dynamics.update(this.id, { themes: newThemes });
-	}
+	// async addTheme(theme: Theme) {
+	// 	const newThemes = [...new Set([...(this.themes || []), theme.id])];
+	// 	this.themes = newThemes;
+	// 	await db.dynamics.update(this.id, { themes: newThemes });
+	// }
 
-	async removeTheme(theme: Theme) {
-		const newThemes = (this.themes || []).filter((t) => t !== theme.id);
-		this.themes = newThemes;
-		await db.dynamics.update(this.id, { themes: newThemes });
-	}
+	// async removeTheme(theme: Theme) {
+	// 	const newThemes = (this.themes || []).filter((t) => t !== theme.id);
+	// 	this.themes = newThemes;
+	// 	await db.dynamics.update(this.id, { themes: newThemes });
+	// }
 
 	async updateAttr(attr: Partial<DynamicAttr>) {
 		let currAttr = this.attr || {};
@@ -668,4 +643,4 @@ db.dynamics.hook('creating', (pk, obj, _) => {
 });
 
 export { db, ORDER_STEP, ORDER_MIN_FRAC };
-export type { Location, Character, Dynamic, Moment, Theme };
+// export type { Location, /*Character,*/ Dynamic, Moment, Theme };

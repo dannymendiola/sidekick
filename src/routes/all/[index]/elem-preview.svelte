@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { Delta } from 'quill/core';
 	import { QLEditor, skstate } from '$lib';
-	import { db } from '$lib/db';
+	import { db, Character, Dynamic, Moment, Location } from '$lib/db';
 	import { liveQuery } from 'dexie';
 	import { slide } from 'svelte/transition';
 	import { quintInOut } from 'svelte/easing';
+	import ElemLinks from '$lib/components/elem-links.svelte';
 
 	interface Props {
 		table: 'characters' | 'moments' | 'locations' | 'dynamics';
@@ -80,9 +81,19 @@
 				return [];
 		}
 	});
+
+	let other = $state<{
+		locations: Location[] | null;
+		characters: Character[] | null;
+		moments: Moment[] | null;
+		dynamics: Dynamic[] | null;
+	}>();
 </script>
 
 {#if $element}
+	{#if table !== 'dynamics'}
+		<ElemLinks {table} {id} bind:other />
+	{/if}
 	<div
 		class="rounded-xl border-l px-2 py-1 {focused
 			? twFocusedBorder

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import type { Character, Dynamic, Location, Moment, Theme } from '$lib/db';
+	import type { Character, Dynamic, Location, Moment } from '$lib/db';
 	import { db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
 	import { goto } from '$app/navigation';

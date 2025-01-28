@@ -9,8 +9,17 @@
 		id: number | string;
 		placeholder?: string;
 		title?: string;
-		delta?: Delta; // for binding
-		text?: string; // for binding
+		/**
+		 * Bindable text contents in Delta format
+		 */
+		delta?: Delta;
+		/**
+		 * Bindable text contents in plain text format
+		 */
+		text?: string;
+		/**
+		 * Bindable focus state
+		 */
 		focused?: boolean;
 		initText?: string | Delta;
 		toolbar?: boolean;
