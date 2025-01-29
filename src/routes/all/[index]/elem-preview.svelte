@@ -82,12 +82,16 @@
 		}
 	});
 
-	let other = $state<{
+	let linked = $state<{
 		locations: Location[] | null;
 		characters: Character[] | null;
 		moments: Moment[] | null;
 		dynamics: Dynamic[] | null;
 	}>();
+
+	let showLinks = $state(false);
+
+	let noLinks = $state(false);
 </script>
 
 {#if $element}
@@ -98,27 +102,6 @@
 	>
 		<div class="flex items-center justify-between">
 			<div class="flex max-w-[80%] gap-1">
-				<button
-					class={`mt-[1.375rem] h-fit md:mt-5 ${collapsed && 'rotate-180 '}${skstate.prefersReducedMotion ? 'transition-none' : 'transition-transform duration-200 ease-out'}`}
-					aria-label={collapsed ? 'Expand' : 'Collapse'}
-					onclick={async () => {
-						// @ts-ignore
-						await db[table].update(id, { previewCollapsed: !collapsed });
-					}}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 20 20"
-						fill="currentColor"
-						class="size-5"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-				</button>
 				{#if table === 'dynamics'}
 					{#await $element.toString() then name}
 						<div class="my-3 font-serif text-2xl font-bold">{name}</div>
@@ -146,37 +129,96 @@
 					/>
 				{/if}
 			</div>
-			<a href="/{expandHref}?id={id}" aria-label="Open character">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-					class="size-4 stroke-2 md:size-5"
+			<div class="flex items-center gap-2">
+				<!-- class={`h-fit ${collapsed && 'rotate-180 '}${skstate.prefersReducedMotion ? 'transition-none' : 'transition-transform duration-200 ease-out'}`} -->
+				<button
+					class="rounded-lg border border-donkey-400 bg-donkey-100 p-1 dark:border-donkey-600 dark:bg-donkey-900 {collapsed &&
+						'rotate-180'}"
+					aria-label={collapsed ? 'Expand' : 'Collapse'}
+					onclick={async () => {
+						// @ts-ignore
+						await db[table].update(id, { previewCollapsed: !collapsed });
+					}}
 				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-					/>
-				</svg>
-			</a>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+						class="size-4"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+				</button>
+				<button
+					class="rounded-lg border p-1 {showLinks
+						? 'border-donkey-300 bg-donkey-500 dark:border-donkey-500 dark:bg-donkey-400'
+						: 'border-donkey-400 bg-donkey-100 dark:border-donkey-600 dark:bg-donkey-900'}"
+					aria-label={collapsed ? 'Expand' : 'Collapse'}
+					onclick={() => {
+						showLinks = !showLinks;
+					}}
+					disabled={noLinks}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 16 16"
+						class="size-4 {showLinks
+							? 'fill-donkey-200 dark:fill-donkey-900'
+							: 'fill-donkey-500 dark:fill-donkey-300'}"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M8.914 6.025a.75.75 0 0 1 1.06 0 3.5 3.5 0 0 1 0 4.95l-2 2a3.5 3.5 0 0 1-5.396-4.402.75.75 0 0 1 1.251.827 2 2 0 0 0 3.085 2.514l2-2a2 2 0 0 0 0-2.828.75.75 0 0 1 0-1.06Z"
+							clip-rule="evenodd"
+						/>
+						<path
+							fill-rule="evenodd"
+							d="M7.086 9.975a.75.75 0 0 1-1.06 0 3.5 3.5 0 0 1 0-4.95l2-2a3.5 3.5 0 0 1 5.396 4.402.75.75 0 0 1-1.251-.827 2 2 0 0 0-3.085-2.514l-2 2a2 2 0 0 0 0 2.828.75.75 0 0 1 0 1.06Z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+				</button>
+				<a
+					class="rounded-lg border border-donkey-400 bg-donkey-100 p-1 dark:border-donkey-600 dark:bg-donkey-900"
+					href="/{expandHref}?id={id}"
+					aria-label="Open character"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						class="size-4 stroke-[1.3]"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+						/>
+					</svg>
+				</a>
+			</div>
 		</div>
+
+		{#if table !== 'dynamics'}
+			<div class={!showLinks ? 'absolute opacity-0' : ''}>
+				<ElemLinks {table} {id} bind:linked bind:noLinks />
+			</div>
+		{/if}
 
 		{#if !collapsed}
 			<div
-				class="ml-3"
 				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 200, easing: quintInOut }}
 			>
-				{#if table !== 'dynamics'}
-					<div class="ml-3">
-						<ElemLinks {table} {id} bind:linked={other} />
-					</div>
-				{/if}
 				<QLEditor
 					initText={$element.body}
 					{id}
 					twBG="bg-donkey-50 dark:bg-donkey-950"
+					twClass="[&>.ql-editor]:pl-2 [&>.ql-editor]:pt-1"
 					toolbar={false}
 					placeholder={placeholders[Math.floor(Math.random() * placeholders.length)]}
 					onkeyup={async () => {

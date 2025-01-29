@@ -14,14 +14,19 @@
 			moments: Moment[] | null;
 			locations: Location[] | null;
 		};
+		/**
+		 * Bindable
+		 */
+		noLinks?: boolean;
 	}
 
-	let { table, id, linked = $bindable() }: Props = $props();
+	let { table, id, linked = $bindable(), noLinks = $bindable() }: Props = $props();
 
 	const elem = liveQuery(async () => await db[table].get(id));
 
 	const linkedBuf = $derived.by(async () => {
-		if (!$elem) {
+		const elemSnap = $elem;
+		if (!elemSnap) {
 			return {
 				dynamics: null,
 				characters: null,
@@ -34,24 +39,24 @@
 		let characters = null;
 		let moments = null;
 		let locations = null;
-		if ($elem instanceof Character) {
+		if (elemSnap instanceof Character) {
 			dynamics = await db.dynamics.where('aCharId').equals(id).or('bCharId').equals(id).toArray();
 			characters = await db.characters
 				.where('id')
 				.anyOf(dynamics.map((d) => (d.aCharId === id ? d.bCharId : d.aCharId)))
 				.toArray();
 			moments = await db.moments.where('characters').equals(id).toArray();
-			locations = await $elem.getLocations();
+			locations = await elemSnap.getLocations();
 			if (moments.length === 0) moments = null;
 			if (locations.length === 0) locations = null;
 			if (characters.length === 0) characters = null;
 			if (dynamics.length === 0) dynamics = null;
-		} else if ($elem instanceof Moment) {
-			characters = await $elem.getCharacters();
-			locations = await $elem.getLocations();
+		} else if (elemSnap instanceof Moment) {
+			characters = await elemSnap.getCharacters();
+			locations = await elemSnap.getLocations();
 			if (characters.length === 0) characters = null;
 			if (locations.length === 0) locations = null;
-		} else if ($elem instanceof Location) {
+		} else if (elemSnap instanceof Location) {
 			moments = await db.moments.where('locations').equals(id).toArray();
 			characters = await db.characters.where('locations').equals(id).toArray();
 			if (moments.length === 0) moments = null;
@@ -78,12 +83,35 @@
 
 	let expandedLink: 'characters' | 'moments' | 'locations' | undefined = $state(undefined);
 
-	const noLinks = $derived(
-		linked?.characters === null &&
+	// const noLinks = $derived(
+	// 	linked?.characters === null &&
+	// 		linked?.dynamics === null &&
+	// 		linked?.moments === null &&
+	// 		linked?.locations === null
+	// );
+
+	$effect(() => {
+		noLinks =
+			linked?.characters === null &&
 			linked?.dynamics === null &&
 			linked?.moments === null &&
-			linked?.locations === null
-	);
+			linked?.locations === null;
+	});
+
+	const twExpander = {
+		characters: {
+			bg: 'bg-genie-200 dark:bg-genie-950 border-genie-500 dark:border-genie-800',
+			icon: 'fill-genie-900 dark:fill-genie-300'
+		},
+		locations: {
+			bg: 'bg-wazowski-200 dark:bg-wazowski-950 border-wazowski-500 dark:border-wazowski-800',
+			icon: 'fill-wazowski-900 dark:fill-wazowski-300'
+		},
+		moments: {
+			bg: 'bg-smithers-400 dark:bg-smithers-950 border-smithers-700 dark:border-smithers-900',
+			icon: 'fill-smithers-950 dark:fill-smithers-300'
+		}
+	};
 
 	$effect(() => {
 		linkedBuf.then((val) => {
@@ -93,8 +121,8 @@
 </script>
 
 {#if linked && !noLinks}
-	<pre>{JSON.stringify(linked, null, 2)}</pre>
-	<div class="flex items-center gap-1">
+	<!-- <pre>{JSON.stringify(linked, null, 2)}</pre> -->
+	<div class="mb-2 flex items-center gap-1">
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 16 16"
@@ -116,21 +144,21 @@
 			{#if linked[link] && linked[link].length > 0}
 				{@render LinksExpander(
 					link,
-					link === expandedLink
-						? 'fill-donkey-200 dark:fill-donkey-800'
-						: 'fill-donkey-700 dark:fill-donkey-300'
+					link === expandedLink ? twExpander[link]['icon'] : 'fill-donkey-700 dark:fill-donkey-300'
 				)}
 			{/if}
 		{/each}
 	</div>
+
 	<!-- {:else} -->
 	<!-- <p>No links</p> -->
 {/if}
 
 {#snippet LinksExpander(target: 'characters' | 'moments' | 'locations', twSvg: string)}
+	<!-- ? 'border-donkey-500 bg-donkey-800 dark:border-donkey-400 dark:bg-donkey-300 ' -->
 	<button
 		class="w-fit rounded-lg border px-2 py-1 {expandedLink === target
-			? 'border-donkey-500 bg-donkey-800 dark:border-donkey-400 dark:bg-donkey-300 '
+			? `${twExpander[target]['bg']}`
 			: 'border-donkey-300 hover:bg-donkey-100 dark:border-donkey-700 hover:dark:bg-donkey-900 '}"
 		aria-label="Links to {target}"
 		onclick={() => {

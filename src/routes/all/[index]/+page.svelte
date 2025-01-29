@@ -43,6 +43,19 @@
 		touchReorderingId = undefined;
 	});
 
+	// const twTitleColor = $derived.by(() => {
+	// 	switch (indexName) {
+	// 		case 'moments':
+	// 			return 'text-smithers-700 dark:text-smithers-400 selection:bg-smithers-800';
+	// 		case 'character-dynamics':
+	// 			return 'text-donnie-700 dark:text-donnie-400';
+	// 		case 'characters':
+	// 			return 'text-genie-600 dark:text-genie-400';
+	// 		case 'locations':
+	// 			return 'text-wazowski-600 dark:text-wazowski-300';
+	// 	}
+	// });
+
 	const elemPathSeg = $derived(indexName.slice(0, -1));
 
 	const tableName = $derived(indexName === 'character-dynamics' ? 'dynamics' : indexName);
@@ -137,12 +150,12 @@
 			<h1 class="w-full text-center font-serif text-3xl font-bold md:text-left md:text-4xl">
 				{indexTitle === 'Moments' ? 'Outline' : indexTitle}
 			</h1>
-			{#if page.params.index === 'character-dynamics'}
+			<!-- {#if page.params.index === 'character-dynamics'}
 				<p class="bold text-sm text-smithers-800 dark:text-smithers-600">
 					⚠️ These haven't been implemented yet
 				</p>
-			{/if}
-			{#if indexTitle !== 'Character Dynamics' && elemCount !== 0}
+			{/if} -->
+			<!-- {#if indexTitle !== 'Character Dynamics' && elemCount !== 0}
 				<a
 					class="flex items-center gap-2 rounded-full bg-genie-500 px-3 py-2 dark:bg-genie-950 md:p-2"
 					aria-label="Add {indexTitle.toLowerCase().slice(0, -1)}"
@@ -151,7 +164,7 @@
 					{@render Plus()}
 					<span class="text-sm text-genie-200 dark:text-genie-300 md:hidden">New</span>
 				</a>
-			{/if}
+			{/if} -->
 		</div>
 		{#if $elements.length > 0}
 			<div class="mt-4 flex flex-col gap-6 md:mt-16">
