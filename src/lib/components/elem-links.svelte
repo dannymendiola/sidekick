@@ -192,7 +192,7 @@
 					{#each linked[link] as elem}
 						<a
 							class="rounded-lg border bg-donkey-100 px-2 py-1 text-sm hover:bg-donkey-200 dark:border-donkey-700 dark:bg-donkey-900 dark:hover:bg-donkey-800"
-							href="/{table.slice(0, -1)}?id={elem.id}"
+							href="/{link.slice(0, -1)}?id={elem.id}"
 						>
 							{elem.name}
 						</a>
