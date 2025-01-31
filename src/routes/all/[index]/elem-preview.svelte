@@ -156,7 +156,9 @@
 				<button
 					class="rounded-lg border p-1 {showLinks
 						? 'border-donkey-300 bg-donkey-500 dark:border-donkey-500 dark:bg-donkey-400'
-						: 'border-donkey-400 bg-donkey-100 dark:border-donkey-600 dark:bg-donkey-900'}"
+						: noLinks
+							? 'border-donkey-300 bg-donkey-200 dark:border-donkey-700 dark:bg-donkey-800'
+							: 'border-donkey-400 bg-donkey-100 dark:border-donkey-600 dark:bg-donkey-900'}"
 					aria-label={collapsed ? 'Expand' : 'Collapse'}
 					onclick={() => {
 						showLinks = !showLinks;
@@ -168,7 +170,9 @@
 						viewBox="0 0 16 16"
 						class="size-4 {showLinks
 							? 'fill-donkey-200 dark:fill-donkey-900'
-							: 'fill-donkey-500 dark:fill-donkey-300'}"
+							: noLinks
+								? 'fill-donkey-300 dark:fill-donkey-600'
+								: 'fill-donkey-500 dark:fill-donkey-300'}"
 					>
 						<path
 							fill-rule="evenodd"
@@ -205,7 +209,7 @@
 		</div>
 
 		{#if table !== 'dynamics'}
-			<div class={!showLinks ? 'absolute opacity-0' : ''}>
+			<div class={!showLinks ? 'pointer-events-none absolute opacity-0' : ''}>
 				<ElemLinks {table} {id} bind:linked bind:noLinks />
 			</div>
 		{/if}
