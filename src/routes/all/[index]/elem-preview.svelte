@@ -66,7 +66,14 @@
 					'Causes a lot of problems'
 				];
 			case 'locations':
-				return ['The place where the magic happens'];
+				return [
+					'The place where the magic happens',
+					'Has seen better days',
+					'Feels oddly familiar',
+					"They've got a cherry pie there that'll kill you",
+					'The place they swore never to return to',
+					''
+				];
 			case 'moments':
 				return [
 					'And then everything worked out',
@@ -78,7 +85,15 @@
 					'The protagonist suffers unforeseen consequences'
 				];
 			case 'dynamics':
-				return [];
+				return [
+					'Source of all the drama',
+					"Can't stand each other, forced to work together",
+					"Enable each other's worst qualities",
+					'Thick, thick tension',
+					'Would kill for each other',
+					'Friendly rivalry',
+					'Bonded over shared trauma'
+				];
 		}
 	});
 
@@ -130,7 +145,6 @@
 				{/if}
 			</div>
 			<div class="flex items-center gap-2">
-				<!-- class={`h-fit ${collapsed && 'rotate-180 '}${skstate.prefersReducedMotion ? 'transition-none' : 'transition-transform duration-200 ease-out'}`} -->
 				<button
 					class="rounded-lg border border-donkey-400 bg-donkey-100 p-1 dark:border-donkey-600 dark:bg-donkey-900 {collapsed &&
 						'rotate-180'}"
@@ -153,6 +167,7 @@
 						/>
 					</svg>
 				</button>
+				<!-- {#if table !== 'dynamics'} -->
 				<button
 					class="rounded-lg border p-1 {showLinks
 						? 'border-donkey-300 bg-donkey-500 dark:border-donkey-500 dark:bg-donkey-400'
@@ -186,6 +201,7 @@
 						/>
 					</svg>
 				</button>
+				<!-- {/if} -->
 				<a
 					class="rounded-lg border border-donkey-400 bg-donkey-100 p-1 dark:border-donkey-600 dark:bg-donkey-900"
 					href="/{expandHref}?id={id}"
@@ -208,11 +224,11 @@
 			</div>
 		</div>
 
-		{#if table !== 'dynamics'}
-			<div class={!showLinks ? 'pointer-events-none absolute opacity-0' : ''}>
-				<ElemLinks {table} {id} bind:linked bind:noLinks />
-			</div>
-		{/if}
+		<!-- {#if table !== 'dynamics'} -->
+		<div class={!showLinks ? 'pointer-events-none absolute opacity-0' : ''}>
+			<ElemLinks {table} {id} bind:linked bind:noLinks />
+		</div>
+		<!-- {/if} -->
 
 		{#if !collapsed}
 			<div

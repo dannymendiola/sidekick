@@ -3,7 +3,7 @@
 	import { liveQuery } from 'dexie';
 
 	interface Props {
-		table: 'characters' | 'moments' | 'locations';
+		table: 'characters' | 'moments' | 'locations' | 'dynamics';
 		id: string;
 		/**
 		 * Bindable object containing linked element info
@@ -61,6 +61,8 @@
 			characters = await db.characters.where('locations').equals(id).toArray();
 			if (moments.length === 0) moments = null;
 			if (characters.length === 0) characters = null;
+		} else if (elemSnap instanceof Dynamic) {
+			characters = (await elemSnap.getCharacters()).filter((c) => c !== undefined);
 		}
 		return {
 			dynamics: dynamics,
@@ -70,7 +72,7 @@
 		};
 	});
 
-	const linkable: ('characters' | 'moments' | 'locations')[] = $derived.by(() => {
+	const linkable: ('characters' | 'moments' | 'locations' | 'dynamics')[] = $derived.by(() => {
 		switch (table) {
 			case 'characters':
 				return ['moments', 'characters', 'locations'];
@@ -78,17 +80,10 @@
 				return ['characters', 'locations'];
 			case 'locations':
 				return ['characters', 'moments'];
+			case 'dynamics':
+				return ['characters'];
 		}
 	});
-
-	let expandedLink: 'characters' | 'moments' | 'locations' | undefined = $state(undefined);
-
-	// const noLinks = $derived(
-	// 	linked?.characters === null &&
-	// 		linked?.dynamics === null &&
-	// 		linked?.moments === null &&
-	// 		linked?.locations === null
-	// );
 
 	$effect(() => {
 		noLinks =
@@ -118,36 +113,9 @@
 			linked = val;
 		});
 	});
-
-	// const deleteme = async () => {
-	// 	console.log('hello');
-	// };
-	// $effect(() => {
-	// 	if ($elem?.name === 'Tony\n') {
-	// 		deleteme();
-	// 	}
-	// });
 </script>
 
 {#if linked && !noLinks}
-	<!-- <pre>{JSON.stringify(linked, null, 2)}</pre> -->
-	<!-- <div class="mb-2 flex items-center gap-1"> -->
-	<!-- <svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 16 16"
-			class="size-4 fill-donkey-400 dark:fill-donkey-500"
-		>
-			<path
-				fill-rule="evenodd"
-				d="M8.914 6.025a.75.75 0 0 1 1.06 0 3.5 3.5 0 0 1 0 4.95l-2 2a3.5 3.5 0 0 1-5.396-4.402.75.75 0 0 1 1.251.827 2 2 0 0 0 3.085 2.514l2-2a2 2 0 0 0 0-2.828.75.75 0 0 1 0-1.06Z"
-				clip-rule="evenodd"
-			/>
-			<path
-				fill-rule="evenodd"
-				d="M7.086 9.975a.75.75 0 0 1-1.06 0 3.5 3.5 0 0 1 0-4.95l2-2a3.5 3.5 0 0 1 5.396 4.402.75.75 0 0 1-1.251-.827 2 2 0 0 0-3.085-2.514l-2 2a2 2 0 0 0 0 2.828.75.75 0 0 1 0 1.06Z"
-				clip-rule="evenodd"
-			/>
-		</svg> -->
 	<section class="flex flex-col gap-2">
 		{#each linkable as link}
 			{#if linked[link] && linked[link].length > 0}
