@@ -2,9 +2,13 @@
 	import { skstate, DEFAULT_SETTINGS, Navbar } from '$lib';
 	import { goto } from '$app/navigation';
 	import { vibrate } from '$lib';
-	import { page } from '$app/stores';
+	// import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import '../app.css';
 	import SaveLoadModal from '$lib/components/save-load-modal.svelte';
+	import { untrack } from 'svelte';
+	import { db } from '$lib/db';
+	import { liveQuery } from 'dexie';
 
 	let { children } = $props();
 
@@ -19,23 +23,37 @@
 		}
 
 		const metaTheme = document.querySelector('meta[name="theme-color"]');
-		metaTheme?.setAttribute('content', skstate.darkMode ? '#161619' : '#ced1d3');
+		metaTheme?.setAttribute('content', skstate.darkMode ? '#130c02' : '#f2e8d6');
 	});
 
-	page.subscribe((v) => {
-		if (v.url && v.url.pathname !== '/') {
-			skstate.updateSettings({ currPath: `${v.url.pathname}${v.url.search}` });
+	$effect(() => {
+		if (page.url && page.url.pathname !== '/') {
+			untrack(() => skstate.updateSettings({ currPath: `${page.url.pathname}${page.url.search}` }));
 		}
 	});
 
-	const requestPersistence = async () => {
-		if (navigator.storage && !(await navigator.storage.persisted())) {
-			// TODO Show modal explainer:
-			// Your browser might ask if you want to allow Sidekick access to persistent storage on your device. This is optional, but it tells your browser that your work should be protected from automatic deletion in the case of low storage.
-			const granted = await navigator.storage.persist();
-		}
-	};
-	requestPersistence();
+	// const requestPersistence = async () => {
+	// 	if (navigator.storage && !(await navigator.storage.persisted())) {
+	// 		// TODO Show modal explainer:
+	// 		// Your browser might ask if you want to allow Sidekick access to persistent storage on your device. This is optional, but it tells your browser that your work should be protected from automatic deletion in the case of low storage.
+	// 		const granted = await navigator.storage.persist();
+	// 	}
+	// };
+	// requestPersistence();
+
+	// const deleteme = async () => {
+	// 	const tony = await db.characters.get({ name: 'Tony' });
+	// 	const therapist = await db.characters.get({ name: 'Therapist\n' });
+	// 	// const therapy = await db.moments.get({ name: 'Unlicensed ghost therapy\n' });
+	// 	// 	// 	const office = await db.locations.get({ name: 'Abandoned therapy office' });
+	// 	// 	// 	console.log(office);
+	// 	// 	therapy?.link(tony!);
+	// 	// 	// 	therapy?.link(therapist!);
+	// 	// 	// 	therapy?.link(office!);
+
+	// 	tony?.createDynamic(therapist!.id);
+	// };
+	// deleteme();
 </script>
 
 <SaveLoadModal />
@@ -53,17 +71,17 @@
 
 {#snippet SkinnyTopbar()}
 	<div
-		class="absolute z-20 flex h-20 w-screen items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:bg-transparent md:pr-8 dark:md:bg-transparent"
+		class="absolute z-20 flex h-20 w-screen items-center justify-between bg-donkey-50 bg-transparent p-4 dark:bg-donkey-950 md:hidden md:pr-8 dark:md:bg-transparent"
 	>
 		<button
-			class="rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-300 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:hidden"
+			class="rounded-xl bg-donkey-50 hover:bg-donkey-300 dark:bg-donkey-900 hover:dark:bg-donkey-800 md:hidden"
 			onpointerup={() => {
 				vibrate();
 				goto('/welcome');
 			}}
 		>
 			<img
-				class="h-auto w-16 drop-shadow-lg"
+				class="h-auto w-16 drop-shadow-md dark:drop-shadow-none"
 				src="/logo-square-sm.png"
 				alt="The word 'Sidekick' in yellow serif font over a red oval"
 			/>
@@ -102,6 +120,18 @@
 				</svg>
 			</button>
 		</div>
+	</div>
+	<div
+		class="absolute z-10 hidden h-20 w-screen items-center justify-end bg-transparent p-4 md:flex md:pr-8"
+	>
+		<button
+			class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
+			onpointerup={() => {
+				skstate.updateSettings({ theme: skstate.darkMode ? 'light' : 'dark' });
+			}}
+		>
+			{@render ThemeIcon(skstate.darkMode ? 'sun' : 'moon')}
+		</button>
 	</div>
 {/snippet}
 

@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { vibrate, saveProject, skstate } from '$lib';
+	import { page } from '$app/state';
+	import { vibrate, skstate } from '$lib';
 
 	let currIndex = $derived.by(() => {
-		return $page.route.id === '/all/[elem_index_name]' ? $page.params.elem_index_name : undefined;
+		return page.route.id === '/all/[index]' ? page.params.index : undefined;
 	});
 
 	let currElemType = $derived.by(() => {
-		return $page.route.id?.slice(1);
+		return page.route.id?.slice(1);
 	});
 
 	const capitalize = (s: string) => {
@@ -16,14 +16,35 @@
 			.map((word) => word[0].toUpperCase() + word.slice(1))
 			.join(' ');
 	};
+
+	const twActiveByButtonName = (buttonName: string, target: 'bg' | 'icon' = 'bg') => {
+		switch (buttonName) {
+			case 'locations':
+				return target === 'bg'
+					? 'bg-wazowski-200 dark:bg-wazowski-950'
+					: 'fill-wazowski-900 dark:fill-wazowski-300';
+			case 'moments':
+				return target === 'bg'
+					? 'bg-smithers-400 dark:bg-smithers-950'
+					: 'fill-smithers-950 dark:fill-smithers-300';
+			case 'characters':
+				return target === 'bg'
+					? 'bg-genie-400 dark:bg-genie-950'
+					: 'fill-genie-950 dark:fill-genie-400';
+			case 'character-dynamics':
+				return target === 'bg'
+					? 'bg-donnie-200 dark:bg-donnie-950'
+					: 'fill-donnie-950 dark:fill-donnie-200';
+		}
+	};
 </script>
 
 <span
-	class="bottom-0 z-10 flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
+	class="bottom-0 z-[100] flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
 >
 	<div class="flex grow justify-center gap-6 md:flex-col md:justify-start md:gap-8">
 		<a
-			class="hidden rounded-xl bg-donkey-300 drop-shadow-lg hover:bg-donkey-400 dark:bg-donkey-800 dark:drop-shadow-none hover:dark:bg-donkey-700 md:block"
+			class="hidden rounded-full bg-donkey-100 hover:bg-donkey-200 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:block"
 			onpointerup={() => {
 				vibrate();
 			}}
@@ -37,7 +58,6 @@
 			/>
 		</a>
 		{@render IndexButton('moments')}
-		<!-- {@render IndexButton('themes')} -->
 		{@render IndexButton('locations')}
 		{@render IndexButton('characters')}
 		{@render IndexButton('character-dynamics')}
@@ -45,7 +65,10 @@
 	<button
 		class="hidden rounded-lg p-4 hover:bg-donkey-200 dark:hover:bg-donkey-800 md:block"
 		aria-label="Import/export project"
-		onclick={() => (skstate.showSaveLoad = true)}
+		onclick={() => {
+			skstate.showSaveLoad = true;
+			console.log('showSaveLoad');
+		}}
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +95,7 @@
 		href="/all/{buttonName}"
 		class="flex h-full flex-col items-center justify-center rounded-full p-2 text-sm md:h-min md:w-full md:p-4 {currIndex ===
 		buttonName
-			? 'bg-genie-600 drop-shadow-lg dark:bg-genie-950 [&>div]:text-genie-200'
+			? twActiveByButtonName(buttonName, 'bg')
 			: currElemType === buttonName.slice(0, -1)
 				? 'bg-donkey-100 dark:bg-donkey-800 md:bg-donkey-200'
 				: 'hover:bg-donkey-200 hover:dark:bg-donkey-800'}"
@@ -87,7 +110,7 @@
 			stroke="currentColor"
 			fill={buttonName === currIndex ? 'currentColor' : 'none'}
 			class="size-8 midskinny:size-7 skinny:size-5 {currIndex === buttonName
-				? 'fill-genie-100 dark:fill-genie-300'
+				? twActiveByButtonName(buttonName, 'icon')
 				: 'stroke-donkey-700 dark:stroke-donkey-300'}"
 		>
 			<title>{capitalize(buttonName)}</title>

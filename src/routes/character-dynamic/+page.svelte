@@ -1,32 +1,32 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { QLEditor, vibrate } from '$lib';
 	import { db, type Theme } from '$lib/db';
 	import { type ThemeAttr } from '$lib/types/db.d';
 	import { liveQuery } from 'dexie';
 	import Delta from 'quill-delta';
 
-	const themeId = $derived($page.url.searchParams.get('id'));
+	const dynamicID = $derived(page.url.searchParams.get('id'));
 
 	$effect(() => {
-		if (themeId) {
-			db.themes.get(themeId).then((m) => {
-				if (!m) {
-					goto('/all/themes');
+		if (dynamicID) {
+			db.dynamics.get(dynamicID).then((d) => {
+				if (!d) {
+					goto('/all/character-dynamics');
 				}
 			});
 		}
 	});
 
-	let themeQuery = liveQuery(() => {
-		return db.themes.get(themeId!);
+	let dynamicQuery = liveQuery(() => {
+		return db.themes.get(dynamicID!);
 	});
 
-	let theme = $derived($themeQuery);
+	let dynamic = $derived($dynamicQuery);
 
-	let themeName = $state('');
-	let themeNameCleaned = $derived(themeName?.replaceAll('\n', ''));
+	let dynamicName = $state('');
+	let dynamicNameCleaned = $derived(dynamicName?.replaceAll('\n', ''));
 
 	let themeTagline = $state('');
 
@@ -55,7 +55,7 @@
 	};
 
 	const getAttr = (key: keyof ThemeAttr) => {
-		return theme?.attr?.[key] || '';
+		return dynamic?.attr?.[key] || '';
 	};
 
 	const attrKeys = $derived(Object.keys(attrDisplayNames) as Array<keyof ThemeAttr>);
@@ -66,8 +66,8 @@
 
 	let initClean = false;
 	$effect(() => {
-		if (theme && !initClean) {
-			theme.cleanAttr();
+		if (dynamic && !initClean) {
+			dynamic.cleanAttr();
 			initClean = true;
 		}
 	});
@@ -78,9 +78,9 @@
 {/if}
 
 <div class="sk-content mb-32 md:mt-16">
-	<h1 class="invisible absolute">{themeName}</h1>
+	<h1 class="invisible absolute">{dynamicName}</h1>
 
-	{#await db.themes.get(themeId!) then t}
+	{#await db.themes.get(dynamicID!) then t}
 		<div
 			class="top-0 z-[9] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
 		>
@@ -109,16 +109,16 @@
 						twText="text-donkey-900 dark:text-donkey-50"
 						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300 "
 						onkeyup={async () => {
-							if (themeId) {
-								await db.themes.update(themeId, { name: themeName });
+							if (dynamicID) {
+								await db.themes.update(dynamicID, { name: dynamicName });
 							}
 						}}
 						onfocusout={async () => {
-							if (themeId) {
-								await db.themes.update(themeId, { name: themeName });
+							if (dynamicID) {
+								await db.themes.update(dynamicID, { name: dynamicName });
 							}
 						}}
-						bind:text={themeName}
+						bind:text={dynamicName}
 					/>
 				</div>
 			</div>
@@ -145,7 +145,7 @@
 				</svg>
 			</button>
 		</div>
-		<div class="w-full font-bold">
+		<!-- <div class="w-full font-bold">
 			<QLEditor
 				id="theme-tagline"
 				initText={t?.tagline}
@@ -156,24 +156,24 @@
 				twClass="ml-4 [&>.ql-editor]:pl-0 [&>.ql-editor]:pb-2 [&>.ql-editor]:pt-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:text-donkey-500   [&>.ql-editor>*]:dark:text-donkey-400  [&>.ql-editor::before]:dark:text-donkey-600 cursor-pointer"
 				maxLen={50}
 				onkeyup={async () => {
-					if (themeId) {
-						await db.themes.update(themeId, {
+					if (dynamicID) {
+						await db.themes.update(dynamicID, {
 							tagline: themeTagline === '\n' ? undefined : themeTagline
 						});
 					}
 				}}
 				onfocusout={async () => {
-					if (themeId) {
-						await db.characters.update(themeId, {
+					if (dynamicID) {
+						await db.characters.update(dynamicID, {
 							tagline: themeTagline === '\n' ? undefined : themeTagline
 						});
 					}
 				}}
 				bind:text={themeTagline}
 			/>
-		</div>
+		</div> -->
 	{/await}
-	{#if theme}
+	{#if dynamic}
 		<section class="mb-8 mt-4 flex flex-col gap-2">
 			{#each attrKeys as attrKey (`attr-${attrKey}`)}
 				{#if ['thesis', 'conclusion'].includes(attrKey)}
@@ -184,11 +184,11 @@
 						placeholder={attrDisplayNames[attrKey]?.placeholder}
 						initText={getAttr(attrKey)}
 						onfocusout={async () => {
-							await theme?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-							await theme?.cleanAttr();
+							await dynamic?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await dynamic?.cleanAttr();
 						}}
 						onkeyup={async () => {
-							await theme?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await dynamic?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 						}}
 						bind:text={attrBuf[attrKey]}
 					/>
@@ -201,11 +201,11 @@
 						initText={getAttr(attrKey)}
 						twHeight="min-h-32"
 						onfocusout={async () => {
-							await theme?.updateAttr({ [attrKey]: attrBuf[attrKey] });
-							await theme?.cleanAttr();
+							await dynamic?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await dynamic?.cleanAttr();
 						}}
 						onkeyup={async () => {
-							await theme?.updateAttr({ [attrKey]: attrBuf[attrKey] });
+							await dynamic?.updateAttr({ [attrKey]: attrBuf[attrKey] });
 						}}
 						bind:delta={attrBuf[attrKey]}
 					/>
@@ -227,7 +227,7 @@
 			class="sk-content z-[11] mb-[20vh] flex max-w-[512px] flex-col gap-2 rounded-xl bg-donkey-200 px-6 py-4 italic dark:bg-donkey-800"
 		>
 			<h2 class="mb-6 font-title text-2xl font-bold">
-				Delete {themeNameCleaned || 'theme'}?
+				Delete {dynamicNameCleaned || 'theme'}?
 			</h2>
 			<div class="flex w-full justify-end gap-2">
 				<button
@@ -243,8 +243,8 @@
 					class="rounded-lg bg-robin-600 p-2 font-bold text-robin-200 hover:bg-robin-500 dark:bg-robin-700 dark:hover:bg-robin-600"
 					onpointerup={async () => {
 						vibrate([20, 3, 3]);
-						if (!theme) showDeleteModal = false;
-						await theme!.delete();
+						if (!dynamic) showDeleteModal = false;
+						await dynamic!.delete();
 						goto('/all/themes', { replaceState: true });
 					}}
 				>
@@ -289,6 +289,6 @@
 
 <svelte:head>
 	<title>
-		{themeNameCleaned ? `💡 ${themeNameCleaned}` : 'Untitled theme'}
+		{dynamicNameCleaned ? `💡 ${dynamicNameCleaned}` : 'Untitled theme'}
 	</title>
 </svelte:head>

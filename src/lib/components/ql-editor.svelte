@@ -9,8 +9,18 @@
 		id: number | string;
 		placeholder?: string;
 		title?: string;
-		delta?: Delta; // for binding
-		text?: string; // for binding
+		/**
+		 * Bindable text contents in Delta format
+		 */
+		delta?: Delta;
+		/**
+		 * Bindable text contents in plain text format
+		 */
+		text?: string;
+		/**
+		 * Bindable focus state
+		 */
+		focused?: boolean;
 		initText?: string | Delta;
 		toolbar?: boolean;
 		inputMode?: 'full' | 'info';
@@ -19,6 +29,7 @@
 		twBG?: string;
 		twHeight?: string;
 		twClass?: string;
+		selectionColor?: 'blue' | 'green' | 'yellow' | 'purple';
 		maxLen?: number;
 		onfocusin?: () => void;
 		onfocusout?: () => void;
@@ -33,6 +44,7 @@
 		title = '',
 		delta = $bindable(),
 		text = $bindable(),
+		focused = $bindable(false),
 		inputMode = 'full',
 		toolbar = inputMode === 'full',
 		spellcheck = false,
@@ -41,6 +53,7 @@
 		twBG = undefined,
 		twHeight = undefined,
 		twClass = '',
+		selectionColor = 'blue',
 		onfocusin = () => {},
 		onfocusout = () => {},
 		onkeyup = () => {}
@@ -52,10 +65,21 @@
 		skstate.quillInit = true;
 	}
 
-	let focused = $state(false);
+	const twSelectionColor = $derived.by(() => {
+		switch (selectionColor) {
+			case 'blue':
+				return 'selection:bg-genie-600 selection:text-genie-50 dark:selection:bg-genie-800 dark:selection:text-genie-50';
+			case 'green':
+				return 'selection:bg-wazowski-600 selection:text-wazowski-50 dark:selection:bg-wazowski-800 dark:selection:text-wazowski-50';
+			case 'yellow':
+				return 'selection:bg-smithers-600 selection:text-smithers-50 dark:selection:bg-smithers-800 dark:selection:text-smithers-50';
+			case 'purple':
+				return 'selection:bg-donnie-600 selection:text-donnie-50 dark:selection:bg-donnie-800 dark:selection:text-donnie-50';
+		}
+	});
 
 	const ALLOWED_FMTS =
-		inputMode === 'full' ? ['bold', 'italic', 'underline', 'indent', 'list', 'align'] : [];
+		inputMode === 'full' ? ['bold', 'italic', 'underline', 'indent', 'list'] : [];
 
 	const twActiveButton = $derived(
 		skstate.darkMode ? 'bg-genie-800 text-genie-100' : 'bg-genie-500 text-genie-100'
@@ -178,7 +202,8 @@
 		</div>
 	{/if}
 	<div
-		class="ql-editor-wrapper cursor-text overflow-auto border-none text-[1rem] outline-none selection:bg-genie-500 selection:text-genie-50 dark:drop-shadow-none dark:selection:bg-genie-800 dark:selection:text-genie-100 [&>*]:outline-none [&>.ql-editor::before]:text-donkey-300 [&>.ql-editor::before]:dark:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
+		class="ql-editor-wrapper cursor-text overflow-auto border-none text-[1rem] outline-none dark:drop-shadow-none [&>*]:outline-none [&>.ql-editor::before]:text-donkey-300 [&>.ql-editor::before]:dark:text-donkey-600 [&>.ql-editor]:h-full [&>div]:max-h-full
+		{twSelectionColor}
         {toolbar || title ? 'rounded-b-lg' : 'rounded-lg'} 
 		{inputMode === 'info'
 			? title

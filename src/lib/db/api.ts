@@ -1,7 +1,7 @@
-import { db, Moment, Theme, Character, Dynamic, Location } from './db';
+import { db, Moment, Character, Dynamic, Location } from './db';
 import { type EntityTable } from 'dexie';
 
-type Entity = Moment | Theme | Character | Dynamic | Location;
+type Entity = Moment | Character | Dynamic | Location;
 
 type PropsOf<T extends Entity> = Partial<{
 	[K in keyof T as T[K] extends Function ? never : K]: T[K];
@@ -37,16 +37,6 @@ export const addLocationAfter = async (
 	params: PropsOf<Location>
 ): Promise<Location | undefined> => {
 	return await addAfter(after, params, db.locations);
-};
-
-/**
- * Add a Theme to the database and insert it in the order after the given one
- */
-export const addThemeAfter = async (
-	after: Theme | 'root' | 'tail',
-	params: PropsOf<Theme>
-): Promise<Theme | undefined> => {
-	return await addAfter(after, params, db.themes);
 };
 
 /**

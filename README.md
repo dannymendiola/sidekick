@@ -4,8 +4,6 @@
 
 **Sidekick** is a creative storyteller's trusty companion! Map out the connections between characters, locations, and moments.
 
-ℹ️ This project is entered into [SvelteHack 2024](https://hack.sveltesociety.dev/2024), which starts its submission review phase on Jan 10, 2025. As per the rules, nothing will be merged to `main` (i.e. the deployment branch) during this phase. Development is ongoing, and updates to the deployment will resume once the review phase concludes.
-
 ## 🤔 Goal
 
 Sidekick aims to provide an intuitive way for writers to plan and connect important elements of their story. The goal is to facilitate the process of discovering connections and through-lines that serve your creative vision.
@@ -59,9 +57,7 @@ To stop the app, type `q` in the running terminal and enter
 
 ## 🛠️ Contributing
 
-Sidekick is a submission for a [hackathon](https://hack.sveltesociety.dev/2024) that has ended, so nothing will be merged into `main` until after final results.
-
-That said, contributions are welcome -- poke around as you see fit!
+Contributions are welcome -- poke around as you see fit!
 
 ## 💡 Inspirations and Tools
 

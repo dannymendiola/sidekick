@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { QLEditor, vibrate } from '$lib';
-	import { db, type Location } from '$lib/db';
+	import { db } from '$lib/db';
 	import { type LocationAttr } from '$lib/types/db.d';
 	import { liveQuery } from 'dexie';
 	import Delta from 'quill-delta';
 
-	const locId = $derived($page.url.searchParams.get('id'));
+	const locId = $derived(page.url.searchParams.get('id'));
 
 	$effect(() => {
 		if (locId) {
@@ -156,7 +156,7 @@
 			</button>
 		</div>
 		<div class="w-full font-bold">
-			<QLEditor
+			<!-- <QLEditor
 				id="location-tagline"
 				initText={t?.tagline}
 				placeholder="No tagline..."
@@ -180,7 +180,7 @@
 					}
 				}}
 				bind:text={locTagline}
-			/>
+			/> -->
 		</div>
 	{/await}
 	{#if loc}

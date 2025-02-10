@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { QLEditor, TextPicker, vibrate } from '$lib';
 	import { type CharacterAttr } from '$lib/types/db.d';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { db, type Character } from '$lib/db';
+	import { db, Character } from '$lib/db';
 	import { liveQuery } from 'dexie';
 
-	const charId = $derived($page.url.searchParams.get('id'));
+	const charId = $derived(page.url.searchParams.get('id'));
 
 	$effect(() => {
 		if (charId) {
@@ -280,7 +280,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="w-full font-bold">
+		<!-- <div class="w-full font-bold">
 			<QLEditor
 				id="char-desc"
 				initText={char?.tagline}
@@ -306,7 +306,7 @@
 				}}
 				bind:text={charTagline}
 			/>
-		</div>
+		</div> -->
 	{/await}
 	{#if character}
 		{@render AttrSection('arc')}
