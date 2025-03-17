@@ -224,11 +224,9 @@
 			</div>
 		</div>
 
-		<!-- {#if table !== 'dynamics'} -->
 		<div class={!showLinks ? 'pointer-events-none absolute opacity-0' : ''}>
 			<ElemLinks {table} {id} bind:linked bind:noLinks />
 		</div>
-		<!-- {/if} -->
 
 		{#if !collapsed}
 			<div

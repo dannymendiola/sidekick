@@ -122,7 +122,7 @@
 				<div class="flex items-center gap-1">
 					{#if link === 'characters'}
 						<div
-							class="rounded border border-genie-600 bg-genie-300 p-1 dark:border-genie-700 dark:bg-genie-950"
+							class="rounded-full border border-genie-600 bg-genie-300 p-1 dark:border-genie-700 dark:bg-genie-950"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +136,7 @@
 						</div>
 					{:else if link === 'locations'}
 						<div
-							class="rounded border border-wazowski-600 bg-wazowski-200 p-1 dark:border-wazowski-700 dark:bg-wazowski-950"
+							class="rounded-full border border-wazowski-600 bg-wazowski-200 p-1 dark:border-wazowski-700 dark:bg-wazowski-950"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -152,7 +152,7 @@
 						</div>
 					{:else if link === 'moments'}
 						<div
-							class="rounded border border-smithers-600 bg-smithers-300 p-1 dark:border-smithers-700 dark:bg-smithers-950"
+							class="rounded-full border border-smithers-600 bg-smithers-300 p-1 dark:border-smithers-700 dark:bg-smithers-950"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"

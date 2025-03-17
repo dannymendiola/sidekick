@@ -49,6 +49,7 @@
 				vibrate();
 			}}
 			href="/welcome"
+			data-sveltekit-replacestate
 		>
 			<title>Home</title>
 			<img
@@ -102,6 +103,7 @@
 		onpointerup={() => {
 			vibrate();
 		}}
+		data-sveltekit-replacestate={page.route.id === '/all/[index]'}
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
