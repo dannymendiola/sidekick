@@ -7,7 +7,7 @@
 	});
 
 	let currElemType = $derived.by(() => {
-		return page.route.id?.slice(1);
+		return page.params.element;
 	});
 
 	const capitalize = (s: string) => {
@@ -21,30 +21,30 @@
 		switch (buttonName) {
 			case 'locations':
 				return target === 'bg'
-					? 'bg-wazowski-200 dark:bg-wazowski-950'
+					? 'bg-wazowski-200 dark:bg-wazowski-950 border-wazowski-500 dark:border-wazowski-800'
 					: 'fill-wazowski-900 dark:fill-wazowski-300';
 			case 'moments':
 				return target === 'bg'
-					? 'bg-smithers-400 dark:bg-smithers-950'
+					? 'bg-smithers-400 dark:bg-smithers-950 border-smithers-800 dark:border-smithers-900'
 					: 'fill-smithers-950 dark:fill-smithers-300';
 			case 'characters':
 				return target === 'bg'
-					? 'bg-genie-400 dark:bg-genie-950'
+					? 'bg-genie-400 dark:bg-genie-950 border-genie-600 dark:border-genie-800'
 					: 'fill-genie-950 dark:fill-genie-400';
 			case 'character-dynamics':
 				return target === 'bg'
-					? 'bg-donnie-200 dark:bg-donnie-950'
+					? 'bg-donnie-200 dark:bg-donnie-950 border-donnie-400 dark:border-donnie-800'
 					: 'fill-donnie-950 dark:fill-donnie-200';
 		}
 	};
 </script>
 
 <span
-	class="bottom-0 z-[100] flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
+	class="bottom-0 z-[100] flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-100 p-2 dark:bg-donkey-900 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
 >
 	<div class="flex grow justify-center gap-6 md:flex-col md:justify-start md:gap-8">
 		<a
-			class="hidden rounded-full bg-donkey-100 hover:bg-donkey-200 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:block"
+			class="hidden rounded-lg bg-donkey-100 hover:bg-donkey-200 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:block"
 			onpointerup={() => {
 				vibrate();
 			}}
@@ -89,17 +89,15 @@
 	</button>
 </span>
 
-{#snippet IndexButton(
-	buttonName: 'moments' | 'characters' | 'character-dynamics' | 'locations' | 'themes'
-)}
+{#snippet IndexButton(buttonName: 'moments' | 'characters' | 'character-dynamics' | 'locations')}
 	<a
 		href="/all/{buttonName}"
-		class="flex h-full flex-col items-center justify-center rounded-full p-2 text-sm md:h-min md:w-full md:p-4 {currIndex ===
+		class="flex h-full flex-col items-center justify-center rounded-xl border p-1 text-sm md:h-min md:w-full md:p-2 {currIndex ===
 		buttonName
 			? twActiveByButtonName(buttonName, 'bg')
 			: currElemType === buttonName.slice(0, -1)
-				? 'bg-donkey-100 dark:bg-donkey-800 md:bg-donkey-200'
-				: 'hover:bg-donkey-200 hover:dark:bg-donkey-800'}"
+				? 'border-donkey-100 bg-donkey-100 dark:border-donkey-800 dark:bg-donkey-800 md:bg-donkey-200'
+				: 'border-donkey-100 hover:bg-donkey-200 dark:border-donkey-900 hover:dark:bg-donkey-800'}"
 		onpointerup={() => {
 			vibrate();
 		}}
