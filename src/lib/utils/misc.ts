@@ -1,4 +1,4 @@
-export const vibrate = (ms: number | number[] = 1) => {
+export const vibrate = (ms: number | number[] = 8) => {
 	if ('vibrate' in navigator) navigator.vibrate(ms);
 };
 
