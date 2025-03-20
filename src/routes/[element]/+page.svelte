@@ -3,7 +3,9 @@
 	import { page } from '$app/state';
 	import { Character, db, Dynamic, Moment, Location } from '$lib/db';
 	import { vibrate } from '$lib';
-	import { liveQuery } from 'dexie';
+	import { liveQuery, type Observable } from 'dexie';
+	import EditorMoment from './EditorMoment.svelte';
+	import ElemHeader from './ElemHeader.svelte';
 
 	type ElemType = 'moment' | 'character' | 'character-dynamic' | 'location';
 	const elemType = page.params.element as ElemType;
@@ -33,33 +35,8 @@
 		}
 	});
 
-	// const momentQuery = liveQuery(() => {
-	// 	return db.moments.get(elemID || '');
-	// })
-	// const characterQuery = liveQuery(() => {
-	// 	return db.characters.get(elemID || '');
-	// })
-	// const dynamicQuery = liveQuery(() => {
-	// 	return db.dynamics.get(elemID || '');
-	// })
-	// const locationQuery = liveQuery(() => {
-	// 	return db.locations.get(elemID || '');
-	// })
-
-	// type Test =
-	// 	| ReturnType<typeof liveQuery>
-	// 	| Observable<Location | undefined>;
-
-	type ElemQuery = ReturnType<
-		| typeof liveQuery<Location | undefined>
-		| typeof liveQuery<Character | undefined>
-		| typeof liveQuery<Dynamic | undefined>
-		| typeof liveQuery<Moment | undefined>
-	>;
-	// |
-	// | Observable<Character | undefined>
-	// | Observable<Dynamic | undefined>
-	// | Observable<Location | undefined>;
+	// type Elem = Location | Character | Dynamic | Moment;
+	type ElemQuery = Observable<Location | Character | Dynamic | Moment | undefined>;
 	let query: ElemQuery | undefined = $state();
 
 	switch (elemType) {
@@ -104,10 +81,16 @@
 
 <div class="sk-content mb-32 md:mt-16">
 	{#if element}
-		<h1 class="invisible absolute">
+		<!-- <h1 class="invisible absolute">
 			{elemNameClean}
-		</h1>
-		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky"></div>
+		</h1> -->
+
+		<!-- <div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
+			{#if elemType === 'moment'}
+				<EditorMoment moment={element as Moment} />
+			{/if}
+		</div> -->
+		<ElemHeader {elemType} {element} />
 	{/if}
 </div>
 
