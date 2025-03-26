@@ -2,10 +2,8 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Character, db, Dynamic, Moment, Location } from '$lib/db';
-	import { vibrate } from '$lib';
 	import { liveQuery, type Observable } from 'dexie';
-	import EditorMoment from './EditorMoment.svelte';
-	import ElemHeader from './ElemHeader.svelte';
+	import { vibrate, QLEditor } from '$lib';
 
 	type ElemType = 'moment' | 'character' | 'character-dynamic' | 'location';
 	const elemType = page.params.element as ElemType;
@@ -81,16 +79,45 @@
 
 <div class="sk-content mb-32 md:mt-16">
 	{#if element}
-		<!-- <h1 class="invisible absolute">
-			{elemNameClean}
-		</h1> -->
-
-		<!-- <div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
-			{#if elemType === 'moment'}
-				<EditorMoment moment={element as Moment} />
-			{/if}
-		</div> -->
-		<ElemHeader {elemType} {element} />
+		{#if elemType !== 'character-dynamic'}
+			<h1 class="invisible absolute">
+				{elemNameClean}
+			</h1>
+		{/if}
+		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
+			<div class="w-full font-title font-bold">
+				{#if elemType !== 'character-dynamic'}
+					<QLEditor
+						id="elemName"
+						initText={element.name || ''}
+						placeholder="Untitled {elemType}"
+						inputMode="info"
+						twBG="bg-donkey-50 dark:bg-donkey-950"
+						twText="text-donkey-900 dark:text-donkey-50"
+						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300"
+						onkeyup={async () => {
+							if (elemID) {
+								// @ts-ignore
+								await table.update(elemID, { name: elemName });
+							}
+						}}
+						onfocusout={async () => {
+							if (elemID) {
+								// @ts-ignore
+								await table.update(elemID, { name: elemName });
+							}
+						}}
+						bind:text={elemName}
+					/>
+				{:else}
+					{#await (element as Dynamic).toString() then name}
+						<h1 class="text-3xl">
+							{name}
+						</h1>
+					{/await}
+				{/if}
+			</div>
+		</div>
 	{/if}
 </div>
 
@@ -135,5 +162,7 @@
 {/snippet}
 
 <svelte:head>
-	<title>{`${elemEmoji} ${elemNameClean || 'Untitled'}`}</title>
+	<title
+		>{`${elemEmoji} ${elemType === 'character-dynamic' ? 'Character dynamic' : elemNameClean || 'Untitled'}`}</title
+	>
 </svelte:head>
