@@ -51,7 +51,7 @@
 			<p class="text-genie-100 dark:text-genie-300">Take a quick tour</p>
 		</button> -->
 		<a
-			class="flex items-center gap-2 rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
+			class="flex items-center gap-2 rounded-xl border border-donkey-300 bg-donkey-200 px-4 py-2 text-donkey-100 hover:bg-donkey-300 dark:border-donkey-600 dark:bg-donkey-900 dark:hover:bg-donkey-800"
 			onpointerup={() => {
 				vibrate();
 				// console.log('tour not implemented');
@@ -63,7 +63,7 @@
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke-width="2"
-				class="size-4 stroke-genie-100 dark:stroke-genie-300"
+				class="size-4 stroke-donkey-800 dark:stroke-donkey-300"
 			>
 				<path
 					stroke-linecap="round"
@@ -72,7 +72,7 @@
 				/>
 			</svg>
 
-			<p class="text-genie-100 dark:text-genie-300">Get started</p>
+			<p class="text-donkey-800 dark:text-donkey-300">Get started</p>
 		</a>
 	</div>
 </div>

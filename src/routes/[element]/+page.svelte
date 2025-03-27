@@ -33,7 +33,6 @@
 		}
 	});
 
-	// type Elem = Location | Character | Dynamic | Moment;
 	type ElemQuery = Observable<Location | Character | Dynamic | Moment | undefined>;
 	let query: ElemQuery | undefined = $state();
 
@@ -57,6 +56,23 @@
 	let elemName = $state('');
 	let elemNameClean = $derived(elemName?.replaceAll('\n', ''));
 
+	const updateElem = async (params: Object) => {
+		switch (elemType) {
+			case 'moment':
+				await db.moments.update(elemID || '', params);
+				break;
+			case 'character':
+				await db.characters.update(elemID || '', params);
+				break;
+			case 'character-dynamic':
+				await db.dynamics.update(elemID || '', params);
+				break;
+			case 'location':
+				await db.locations.update(elemID || '', params);
+				break;
+		}
+	};
+
 	let elemEmoji = $derived.by(() => {
 		switch (elemType) {
 			case 'moment':
@@ -78,6 +94,10 @@
 {/if}
 
 <div class="sk-content mb-32 md:mt-16">
+	{@render ElemHeader()}
+</div>
+
+{#snippet ElemHeader()}
 	{#if element}
 		{#if elemType !== 'character-dynamic'}
 			<h1 class="invisible absolute">
@@ -96,16 +116,10 @@
 						twText="text-donkey-900 dark:text-donkey-50"
 						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300"
 						onkeyup={async () => {
-							if (elemID) {
-								// @ts-ignore
-								await table.update(elemID, { name: elemName });
-							}
+							await updateElem({ name: elemName });
 						}}
 						onfocusout={async () => {
-							if (elemID) {
-								// @ts-ignore
-								await table.update(elemID, { name: elemName });
-							}
+							await updateElem({ name: elemName });
 						}}
 						bind:text={elemName}
 					/>
@@ -119,7 +133,7 @@
 			</div>
 		</div>
 	{/if}
-</div>
+{/snippet}
 
 {#snippet DeleteModal()}
 	<div class="fixed -left-12 z-10 h-[200vh] w-[200vw] bg-black/60 dark:bg-black/80"></div>
