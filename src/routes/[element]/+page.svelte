@@ -52,6 +52,7 @@
 	}
 
 	const element = $derived($query);
+	$inspect($query);
 
 	let elemName = $state('');
 	let elemNameClean = $derived(elemName?.replaceAll('\n', ''));
@@ -87,6 +88,8 @@
 	});
 
 	let showDeleteModal = $state(false);
+
+	let elemBody = $state('');
 </script>
 
 {#if showDeleteModal}
@@ -95,6 +98,24 @@
 
 <div class="sk-content mb-32 md:mt-16">
 	{@render ElemHeader()}
+	{#if element}
+		<QLEditor
+			id="body"
+			inputMode="full"
+			toolbar={false}
+			twBG="bg-donkey-50 dark:bg-donkey-950"
+			twClass="border border-donkey-200 dark:border-donkey-300"
+			initText={element.body || ''}
+			placeholder="Describe the {elemType.replaceAll('-', ' ')}..."
+			onkeyup={async () => {
+				await updateElem({ body: elemBody });
+			}}
+			onfocusout={async () => {
+				await updateElem({ body: elemBody });
+			}}
+			bind:text={elemBody}
+		/>
+	{/if}
 </div>
 
 {#snippet ElemHeader()}
