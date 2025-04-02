@@ -89,7 +89,7 @@
 		<div class="hidden md:block"></div>
 		<div class="flex gap-4">
 			<button
-				class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
+				class="rounded-full bg-donkey-100 p-2 hover:bg-donkey-200 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
 				onpointerup={() => {
 					skstate.updateSettings({ theme: skstate.darkMode ? 'light' : 'dark' });
 				}}
@@ -97,7 +97,7 @@
 				{@render ThemeIcon(skstate.darkMode ? 'sun' : 'moon')}
 			</button>
 			<button
-				class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:hidden md:bg-donkey-200"
+				class="rounded-full bg-donkey-100 p-2 hover:bg-donkey-200 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:hidden md:bg-donkey-200"
 				onpointerup={() => {
 					skstate.showSaveLoad = true;
 				}}
@@ -125,7 +125,7 @@
 		class="absolute z-10 hidden h-20 w-screen items-center justify-end bg-transparent p-4 md:flex md:pr-8"
 	>
 		<button
-			class="rounded-full bg-donkey-200 p-2 hover:bg-donkey-300 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
+			class="rounded-full bg-donkey-100 p-2 hover:bg-donkey-200 dark:bg-donkey-900 dark:hover:bg-donkey-800"
 			onpointerup={() => {
 				skstate.updateSettings({ theme: skstate.darkMode ? 'light' : 'dark' });
 			}}

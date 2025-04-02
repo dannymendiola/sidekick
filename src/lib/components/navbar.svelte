@@ -59,9 +59,9 @@
 			/>
 		</a>
 		{@render IndexButton('moments')}
-		{@render IndexButton('locations')}
 		{@render IndexButton('characters')}
 		{@render IndexButton('character-dynamics')}
+		{@render IndexButton('locations')}
 	</div>
 	<button
 		class="hidden rounded-lg p-4 hover:bg-donkey-200 dark:hover:bg-donkey-800 md:block"
@@ -96,7 +96,7 @@
 		buttonName
 			? twActiveByButtonName(buttonName, 'bg')
 			: currElemType === buttonName.slice(0, -1)
-				? 'border-donkey-100 bg-donkey-100 dark:border-donkey-800 dark:bg-donkey-800 md:bg-donkey-200'
+				? 'border-donkey-300 bg-donkey-200 dark:border-donkey-700 dark:bg-donkey-800 '
 				: 'border-donkey-100 hover:bg-donkey-200 dark:border-donkey-900 hover:dark:bg-donkey-800'}"
 		onpointerup={() => {
 			vibrate();

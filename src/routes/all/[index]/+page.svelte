@@ -183,10 +183,8 @@
 			</div>
 		{:else}
 			<div class="flex w-full flex-col items-center justify-center">
-				<div
-					class="mb-6 mt-[20vh] font-title text-xl font-bold italic dark:text-donkey-400 md:text-2xl"
-				>
-					No {page.params.index} yet
+				<div class="mb-6 mt-[20vh] font-title text-xl font-bold dark:text-donkey-400 md:text-2xl">
+					No {page.params.index.replace('-', ' ')} yet
 				</div>
 				{#if indexTitle !== 'Character Dynamics'}
 					<a
@@ -203,8 +201,8 @@
 					</a>
 				{:else}
 					<div class="text-donkey-700 dark:text-donkey-400">
-						Create one from within a
-						<a href="/all/characters" class="text-genie-500 hover:underline"> character sheet </a>
+						Create one by linking a
+						<a href="/all/characters" class="text-genie-500 hover:underline"> character </a> to another
 					</div>
 				{/if}
 			</div>
