@@ -2,7 +2,7 @@ import { db } from '$lib/db';
 
 const serializeProject = async () => {
 	return JSON.stringify({
-		moments: await db.moments.toArray(),
+		sections: await db.sections.toArray(),
 		// themes: await db.themes.toArray(),
 		characters: await db.characters.toArray(),
 		characterDynamics: await db.dynamics.toArray(),
@@ -27,7 +27,7 @@ export const saveProject = async (filename?: string) => {
 };
 
 export const clearProject = async () => {
-	await db.moments.clear();
+	await db.sections.clear();
 	await db.characters.clear();
 	await db.dynamics.clear();
 	await db.locations.clear();
@@ -57,8 +57,7 @@ export const loadProject = async (
 
 			await clearProject();
 
-			await db.moments.bulkAdd(data.moments);
-			// await db.themes.bulkAdd(data.themes);
+			await db.sections.bulkAdd(data.sections);
 			await db.characters.bulkAdd(data.characters);
 			await db.dynamics.bulkAdd(data.characterDynamics);
 			await db.locations.bulkAdd(data.locations);

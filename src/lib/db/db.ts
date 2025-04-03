@@ -1,4 +1,4 @@
-import { CharacterAttr, DynamicAttr, LocationAttr, MomentAttr, ThemeAttr } from '$lib/types/db';
+import { CharacterAttr, DynamicAttr, LocationAttr, SectionAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
 import { Delta } from 'quill/core';
 import { ulid } from 'ulidx';
@@ -12,46 +12,21 @@ const ORDER_MIN_FRAC = 0.00001;
  */
 const db = new Dexie('sidekick') as Dexie & {
 	projects: EntityTable<Project, 'id'>;
-	moments: EntityTable<Moment, 'id'>;
+	sections: EntityTable<Section, 'id'>;
 	locations: EntityTable<Location, 'id'>;
 	characters: EntityTable<Character, 'id'>;
 	dynamics: EntityTable<Dynamic, 'id'>;
 };
 
 db.version(1).stores({
-	moments: 'id, name, order, *locations, *characters, *themes',
-	themes: 'id, name, order',
-	locations: 'id, name, order, *themes',
-	characters: 'id, name, order, *locations, *themes',
-	dynamics: 'id, order, &[aCharId+bCharId], aCharId, bCharId, *themes'
+	projects: 'id, name, openedAt',
+	sections: 'id, name, order, *locations, *characters',
+	locations: 'id, name, order',
+	characters: 'id, name, order, *locations',
+	dynamics: 'id, order, &[aCharId+bCharId], aCharId, bCharId'
 });
 
-db.version(2)
-	.stores({
-		projects: 'id, name',
-		moments: 'id, name, project, order, *locations, *characters, *themes',
-		locations: 'id, name, project, order, *themes',
-		characters: 'id, name, project, order, *locations, *themes',
-		dynamics: 'id, project, order, &[aCharId+bCharId], aCharId, bCharId, *themes'
-	})
-	.upgrade(async () => {
-		// const projectID = await db.projects.add({ name: 'Untitled project' });
-		const projectID = await db.projects.add({ id: ulid(), name: 'Untitled project' });
-		db.moments.toCollection().modify((m) => {
-			m.project = projectID;
-		});
-		db.locations.toCollection().modify((l) => {
-			l.project = projectID;
-		});
-		db.characters.toCollection().modify((c) => {
-			c.project = projectID;
-		});
-		db.dynamics.toCollection().modify((d) => {
-			d.project = projectID;
-		});
-	});
-
-type Entity = Moment | Location | Character | Dynamic;
+type Entity = Section | Location | Character | Dynamic;
 
 const orderAfter = async <T extends Entity>(
 	elem: T,
@@ -145,22 +120,23 @@ export class Project {
 	id!: string;
 	name?: string;
 	createdAt?: number;
+	openedAt?: number;
 }
 
 db.projects.mapToClass(Project);
-db.moments.hook('creating', (pk, obj, _) => {
+db.projects.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
 	}
 });
 
-export class Moment {
+export class Section {
 	id!: string;
 	project?: string;
 	order?: number;
 	name?: string;
 	body?: Delta;
-	attr?: MomentAttr;
+	attr?: SectionAttr;
 	locations?: string[];
 	characters?: string[];
 	previewCollapsed?: boolean;
@@ -170,20 +146,20 @@ export class Moment {
 	 *
 	 * @param preceding The preceding element, or 'root' or 'tail'
 	 */
-	async orderAfter(preceding: Moment | 'root' | 'tail') {
-		return orderAfter(this, preceding, db.moments);
+	async orderAfter(preceding: Section | 'root' | 'tail') {
+		return orderAfter(this, preceding, db.sections);
 	}
 
-	async getNext(): Promise<Moment | undefined> {
+	async getNext(): Promise<Section | undefined> {
 		const curr = await this.refresh();
-		const subsequentMoments = db.moments.orderBy('order').filter((m) => m.order! > curr.order!);
-		return subsequentMoments.first();
+		const subsequentSections = db.sections.orderBy('order').filter((m) => m.order! > curr.order!);
+		return subsequentSections.first();
 	}
 
-	async getPrev(): Promise<Moment | undefined> {
+	async getPrev(): Promise<Section | undefined> {
 		const curr = await this.refresh();
-		const precedingMoments = db.moments.orderBy('order').filter((m) => m.order! < curr.order!);
-		return precedingMoments.last();
+		const precedingSections = db.sections.orderBy('order').filter((m) => m.order! < curr.order!);
+		return precedingSections.last();
 	}
 
 	getLocations(): Promise<Location[]> {
@@ -200,50 +176,50 @@ export class Moment {
 			.toArray();
 	}
 
-	refresh(): Promise<Moment> {
-		return db.moments.get(this.id) as Promise<Moment>;
+	refresh(): Promise<Section> {
+		return db.sections.get(this.id) as Promise<Section>;
 	}
 
 	/**
-	 * Link this Moment to a story element
+	 * Link this Section to a story element
 	 *
 	 * @param other a Location, Character, or Theme
 	 */
 	async link(other: Location | Character) {
 		if (other instanceof Location) {
 			const newLocations = [...new Set([...(this.locations || []), other.id])];
-			await db.moments.update(this.id, { locations: newLocations });
+			await db.sections.update(this.id, { locations: newLocations });
 			this.locations = newLocations;
 		} else if (other instanceof Character) {
 			const newCharacters = [...new Set([...(this.characters || []), other.id])];
-			await db.moments.update(this.id, { characters: newCharacters });
+			await db.sections.update(this.id, { characters: newCharacters });
 			this.characters = newCharacters;
 		}
 	}
 
 	/**
-	 * Unlinks the given element from this Moment, if it's linked
+	 * Unlinks the given element from this Section, if it's linked
 	 *
 	 * @param other Location, Character, or Theme
 	 */
 	async unlink(other: Location | Character) {
 		if (other instanceof Location) {
 			const newLocations = (this.locations || []).filter((id) => id !== other.id);
-			await db.moments.update(this.id, { locations: newLocations });
+			await db.sections.update(this.id, { locations: newLocations });
 			this.locations = newLocations;
 		} else if (other instanceof Character) {
 			const newCharacters = (this.characters || []).filter((id) => id !== other.id);
 			this.characters = newCharacters;
-			await db.moments.update(this.id, { characters: newCharacters });
+			await db.sections.update(this.id, { characters: newCharacters });
 		}
 	}
 
 	// use a partial just in case the interface ever gets a field that isn't optional
-	async updateAttr(attr: Partial<MomentAttr>) {
+	async updateAttr(attr: Partial<SectionAttr>) {
 		const currAttr = this.attr || {};
 		const newAttr = { ...currAttr, ...attr };
 		this.attr = newAttr;
-		await db.moments.update(this.id, { attr: newAttr as MomentAttr });
+		await db.sections.update(this.id, { attr: newAttr as SectionAttr });
 	}
 
 	async cleanAttr() {
@@ -257,119 +233,22 @@ export class Moment {
 			})
 		);
 		this.attr = newAttr;
-		await db.moments.update(this.id, { attr: newAttr });
+		await db.sections.update(this.id, { attr: newAttr });
 	}
 
 	async delete() {
 		const id = this.id;
 		this.id = '';
-		await db.moments.delete(id);
+		await db.sections.delete(id);
 	}
 }
 
-db.moments.mapToClass(Moment);
-db.moments.hook('creating', (pk, obj, _) => {
+db.sections.mapToClass(Section);
+db.sections.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
 	}
 });
-
-// export class Theme {
-// 	id!: string;
-// 	order?: number;
-// 	name?: string;
-// 	tagline?: string;
-// 	// body?: string;
-// 	attr?: ThemeAttr;
-// 	previewCollapsed?: boolean;
-
-// 	orderAfter(preceding: Theme | 'root' | 'tail'): Promise<Theme> {
-// 		return orderAfter(this, preceding, db.themes);
-// 	}
-
-// 	async getNext(): Promise<Theme | undefined> {
-// 		const curr = await this.refresh();
-// 		const themesAfter = db.themes.orderBy('order').filter((m) => m.order! > curr.order!);
-// 		return themesAfter.first();
-// 	}
-
-// 	async getPrev(): Promise<Theme | undefined> {
-// 		const curr = await this.refresh();
-// 		const themesBefore = db.themes.orderBy('order').filter((m) => m.order! < curr.order!);
-// 		return themesBefore.last();
-// 	}
-
-// 	getMoments(): Promise<Moment[]> {
-// 		return db.moments.where('themes').anyOf(this.id).sortBy('order');
-// 	}
-
-// 	getLocations(): Promise<Location[]> {
-// 		return db.locations.where('themes').anyOf(this.id).toArray();
-// 	}
-
-// 	getCharacters(): Promise<Character[]> {
-// 		return db.characters.where('themes').anyOf(this.id).toArray();
-// 	}
-
-// 	getDynamics(): Promise<Dynamic[]> {
-// 		return db.dynamics.where('themes').anyOf(this.id).toArray();
-// 	}
-
-// 	async updateAttr(attr: Partial<ThemeAttr>) {
-// 		const currAttr = this.attr || {};
-// 		const newAttr = { ...currAttr, ...attr };
-// 		this.attr = newAttr;
-// 		await db.themes.update(this.id, { attr: this.attr });
-// 	}
-
-// 	async cleanAttr() {
-// 		const newAttr = Object.fromEntries(
-// 			Object.entries(this.attr || {}).filter(([_, v]) => {
-// 				if ((v as Delta).ops) {
-// 					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
-// 				} else {
-// 					return v?.trim() !== '';
-// 				}
-// 			})
-// 		);
-// 		this.attr = newAttr;
-// 		await db.themes.update(this.id, { attr: newAttr });
-// 	}
-
-// 	refresh(): Promise<Theme> {
-// 		return db.themes.get(this.id) as Promise<Theme>;
-// 	}
-
-// 	async delete() {
-// 		await Promise.all([
-// 			db.moments
-// 				.where('themes')
-// 				.anyOf(this.id)
-// 				.each((m) => m.unlink(this)),
-// 			// db.locations
-// 			// 	.where('themes')
-// 			// 	.anyOf(this.id)
-// 			// 	.each((l) => l.removeTheme(this)),
-// 			db.characters
-// 				.where('themes')
-// 				.anyOf(this.id)
-// 				.each((c) => c.removeTheme(this)),
-// 			db.dynamics
-// 				.where('themes')
-// 				.anyOf(this.id)
-// 				.each((d) => d.removeTheme(this))
-// 		]);
-// 		await db.themes.delete(this.id);
-// 		this.id = '';
-// 	}
-// }
-
-// db.themes.mapToClass(Theme);
-// db.themes.hook('creating', (pk, obj, _) => {
-// 	if (!pk) {
-// 		obj.id = ulid();
-// 	}
-// });
 
 export class Location {
 	id!: string;
@@ -396,8 +275,8 @@ export class Location {
 		return locsBefore.last();
 	}
 
-	getMoments(): Promise<Moment[]> {
-		return db.moments.where('locations').anyOf(this.id).toArray();
+	getSections(): Promise<Section[]> {
+		return db.sections.where('locations').anyOf(this.id).toArray();
 	}
 
 	getCharacters(): Promise<Character[]> {
@@ -429,11 +308,11 @@ export class Location {
 	}
 
 	/**
-	 * Remove this location from all moments and then from the db
+	 * Remove this location from all Sections and then from the db
 	 */
 	async delete() {
-		await db.moments.each((m) => {
-			m.unlink(this);
+		await db.sections.each((s) => {
+			s.unlink(this);
 		});
 		await db.locations.delete(this.id);
 		this.id = '';
@@ -488,8 +367,8 @@ export class Character {
 		return db.dynamics.where('aCharId').equals(this.id).or('bCharId').equals(this.id).toArray();
 	}
 
-	getMoments(): Promise<Moment[]> {
-		return db.moments.where('characters').anyOf(this.id).toArray();
+	getSections(): Promise<Section[]> {
+		return db.sections.where('characters').anyOf(this.id).toArray();
 	}
 
 	async relatedCharacters(): Promise<Character[]> {
@@ -522,25 +401,6 @@ export class Character {
 		if (dynamic) await dynamic.delete();
 	}
 
-	// getThemes(): Promise<Theme[]> {
-	// 	return db.themes
-	// 		.where('id')
-	// 		.anyOf(this.themes || [])
-	// 		.toArray();
-	// }
-
-	// async addTheme(theme: Theme) {
-	// 	const newThemes = [...new Set([...(this.themes || []), theme.id])];
-	// 	this.themes = newThemes;
-	// 	await db.characters.update(this.id, { themes: newThemes });
-	// }
-
-	// async removeTheme(theme: Theme) {
-	// 	const newThemes = (this.themes || []).filter((t) => t !== theme.id);
-	// 	this.themes = newThemes;
-	// 	await db.characters.update(this.id, { themes: newThemes });
-	// }
-
 	async updateAttr(attr: CharacterAttr) {
 		const currAttr = this.attr || {};
 		const newAttr = { ...currAttr, ...attr };
@@ -567,7 +427,7 @@ export class Character {
 	}
 
 	async delete() {
-		await Promise.all((await db.moments.toArray()).map((m) => m.unlink(this)));
+		await Promise.all((await db.sections.toArray()).map((m) => m.unlink(this)));
 		const dynamics = await this.getDynamics();
 		await Promise.all(dynamics.map((d) => d.delete()));
 		await db.characters.delete(this.id);
@@ -627,25 +487,6 @@ export class Dynamic {
 		return undefined;
 	}
 
-	// getThemes(): Promise<Theme[]> {
-	// 	return db.themes
-	// 		.where('id')
-	// 		.anyOf(this.themes || [])
-	// 		.toArray();
-	// }
-
-	// async addTheme(theme: Theme) {
-	// 	const newThemes = [...new Set([...(this.themes || []), theme.id])];
-	// 	this.themes = newThemes;
-	// 	await db.dynamics.update(this.id, { themes: newThemes });
-	// }
-
-	// async removeTheme(theme: Theme) {
-	// 	const newThemes = (this.themes || []).filter((t) => t !== theme.id);
-	// 	this.themes = newThemes;
-	// 	await db.dynamics.update(this.id, { themes: newThemes });
-	// }
-
 	async updateAttr(attr: Partial<DynamicAttr>) {
 		let currAttr = this.attr || {};
 		let newAttr = { ...currAttr, ...attr };
@@ -685,4 +526,3 @@ db.dynamics.hook('creating', (pk, obj, _) => {
 });
 
 export { db, ORDER_STEP, ORDER_MIN_FRAC };
-// export type { Location, /*Character,*/ Dynamic, Moment, Theme };

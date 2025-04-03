@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { addCharacterAfter, addLocationAfter, addMomentAfter } from '$lib/db';
+	import { addCharacterAfter, addLocationAfter, addSectionAfter } from '$lib/db';
 	import { QLEditor } from '$lib';
 	import { goto } from '$app/navigation';
 
-	type ElemType = 'moment' | 'character' | 'location';
+	type ElemType = 'section' | 'character' | 'location';
 	const elemType = page.params.element as ElemType;
 
 	let newElemName = $state('');
@@ -20,12 +20,12 @@
 					goto('/all/characters', { replaceState: true });
 				}
 				break;
-			case 'moment':
-				let m = await addMomentAfter('tail', { name: newElemNameCleaned });
+			case 'section':
+				let m = await addSectionAfter('tail', { name: newElemNameCleaned });
 				if (m) {
-					goto(`/moment?id=${m.id}`, { replaceState: true });
+					goto(`/section?id=${m.id}`, { replaceState: true });
 				} else {
-					goto('/all/moments', { replaceState: true });
+					goto('/all/sections', { replaceState: true });
 				}
 				break;
 			case 'location':
@@ -39,7 +39,7 @@
 		}
 	};
 
-	const allowUntitled = elemType === 'moment' || elemType === 'location';
+	const allowUntitled = elemType === 'section' || elemType === 'location';
 
 	const twAccept: { [K in ElemType]: { button: string; icon: string } } = {
 		character: {
@@ -52,7 +52,7 @@
 				'bg-wazowski-500 hover:bg-wazowski-600 disabled:bg-donkey-200 disabled:text-donkey-100 dark:bg-wazowski-950 dark:hover:bg-wazowski-900 disabled:dark:bg-donkey-900',
 			icon: 'stroke-wazowski-100 dark:stroke-wazowski-300'
 		},
-		moment: {
+		section: {
 			button:
 				'bg-smithers-500 hover:bg-smithers-600 disabled:bg-donkey-200 disabled:text-donkey-100 dark:bg-smithers-950 dark:hover:bg-smithers-900 disabled:dark:bg-donkey-900',
 			icon: 'stroke-smithers-100 dark:stroke-smithers-300'

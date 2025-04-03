@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import type { Character, Dynamic, Location, Moment } from '$lib/db';
+	import type { Character, Dynamic, Location, Section } from '$lib/db';
 	import { db } from '$lib/db';
 	import { skstate, vibrate } from '$lib';
 	import { goto } from '$app/navigation';
@@ -15,19 +15,19 @@
 
 	$effect(() => {
 		if (
-			!['Moments', 'Themes', 'Characters', 'Character Dynamics', 'Locations'].includes(indexTitle)
+			!['Sections', 'Themes', 'Characters', 'Character Dynamics', 'Locations'].includes(indexTitle)
 		) {
 			goto('/welcome');
 		}
 	});
 
 	const indexName = $derived(
-		page.params.index as 'moments' | 'characters' | 'character-dynamics' | 'locations'
+		page.params.index as 'sections' | 'characters' | 'character-dynamics' | 'locations'
 	);
 
 	const selectionColor = $derived.by(() => {
 		switch (indexName) {
-			case 'moments':
+			case 'sections':
 				return 'yellow';
 			case 'character-dynamics':
 				return 'purple';
@@ -45,13 +45,13 @@
 
 	const tableName = $derived(indexName === 'character-dynamics' ? 'dynamics' : indexName);
 
-	type StoryElem = Moment | Character | Dynamic | Location;
+	type StoryElem = Section | Character | Dynamic | Location;
 
 	let elements: Observable<StoryElem[]> | undefined = $state();
 	$effect(() => {
 		switch (indexName) {
-			case 'moments':
-				elements = liveQuery(() => db.moments.orderBy('order').toArray());
+			case 'sections':
+				elements = liveQuery(() => db.sections.orderBy('order').toArray());
 				break;
 			case 'characters':
 				elements = liveQuery(() => db.characters.orderBy('order').toArray());
@@ -67,10 +67,10 @@
 
 	let touchReorderingId = $state<string | undefined>();
 
-	type Index = 'moments' | 'characters' | 'character-dynamics' | 'locations';
+	type Index = 'sections' | 'characters' | 'character-dynamics' | 'locations';
 
 	const twAddBtn: { [K in Index]: { bg: string; icon: string; text: string } } = {
-		moments: {
+		sections: {
 			bg: 'border bg-smithers-300 border-smithers-600 dark:border-smithers-800 hover:bg-smithers-600 dark:bg-smithers-950 dark:hover:bg-smithers-900',
 			icon: 'stroke-smithers-950 dark:stroke-smithers-300',
 			text: 'text-smithers-950 dark:text-smithers-300'
@@ -153,14 +153,16 @@
 	// 	hoveredElem = undefined;
 	// };
 
-	// const noElemsHint = $derived()
+	const emptyCallout = $derived(
+		indexName === 'sections' ? 'A blank page...' : `No ${indexName.replace('-', ' ')} yet`
+	);
 </script>
 
 {#if $elements}
 	<div class="sk-content md:mt-28">
 		<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
 			<h1 class="w-full text-center font-serif text-3xl font-bold md:text-left md:text-4xl">
-				{indexTitle === 'Moments' ? 'Outline' : indexTitle}
+				{indexTitle === 'Sections' ? 'Outline' : indexTitle}
 			</h1>
 			{#if $elements.length > 0 && indexName !== 'character-dynamics'}
 				<a
@@ -186,7 +188,7 @@
 		{:else}
 			<div class="flex w-full flex-col items-center justify-center">
 				<div class="mb-6 mt-[20vh] font-title text-xl font-bold dark:text-donkey-400 md:text-2xl">
-					No {page.params.index.replace('-', ' ')} yet
+					{emptyCallout}
 				</div>
 				{#if indexTitle !== 'Character Dynamics'}
 					<a

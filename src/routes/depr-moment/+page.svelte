@@ -3,17 +3,17 @@
 	import { page } from '$app/state';
 	import { QLEditor, vibrate } from '$lib';
 	import { db } from '$lib/db';
-	import { type MomentAttr } from '$lib/types/db.d';
+	import { type SectionAttr } from '$lib/types/db.d';
 	import { liveQuery } from 'dexie';
 	import Delta from 'quill-delta';
 
-	const momentId = $derived(page.url.searchParams.get('id'));
+	const sectionID = $derived(page.url.searchParams.get('id'));
 
 	$effect(() => {
-		if (momentId) {
-			db.moments.get(momentId).then((m) => {
+		if (sectionID) {
+			db.sections.get(sectionID).then((m) => {
 				if (!m) {
-					goto('/all/moments');
+					goto('/all/sections');
 				}
 			});
 		}
@@ -25,7 +25,7 @@
 	});
 
 	let momentQuery = liveQuery(() => {
-		return db.moments.get(momentId!);
+		return db.sections.get(sectionID!);
 	});
 
 	let moment = $derived($momentQuery);
@@ -34,7 +34,7 @@
 	let momentNameClean = $derived(momentName?.replaceAll('\n', ''));
 
 	const attrDisplayNames: {
-		[K in keyof MomentAttr]: {
+		[K in keyof SectionAttr]: {
 			name: string;
 			placeholder?: string;
 		};
@@ -62,13 +62,13 @@
 		notes: { name: 'Notes' }
 	};
 
-	const getAttr = (key: keyof MomentAttr) => {
+	const getAttr = (key: keyof SectionAttr) => {
 		return moment?.attr?.[key] || '';
 	};
 
-	const attrKeys = $derived(Object.keys(attrDisplayNames) as Array<keyof MomentAttr>);
+	const attrKeys = $derived(Object.keys(attrDisplayNames) as Array<keyof SectionAttr>);
 
-	let attrBuf = $state<MomentAttr>({});
+	let attrBuf = $state<SectionAttr>({});
 
 	let bodyDelta = $state<Delta>();
 
@@ -103,7 +103,7 @@
 <div class="sk-content mb-32 md:mt-16">
 	<h1 class="invisible absolute">{momentName}</h1>
 
-	{#await db.moments.get(momentId!) then m}
+	{#await db.sections.get(sectionID!) then m}
 		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
 			<div
 				class="top-0 z-[11] flex w-full items-center justify-between bg-donkey-50 py-3 dark:bg-donkey-950 md:sticky"
@@ -133,13 +133,13 @@
 							twText="text-donkey-900 dark:text-donkey-50"
 							twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300"
 							onkeyup={async () => {
-								if (momentId) {
-									await db.moments.update(momentId, { name: momentName });
+								if (sectionID) {
+									await db.sections.update(sectionID, { name: momentName });
 								}
 							}}
 							onfocusout={async () => {
-								if (momentId) {
-									await db.moments.update(momentId, { name: momentName });
+								if (sectionID) {
+									await db.sections.update(sectionID, { name: momentName });
 								}
 							}}
 							bind:text={momentName}
@@ -239,13 +239,13 @@
 					twHeight="min-h-64"
 					initText={moment.body || ''}
 					onkeyup={async () => {
-						if (momentId) {
-							await db.moments.update(momentId, { body: bodyDelta });
+						if (sectionID) {
+							await db.sections.update(sectionID, { body: bodyDelta });
 						}
 					}}
 					onfocusout={async () => {
-						if (momentId) {
-							await db.moments.update(momentId, { body: bodyDelta });
+						if (sectionID) {
+							await db.sections.update(sectionID, { body: bodyDelta });
 						}
 					}}
 					bind:delta={bodyDelta}

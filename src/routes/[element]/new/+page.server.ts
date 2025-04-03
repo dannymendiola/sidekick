@@ -1,7 +1,7 @@
 import { EntryGenerator } from './$types';
 
 export const entries: EntryGenerator = () => [
-	{ element: 'moment' },
+	{ element: 'section' },
 	{ element: 'character' },
 	{ element: 'location' }
 ];

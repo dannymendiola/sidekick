@@ -1,5 +1,5 @@
 import { skstate } from '$lib';
-import { db, Character, Dynamic, Location, Moment, Theme } from '$lib/db';
+import { db, Character, Dynamic, Location, Section } from '$lib/db';
 
 export const skElemDraggable = (
 	node: HTMLElement,
@@ -64,7 +64,7 @@ export const skElemDraggable = (
 export const skElemDragTarget = (
 	node: HTMLElement,
 	zoneData: {
-		hoveredElem: Moment | Character | Theme | Dynamic | Location;
+		hoveredElem: Section | Character | Dynamic | Location;
 	}
 ) => {
 	const handleDragOver = (e: DragEvent) => {
@@ -85,11 +85,11 @@ export const skElemDragTarget = (
 		console.log('draggedData', draggedData);
 
 		switch (draggedData.type) {
-			case 'moment':
-				dragged = await db.moments.get(draggedData.id);
+			case 'section':
+				dragged = await db.sections.get(draggedData.id);
 				if (dragged) {
 					if (elemToOrderAfter) {
-						await dragged.orderAfter(elemToOrderAfter as Moment);
+						await dragged.orderAfter(elemToOrderAfter as Section);
 					} else {
 						await dragged.orderAfter(direction === 'down' ? 'tail' : 'root');
 					}
@@ -105,16 +105,16 @@ export const skElemDragTarget = (
 					}
 				}
 				break;
-			case 'theme':
-				dragged = await db.themes.get(draggedData.id);
-				if (dragged) {
-					if (elemToOrderAfter) {
-						await dragged.orderAfter(elemToOrderAfter as Theme);
-					} else {
-						await dragged.orderAfter(direction === 'down' ? 'tail' : 'root');
-					}
-				}
-				break;
+			// case 'theme':
+			// 	dragged = await db.themes.get(draggedData.id);
+			// 	if (dragged) {
+			// 		if (elemToOrderAfter) {
+			// 			await dragged.orderAfter(elemToOrderAfter as Theme);
+			// 		} else {
+			// 			await dragged.orderAfter(direction === 'down' ? 'tail' : 'root');
+			// 		}
+			// 	}
+			// 	break;
 			case 'character dynamic':
 				dragged = await db.dynamics.get(draggedData.id);
 				if (dragged) {

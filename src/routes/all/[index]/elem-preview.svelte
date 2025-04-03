@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { Delta } from 'quill/core';
 	import { QLEditor, skstate } from '$lib';
-	import { db, Character, Dynamic, Moment, Location } from '$lib/db';
+	import { db, Character, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery } from 'dexie';
 	import { slide } from 'svelte/transition';
 	import { quintInOut } from 'svelte/easing';
-	import ElemLinks from '$lib/components/elem-links.svelte';
+	// import ElemLinks from '$lib/components/elem-links.svelte';
 
 	interface Props {
-		table: 'characters' | 'moments' | 'locations' | 'dynamics';
+		table: 'characters' | 'sections' | 'locations' | 'dynamics';
 		id: string;
 		collapsed?: boolean;
 		selectionColor?: 'blue' | 'green' | 'yellow' | 'purple';
@@ -34,7 +34,7 @@
 				return 'border-genie-600 dark:border-genie-400';
 			case 'locations':
 				return 'border-wazowski-600 dark:border-wazowski-400';
-			case 'moments':
+			case 'sections':
 				return 'border-smithers-600 dark:border-smithers-400';
 			case 'dynamics':
 				return 'border-donnie-600 dark:border-donnie-400';
@@ -47,8 +47,8 @@
 				return 'Unnamed character';
 			case 'locations':
 				return 'Unnamed location';
-			case 'moments':
-				return 'Untitled moment';
+			case 'sections':
+				return 'Untitled section';
 			case 'dynamics':
 				return '';
 		}
@@ -74,7 +74,7 @@
 					'The place they swore never to return to',
 					''
 				];
-			case 'moments':
+			case 'sections':
 				return [
 					'And then everything worked out',
 					'Insert fight sequence',
@@ -100,7 +100,7 @@
 	let linked = $state<{
 		locations: Location[] | null;
 		characters: Character[] | null;
-		moments: Moment[] | null;
+		sections: Section[] | null;
 		dynamics: Dynamic[] | null;
 	}>();
 

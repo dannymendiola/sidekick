@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { Character, db, Dynamic, Moment, Location } from '$lib/db';
+	import { Character, db, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery, type Observable } from 'dexie';
 	import { vibrate, QLEditor } from '$lib';
 
-	type ElemType = 'moment' | 'character' | 'character-dynamic' | 'location';
+	type ElemType = 'section' | 'character' | 'character-dynamic' | 'location';
 	const elemType = page.params.element as ElemType;
 
 	const table = $derived.by(() => {
 		switch (elemType) {
-			case 'moment':
-				return db.moments;
+			case 'section':
+				return db.sections;
 			case 'character':
 				return db.characters;
 			case 'character-dynamic':
@@ -33,12 +33,12 @@
 		}
 	});
 
-	type ElemQuery = Observable<Location | Character | Dynamic | Moment | undefined>;
+	type ElemQuery = Observable<Location | Character | Dynamic | Section | undefined>;
 	let query: ElemQuery | undefined = $state();
 
 	switch (elemType) {
-		case 'moment':
-			query = liveQuery(() => db.moments.get(elemID || ''));
+		case 'section':
+			query = liveQuery(() => db.sections.get(elemID || ''));
 			break;
 		case 'character':
 			query = liveQuery(() => db.characters.get(elemID || ''));
@@ -58,8 +58,8 @@
 
 	const updateElem = async (params: Object) => {
 		switch (elemType) {
-			case 'moment':
-				await db.moments.update(elemID || '', params);
+			case 'section':
+				await db.sections.update(elemID || '', params);
 				break;
 			case 'character':
 				await db.characters.update(elemID || '', params);
@@ -75,7 +75,7 @@
 
 	let elemEmoji = $derived.by(() => {
 		switch (elemType) {
-			case 'moment':
+			case 'section':
 				return '🎞️';
 			case 'character':
 				return '🪪';
@@ -185,7 +185,7 @@
 						vibrate([20, 3, 3]);
 						if (!element) showDeleteModal = false;
 						await element!.delete();
-						goto('/all/moments', { replaceState: true });
+						goto('/all/sections', { replaceState: true });
 					}}
 				>
 					Delete

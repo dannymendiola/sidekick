@@ -56,7 +56,7 @@
 				vibrate();
 				// console.log('tour not implemented');
 			}}
-			href="/all/moments"
+			href="/all/sections"
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

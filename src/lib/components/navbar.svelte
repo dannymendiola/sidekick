@@ -23,7 +23,7 @@
 				return target === 'bg'
 					? 'bg-wazowski-200 dark:bg-wazowski-950 border-wazowski-500 dark:border-wazowski-800'
 					: 'fill-wazowski-900 dark:fill-wazowski-300';
-			case 'moments':
+			case 'sections':
 				return target === 'bg'
 					? 'bg-smithers-400 dark:bg-smithers-950 border-smithers-800 dark:border-smithers-900'
 					: 'fill-smithers-950 dark:fill-smithers-300';
@@ -58,7 +58,7 @@
 				alt="The word 'Sidekick' in yellow serif font over a red oval"
 			/>
 		</a>
-		{@render IndexButton('moments')}
+		{@render IndexButton('sections')}
 		{@render IndexButton('characters')}
 		{@render IndexButton('character-dynamics')}
 		{@render IndexButton('locations')}
@@ -89,7 +89,7 @@
 	</button>
 </span>
 
-{#snippet IndexButton(buttonName: 'moments' | 'characters' | 'character-dynamics' | 'locations')}
+{#snippet IndexButton(buttonName: 'sections' | 'characters' | 'character-dynamics' | 'locations')}
 	<a
 		href="/all/{buttonName}"
 		class="flex h-full flex-col items-center justify-center rounded-xl border p-1 text-sm md:h-min md:w-full md:p-2 {currIndex ===
@@ -119,8 +119,10 @@
 	</a>
 {/snippet}
 
-{#snippet IconInner(name: 'moments' | 'characters' | 'character-dynamics' | 'locations' | 'themes')}
-	{#if name === 'moments'}
+{#snippet IconInner(
+	name: 'sections' | 'characters' | 'character-dynamics' | 'locations' | 'themes'
+)}
+	{#if name === 'sections'}
 		{#if name === currIndex}
 			<path
 				fill-rule="evenodd"
