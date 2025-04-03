@@ -11,8 +11,8 @@ const ORDER_MIN_FRAC = 0.00001;
  * The main database for Sidekick
  */
 const db = new Dexie('sidekick') as Dexie & {
+	projects: EntityTable<Project, 'id'>;
 	moments: EntityTable<Moment, 'id'>;
-	// themes: EntityTable<Theme, 'id'>;
 	locations: EntityTable<Location, 'id'>;
 	characters: EntityTable<Character, 'id'>;
 	dynamics: EntityTable<Dynamic, 'id'>;
@@ -25,6 +25,31 @@ db.version(1).stores({
 	characters: 'id, name, order, *locations, *themes',
 	dynamics: 'id, order, &[aCharId+bCharId], aCharId, bCharId, *themes'
 });
+
+db.version(2)
+	.stores({
+		projects: 'id, name',
+		moments: 'id, name, project, order, *locations, *characters, *themes',
+		locations: 'id, name, project, order, *themes',
+		characters: 'id, name, project, order, *locations, *themes',
+		dynamics: 'id, project, order, &[aCharId+bCharId], aCharId, bCharId, *themes'
+	})
+	.upgrade(async () => {
+		// const projectID = await db.projects.add({ name: 'Untitled project' });
+		const projectID = await db.projects.add({ id: ulid(), name: 'Untitled project' });
+		db.moments.toCollection().modify((m) => {
+			m.project = projectID;
+		});
+		db.locations.toCollection().modify((l) => {
+			l.project = projectID;
+		});
+		db.characters.toCollection().modify((c) => {
+			c.project = projectID;
+		});
+		db.dynamics.toCollection().modify((d) => {
+			d.project = projectID;
+		});
+	});
 
 type Entity = Moment | Location | Character | Dynamic;
 
@@ -116,8 +141,22 @@ const orderAfter = async <T extends Entity>(
 	return elem;
 };
 
+export class Project {
+	id!: string;
+	name?: string;
+	createdAt?: number;
+}
+
+db.projects.mapToClass(Project);
+db.moments.hook('creating', (pk, obj, _) => {
+	if (!pk) {
+		obj.id = ulid();
+	}
+});
+
 export class Moment {
 	id!: string;
+	project?: string;
 	order?: number;
 	name?: string;
 	body?: Delta;
@@ -334,6 +373,7 @@ db.moments.hook('creating', (pk, obj, _) => {
 
 export class Location {
 	id!: string;
+	project?: string;
 	order?: number;
 	name?: string;
 	body?: Delta;
@@ -407,6 +447,7 @@ db.locations.hook('creating', (pk, obj, _) => {
 
 export class Character {
 	id!: string;
+	project?: string;
 	name?: string;
 	body?: Delta;
 	order?: number;
@@ -543,6 +584,7 @@ db.characters.hook('creating', (pk, obj, _) => {
 
 export class Dynamic {
 	id!: string;
+	project?: string;
 	order?: number;
 	aCharId!: string;
 	bCharId!: string;

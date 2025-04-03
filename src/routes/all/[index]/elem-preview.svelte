@@ -167,8 +167,7 @@
 						/>
 					</svg>
 				</button>
-				<!-- {#if table !== 'dynamics'} -->
-				<button
+				<!-- <button
 					class="rounded-lg border p-1 {showLinks
 						? 'border-donkey-300 bg-donkey-500 dark:border-donkey-500 dark:bg-donkey-400'
 						: noLinks
@@ -200,14 +199,38 @@
 							clip-rule="evenodd"
 						/>
 					</svg>
-				</button>
-				<!-- {/if} -->
+				</button> -->
 				<a
 					class="rounded-lg border border-donkey-400 bg-donkey-100 p-1 dark:border-donkey-600 dark:bg-donkey-900"
 					href="/{expandHref}?id={id}"
 					aria-label="Open character"
 				>
+					<!-- <svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-3 stroke-[1.4]"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+						/>
+					</svg> -->
 					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="currentColor"
+						class="size-4"
+					>
+						<path
+							d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32L19.513 8.2Z"
+						/>
+					</svg>
+
+					<!-- <svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
 						viewBox="0 0 24 24"
@@ -219,14 +242,14 @@
 							stroke-linejoin="round"
 							d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
 						/>
-					</svg>
+					</svg> -->
 				</a>
 			</div>
 		</div>
 
-		<div class={!showLinks ? 'pointer-events-none absolute opacity-0' : ''}>
+		<!-- <div class={!showLinks ? 'pointer-events-none absolute opacity-0' : ''}>
 			<ElemLinks {table} {id} bind:linked bind:noLinks />
-		</div>
+		</div> -->
 
 		{#if !collapsed}
 			<div

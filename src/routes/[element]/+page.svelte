@@ -52,7 +52,6 @@
 	}
 
 	const element = $derived($query);
-	$inspect($query);
 
 	let elemName = $state('');
 	let elemNameClean = $derived(elemName?.replaceAll('\n', ''));

@@ -152,6 +152,8 @@
 	// const handleDragLeave = () => {
 	// 	hoveredElem = undefined;
 	// };
+
+	// const noElemsHint = $derived()
 </script>
 
 {#if $elements}

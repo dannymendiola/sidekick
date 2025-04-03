@@ -6,6 +6,7 @@ class SKState {
 	quillInit = $state(false);
 	showSaveLoad = $state(false);
 	prefersReducedMotion = $derived(prefersReducedMotion.current);
+	projID = $derived(this.#settings?.currProj);
 
 	get settings() {
 		return this.#settings ? this.#settings : DEFAULT_SETTINGS;
