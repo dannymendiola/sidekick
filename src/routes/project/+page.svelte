@@ -6,13 +6,21 @@
 	const project = $derived($query);
 
 	let projectName = $state('');
+
+	let numProjects = $state(0);
+	const getNumProjects = async () => {
+		numProjects = await db.projects.count();
+	};
+	getNumProjects();
 </script>
 
 <div class="sk-content md:mt-16">
-	<h1 class="mb-6 -rotate-2 font-brand text-4xl uppercase text-smithers-500">Projects</h1>
+	<h1 class="mb-6 -rotate-2 font-brand text-4xl uppercase text-robin-500 dark:text-smithers-500">
+		Projects
+	</h1>
 	<section
 		title="Project"
-		class="h-min w-full rounded-2xl border border-donkey-400 p-2 dark:border-donkey-800 dark:bg-donkey-900"
+		class="h-min w-full rounded-2xl border border-donkey-200 p-2 dark:border-donkey-800 dark:bg-donkey-900"
 	>
 		{#if project}
 			<h2 class="font-title text-3xl">Current project</h2>
@@ -34,7 +42,7 @@
 			/>
 		{:else}
 			<div class="my-3 text-xl font-bold text-donkey-700 dark:text-donkey-400">
-				No project selected
+				No project{numProjects >= 1 ? ' selected' : 's yet'}
 			</div>
 		{/if}
 	</section>

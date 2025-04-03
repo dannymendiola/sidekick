@@ -101,7 +101,7 @@
 							{project.name || 'Untitled project'}
 						</span>
 					{:else}
-						Create a project
+						Open or create a project
 					{/if}
 				</p>
 			{/await}
