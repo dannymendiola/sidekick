@@ -128,6 +128,8 @@ db.projects.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
 	}
+	obj.createdAt = Date.now();
+	obj.openedAt = Date.now();
 });
 
 export class Section {

@@ -2,16 +2,13 @@
 	import { db, skstate, QLEditor } from '$lib';
 	import { liveQuery } from 'dexie';
 
-	const query = liveQuery(() => db.projects.get(skstate.projectID || ''));
-	const project = $derived($query);
+	const qCurrProj = liveQuery(() => db.projects.get(skstate.projectID || ''));
+	let activeProject = $derived($qCurrProj);
 
 	let projectName = $state('');
 
-	let numProjects = $state(0);
-	const getNumProjects = async () => {
-		numProjects = await db.projects.count();
-	};
-	getNumProjects();
+	const qAllProjects = liveQuery(() => db.projects.toArray());
+	const allProjects = $derived($qAllProjects);
 </script>
 
 <div class="sk-content md:mt-16">
@@ -22,11 +19,11 @@
 		title="Project"
 		class="h-min w-full rounded-2xl border border-donkey-200 p-2 dark:border-donkey-800 dark:bg-donkey-900"
 	>
-		{#if project}
+		{#if activeProject}
 			<h2 class="font-title text-3xl">Current project</h2>
 			<QLEditor
 				id="project-name"
-				initText={project.name}
+				initText={activeProject.name}
 				placeholder="Untitled project"
 				inputMode="info"
 				twBG="bg-donkey-50 dark:bg-donkey-900"
@@ -42,8 +39,25 @@
 			/>
 		{:else}
 			<div class="my-3 text-xl font-bold text-donkey-700 dark:text-donkey-400">
-				No project{numProjects >= 1 ? ' selected' : 's yet'}
+				No project{allProjects?.length >= 1 ? ' selected' : 's yet'}
 			</div>
 		{/if}
+	</section>
+	<section title="Open project">
+		<pre>
+			{JSON.stringify(allProjects, null, 2)}
+		</pre>
+		{#each allProjects as p}
+			<button
+				class="rounded-xl border border-donkey-300 bg-donkey-200 px-4 py-2 text-donkey-800 hover:bg-donkey-300 dark:border-donkey-600 dark:bg-donkey-900 dark:text-donkey-100 dark:hover:bg-donkey-800"
+				onclick={() => {
+					skstate.updateSettings({ currProj: p.id });
+					// TODO update svelte for derived assignment, update activeProject here
+					// or just make activeProject $state and update it in an effect
+				}}
+			>
+				{p.name}
+			</button>
+		{/each}
 	</section>
 </div>
