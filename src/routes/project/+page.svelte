@@ -52,7 +52,7 @@
 				class="rounded-xl border border-donkey-300 bg-donkey-200 px-4 py-2 text-donkey-800 hover:bg-donkey-300 dark:border-donkey-600 dark:bg-donkey-900 dark:text-donkey-100 dark:hover:bg-donkey-800"
 				onclick={() => {
 					skstate.updateSettings({ currProj: p.id });
-					skstate.projectID = p.id; // temporary override of skstate.projectID
+					activeProject = p; // temporary override of activeProject
 					// https://svelte.dev/docs/svelte/$derived#Overriding-derived-values
 				}}
 			>
