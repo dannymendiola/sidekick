@@ -52,8 +52,8 @@
 				class="rounded-xl border border-donkey-300 bg-donkey-200 px-4 py-2 text-donkey-800 hover:bg-donkey-300 dark:border-donkey-600 dark:bg-donkey-900 dark:text-donkey-100 dark:hover:bg-donkey-800"
 				onclick={() => {
 					skstate.updateSettings({ currProj: p.id });
-					// TODO update svelte for derived assignment, update activeProject here
-					// or just make activeProject $state and update it in an effect
+					skstate.projectID = p.id; // temporary override of skstate.projectID
+					// https://svelte.dev/docs/svelte/$derived#Overriding-derived-values
 				}}
 			>
 				{p.name}
