@@ -182,6 +182,13 @@
 			keybindCleanup();
 		};
 	});
+
+	$effect(() => {
+		// console.log(`quill ${text}`);
+		if (!quill?.hasFocus()) {
+			quill?.setText(text?.replace(/\n$/, '') || '');
+		}
+	});
 </script>
 
 <div class="flex h-full w-full flex-col">

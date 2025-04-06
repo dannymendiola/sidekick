@@ -2,13 +2,11 @@
 	import { skstate, DEFAULT_SETTINGS, Navbar } from '$lib';
 	import { goto } from '$app/navigation';
 	import { vibrate } from '$lib';
-	// import { page } from '$app/stores';
 	import { page } from '$app/state';
 	import '../app.css';
 	import SaveLoadModal from '$lib/components/save-load-modal.svelte';
 	import { untrack } from 'svelte';
 	import { db } from '$lib/db';
-	import { liveQuery } from 'dexie';
 
 	let { children } = $props();
 
@@ -32,9 +30,9 @@
 		}
 	});
 
-	// let project = $state();
-	const projQuery = liveQuery(() => db.projects.get(skstate.projectID || ''));
-	const project = $derived($projQuery);
+	const projectPromise = $derived.by(async () => {
+		return skstate.projectID ? await db.projects.get(skstate.projectID) : undefined;
+	});
 
 	// const requestPersistence = async () => {
 	// 	if (navigator.storage && !(await navigator.storage.persisted())) {
@@ -51,37 +49,11 @@
 {@render Topbar()}
 
 <div class="wrapper flex h-screen flex-col-reverse md:flex-row">
-	{#if !['/welcome', '/', '/project'].includes(page.url.pathname)}
-		{#if project}
-			"proj"
-		{:else}
-			<div class="absolute z-10 h-screen w-screen bg-donkey-50 dark:bg-donkey-950 md:pl-24">
-				<div class="flex flex-col items-center gap-4">
-					<h1 class="mt-48 font-title text-3xl text-donkey-600 dark:text-donkey-300">
-						No project selected
-					</h1>
-					<a
-						class="flex items-center gap-2 rounded-xl border border-donkey-300 bg-donkey-200 px-4 py-2 text-donkey-100 hover:bg-donkey-300 dark:border-donkey-600 dark:bg-donkey-900 dark:hover:bg-donkey-800"
-						onclick={() => {
-							vibrate();
-						}}
-						href="/project"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 20 20"
-							class="size-4 fill-donkey-800 dark:fill-donkey-300"
-						>
-							<path
-								d="M5.127 3.502 5.25 3.5h9.5c.041 0 .082 0 .123.002A2.251 2.251 0 0 0 12.75 2h-5.5a2.25 2.25 0 0 0-2.123 1.502ZM1 10.25A2.25 2.25 0 0 1 3.25 8h13.5A2.25 2.25 0 0 1 19 10.25v5.5A2.25 2.25 0 0 1 16.75 18H3.25A2.25 2.25 0 0 1 1 15.75v-5.5ZM3.25 6.5c-.04 0-.082 0-.123.002A2.25 2.25 0 0 1 5.25 5h9.5c.98 0 1.814.627 2.123 1.502a3.819 3.819 0 0 0-.123-.002H3.25Z"
-							/>
-						</svg>
-						<p>Open or create a project</p>
-					</a>
-				</div>
-			</div>
+	{#await projectPromise then project}
+		{#if !project && !['/welcome', '/', '/project'].includes(page.url.pathname)}
+			{@render CalloutNoProj()}
 		{/if}
-	{/if}
+	{/await}
 	<div class="navbar z-10 md:z-20">
 		<Navbar />
 	</div>
@@ -201,6 +173,34 @@
 			/>
 		</svg>
 	{/if}
+{/snippet}
+
+{#snippet CalloutNoProj()}
+	<div class="absolute z-10 h-screen w-screen bg-donkey-50 dark:bg-donkey-950 md:pl-24">
+		<div class="flex flex-col items-center gap-4">
+			<h1 class="mt-48 font-title text-3xl text-donkey-600 dark:text-donkey-300">
+				No project selected
+			</h1>
+			<a
+				class="flex items-center gap-2 rounded-xl border border-donkey-300 bg-donkey-200 px-4 py-2 text-donkey-100 hover:bg-donkey-300 dark:border-donkey-600 dark:bg-donkey-900 dark:hover:bg-donkey-800"
+				onclick={() => {
+					vibrate();
+				}}
+				href="/project"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 20 20"
+					class="size-4 fill-donkey-800 dark:fill-donkey-300"
+				>
+					<path
+						d="M5.127 3.502 5.25 3.5h9.5c.041 0 .082 0 .123.002A2.251 2.251 0 0 0 12.75 2h-5.5a2.25 2.25 0 0 0-2.123 1.502ZM1 10.25A2.25 2.25 0 0 1 3.25 8h13.5A2.25 2.25 0 0 1 19 10.25v5.5A2.25 2.25 0 0 1 16.75 18H3.25A2.25 2.25 0 0 1 1 15.75v-5.5ZM3.25 6.5c-.04 0-.082 0-.123.002A2.25 2.25 0 0 1 5.25 5h9.5c.98 0 1.814.627 2.123 1.502a3.819 3.819 0 0 0-.123-.002H3.25Z"
+					/>
+				</svg>
+				<p>Open or create a project</p>
+			</a>
+		</div>
+	</div>
 {/snippet}
 
 <style>

@@ -9,6 +9,8 @@
 
 	const qAllProjects = liveQuery(() => db.projects.toArray());
 	const allProjects = $derived($qAllProjects);
+
+	$inspect(projectName);
 </script>
 
 <div class="sk-content md:mt-16">
@@ -20,7 +22,7 @@
 		class="h-min w-full rounded-2xl border border-donkey-200 p-2 dark:border-donkey-800 dark:bg-donkey-900"
 	>
 		{#if activeProject}
-			<h2 class="font-title text-3xl">Current project</h2>
+			<h2 class="text-2xl font-bold">Current project</h2>
 			<QLEditor
 				id="project-name"
 				initText={activeProject.name}
@@ -54,6 +56,7 @@
 					skstate.updateSettings({ currProj: p.id });
 					activeProject = p; // temporary override of activeProject
 					// https://svelte.dev/docs/svelte/$derived#Overriding-derived-values
+					projectName = p.name || '';
 				}}
 			>
 				{p.name}
