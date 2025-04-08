@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { db, skstate, QLEditor, formatDate, saveProject, loadProject } from '$lib';
 	import { liveQuery } from 'dexie';
+	import { quintOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 
 	const qCurrProj = liveQuery(() => db.projects.get(skstate.projectID || ''));
 	let activeProject = $derived($qCurrProj);
@@ -9,6 +11,8 @@
 
 	const qAllProjects = liveQuery(() => db.projects.toArray());
 	const allProjects = $derived($qAllProjects);
+
+	let showManageProjects = $state(false);
 </script>
 
 <div class="sk-content">
@@ -77,6 +81,7 @@
 			</hgroup>
 			<button
 				class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 bg-donkey-200 px-2 py-2 text-white hover:bg-donkey-300 dark:border-donkey-700 dark:bg-donkey-800 hover:dark:bg-donkey-600 md:mt-0 md:w-min"
+				onclick={() => (showManageProjects = !showManageProjects)}
 			>
 				<!-- <svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -111,6 +116,32 @@
 				<span class="md:hidden">Manage projects</span>
 			</button>
 		</div>
+
+		{#if showManageProjects}
+			<section
+				class="max-h-[20vh] overflow-y-auto"
+				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 100, easing: quintOut }}
+			>
+				<div class="mt-2 flex w-full flex-col gap-1">
+					{#each allProjects as project, i}
+						<div class="flex rounded border border-donkey-200 p-1 dark:border-donkey-700">
+							<!-- <h3 class="">{project.name || 'Untitled Project'}</h3> -->
+							<div class="grow">
+								<QLEditor
+									id="proj-{i}"
+									initText={project.name}
+									inputMode="info"
+									fieldID={project.id}
+									fieldTable={db.projects}
+								/>
+							</div>
+							asdf
+						</div>
+					{/each}
+				</div>
+			</section>
+		{/if}
+
 		<hr class="my-4 hidden border-donkey-200 dark:border-donkey-600 md:block" />
 
 		<!-- Import a project from a file section -->

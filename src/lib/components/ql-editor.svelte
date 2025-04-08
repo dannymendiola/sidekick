@@ -2,8 +2,21 @@
 	import Quill, { type QuillOptions } from 'quill';
 	import Keyboard from 'quill/modules/keyboard';
 	import { Delta } from 'quill/core';
-	import { type IconName, addKeybinds, skstate } from '$lib';
+	import {
+		Character,
+		Dynamic,
+		type IconName,
+		Location,
+		Project,
+		Section,
+		addKeybinds,
+		skstate
+	} from '$lib';
 	import { onMount } from 'svelte';
+	import { db } from '$lib';
+	import { type InsertType, type Table } from 'dexie';
+
+	type Entity = Project | Character | Section | Location | Dynamic;
 
 	interface Props {
 		id: number | string;
@@ -35,7 +48,12 @@
 		onfocusout?: () => void;
 		onkeyup?: () => void;
 		onkeypresscapture?: () => void;
+		// fieldTable?: EntityTable<Project | Character | Section | Location | Dynamic | undefined>
+		fieldTable?: Table<Entity, string, InsertType<Entity, 'id'>>;
+		fieldID?: string;
 	}
+
+	// db.projects
 
 	let {
 		id,
@@ -56,7 +74,9 @@
 		selectionColor = 'blue',
 		onfocusin = () => {},
 		onfocusout = () => {},
-		onkeyup = () => {}
+		onkeyup = () => {},
+		fieldID = undefined,
+		fieldTable = undefined
 	}: Props = $props();
 
 	placeholder = placeholder || ' ';
@@ -236,13 +256,19 @@
 			updateCsrFmt();
 			onfocusin();
 		}}
-		onkeyup={() => {
+		onkeyup={async () => {
 			updateCsrFmt();
 			onkeyup();
+			if (fieldID && fieldTable) {
+				await fieldTable.update(fieldID, { name: quill!.getText() });
+			}
 		}}
-		onfocusout={() => {
+		onfocusout={async () => {
 			focused = false;
 			onfocusout();
+			if (fieldID && fieldTable) {
+				await fieldTable.update(fieldID, { name: quill!.getText() });
+			}
 		}}
 	></div>
 </div>
