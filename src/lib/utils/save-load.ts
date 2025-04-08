@@ -1,17 +1,18 @@
 import { db } from '$lib/db';
 
-const serializeProject = async () => {
+const serializeProject = async (projID: string) => {
 	return JSON.stringify({
-		sections: await db.sections.toArray(),
-		// themes: await db.themes.toArray(),
-		characters: await db.characters.toArray(),
-		characterDynamics: await db.dynamics.toArray(),
-		locations: await db.locations.toArray()
+		project: projID,
+		dbVersion: db.verno,
+		sections: await db.sections.where({ project: projID }).toArray(),
+		characters: await db.characters.where({ project: projID }).toArray(),
+		characterDynamics: await db.dynamics.where({ project: projID }).toArray(),
+		locations: await db.locations.where({ project: projID }).toArray()
 	});
 };
 
-export const saveProject = async (filename?: string) => {
-	const data = await serializeProject();
+export const saveProject = async (projID: string, filename?: string) => {
+	const data = await serializeProject(projID);
 	const blob = new Blob([data], { type: 'application/json' });
 	const url = URL.createObjectURL(blob);
 	const link = document.createElement('a');

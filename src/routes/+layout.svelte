@@ -44,13 +44,13 @@
 	// requestPersistence();
 </script>
 
-<SaveLoadModal />
+<!-- <SaveLoadModal /> -->
 
 {@render Topbar()}
 
 <div class="wrapper flex h-screen flex-col-reverse md:flex-row">
 	{#await projectPromise then project}
-		{#if !project && !['/welcome', '/', '/project'].includes(page.url.pathname)}
+		{#if !project && !['/welcome', '/', '/project', '/project/new'].includes(page.url.pathname)}
 			{@render CalloutNoProj()}
 		{/if}
 	{/await}

@@ -12,12 +12,6 @@
 	const project = $derived.by(async () => {
 		return skstate.projectID ? await db.projects.get(skstate.projectID) : undefined;
 	});
-
-	// db.projects.add({
-	// 	name: 'Untitled project',
-	// 	// id: skstate.projID,
-	// 	createdAt: Date.now()
-	// });
 </script>
 
 <div class="sk-content">
@@ -34,14 +28,13 @@
 			Map your story
 		</h2>
 		<p class=" max-w-xl text-center dark:text-donkey-400 md:px-32">
-			⚠️ This app is a work in progess. It has limited functionality, and if you you use it now, a
-			future update will likely break your project.
+			⚠️ This pre-beta version has limited functionality and isn't ready for use. Future updates
+			will likely break your projects. For a stable app, please check back later.
 		</p>
 		<a
 			class="flex items-center gap-2 rounded-xl border border-donkey-300 bg-donkey-200 px-4 py-2 text-donkey-100 hover:bg-donkey-300 dark:border-donkey-600 dark:bg-donkey-900 dark:hover:bg-donkey-800"
 			onpointerup={() => {
 				vibrate();
-				// console.log('tour not implemented');
 			}}
 			href="/project"
 		>
