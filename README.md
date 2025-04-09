@@ -63,10 +63,10 @@ Contributions are welcome -- poke around as you see fit!
 
 Sidekick owes much of its inspiration and existence to several tools and projects. Check 'em out:
 
-- Tools:
+- Essential libraries:
     - [Svelte](https://svelte.dev/)
     - [Tailwindcss](https://tailwindcss.com/) and their [icon library](https://heroicons.com/)
-    - [Quill](https://quilljs.com/)
+    - [Tiptap](https://tiptap.dev/)
 - Inspirations:
     - [Pluot](https://pluot.app/)
     - [Obsidian](https://obsidian.md/)
