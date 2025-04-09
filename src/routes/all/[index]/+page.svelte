@@ -51,16 +51,36 @@
 	$effect(() => {
 		switch (indexName) {
 			case 'sections':
-				elements = liveQuery(() => db.sections.orderBy('order').toArray());
+				elements = liveQuery(() =>
+					db.sections
+						.where('project')
+						.equals(skstate.projectID || '')
+						.sortBy('order')
+				);
 				break;
 			case 'characters':
-				elements = liveQuery(() => db.characters.orderBy('order').toArray());
+				elements = liveQuery(() =>
+					db.characters
+						.where('project')
+						.equals(skstate.projectID || '')
+						.sortBy('order')
+				);
 				break;
 			case 'character-dynamics':
-				elements = liveQuery(() => db.dynamics.orderBy('order').toArray());
+				elements = liveQuery(() =>
+					db.dynamics
+						.where('project')
+						.equals(skstate.projectID || '')
+						.sortBy('order')
+				);
 				break;
 			case 'locations':
-				elements = liveQuery(() => db.locations.orderBy('order').toArray());
+				elements = liveQuery(() =>
+					db.locations
+						.where('project')
+						.equals(skstate.projectID || '')
+						.sortBy('order')
+				);
 				break;
 		}
 	});

@@ -3,6 +3,7 @@ import Dexie, { type EntityTable } from 'dexie';
 import { Delta } from 'quill/core';
 import { ulid } from 'ulidx';
 import { addDynamicAfter } from './api';
+import { skstate } from '$lib';
 
 const ORDER_STEP = 128;
 const ORDER_MIN_FRAC = 0.00001;
@@ -20,10 +21,12 @@ const db = new Dexie('sidekick') as Dexie & {
 
 db.version(1).stores({
 	projects: 'id, name, openedAt',
-	sections: 'id, name, order, *locations, *characters',
-	locations: 'id, name, order',
-	characters: 'id, name, order, *locations',
-	dynamics: 'id, order, &[aCharId+bCharId], aCharId, bCharId'
+	// sections: 'id, name, order, *locations, *characters',
+	sections: 'id, name, order, project',
+	locations: 'id, name, order, project',
+	// characters: 'id, name, order, *locations',
+	characters: 'id, name, order, project',
+	dynamics: 'id, order, project, &[aCharId+bCharId], aCharId, bCharId'
 });
 
 type Entity = Section | Location | Character | Dynamic;
@@ -35,7 +38,11 @@ const orderAfter = async <T extends Entity>(
 ) => {
 	// TODO get rid of these ts-ignores if possible
 	const rebalance = async () => {
-		const elements = await table.orderBy('order').toArray();
+		// const elements = await table.orderBy('order').toArray();
+		const elements = await table
+			.where('project')
+			.equals(skstate.projectID || '')
+			.sortBy('order');
 		const update = elements.map((m, i) => {
 			const order = i * ORDER_STEP;
 			return {
@@ -250,6 +257,9 @@ db.sections.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
 	}
+	if (!obj.project) {
+		obj.project = skstate.projectID;
+	}
 });
 
 export class Location {
@@ -324,6 +334,9 @@ export class Location {
 db.locations.mapToClass(Location);
 db.locations.hook('creating', (pk, obj, _) => {
 	obj.id = pk || ulid();
+	if (!obj.project) {
+		obj.project = skstate.projectID;
+	}
 });
 
 export class Character {
@@ -442,6 +455,9 @@ db.characters.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
 	}
+	if (!obj.project) {
+		obj.project = skstate.projectID;
+	}
 });
 
 export class Dynamic {
@@ -524,6 +540,9 @@ db.dynamics.mapToClass(Dynamic);
 db.dynamics.hook('creating', (pk, obj, _) => {
 	if (!pk) {
 		obj.id = ulid();
+	}
+	if (!obj.project) {
+		obj.project = skstate.projectID;
 	}
 });
 

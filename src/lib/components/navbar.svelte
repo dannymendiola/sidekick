@@ -65,11 +65,11 @@
 	</div>
 	<a
 		class="hidden rounded-lg border p-4 hover:bg-donkey-200 dark:hover:bg-donkey-800 md:block {page
-			.url.pathname === '/project'
+			.url.pathname === '/projects'
 			? 'border-donkey-300 bg-donkey-200 dark:border-donkey-600 dark:bg-donkey-800'
 			: 'border-donkey-100 dark:border-donkey-900 dark:bg-donkey-900'}"
 		aria-label="Import/export project"
-		href="/project"
+		href="/projects"
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"

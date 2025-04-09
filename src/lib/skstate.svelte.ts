@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS } from '$lib';
 import { prefersReducedMotion } from 'svelte/motion';
+import { formatBytes } from '$lib/utils';
 
 class SKState {
 	#settings: typeof DEFAULT_SETTINGS | undefined = $state();
@@ -25,6 +26,13 @@ class SKState {
 
 	get touchscreen() {
 		return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+	}
+
+	async getUsage() {
+		const quota = await navigator.storage.estimate();
+		// let usage = quota.usage;
+		// usage = usage ? usage - 49147 : 0;
+		return `${formatBytes(quota.usage || 0)} / ${formatBytes(quota.quota || 0)} (${((quota.usage || 0) / (quota.quota || 0)).toFixed(1)}%)`;
 	}
 }
 

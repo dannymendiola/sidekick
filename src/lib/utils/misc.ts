@@ -17,3 +17,12 @@ export const formatDate = (
 
 	return formatter.format(new Date(date));
 };
+
+export const formatBytes = (bytes: number) => {
+	if (bytes === 0) return '0 B';
+	const k = 1024;
+	const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	const converted = bytes / Math.pow(k, i);
+	return `${converted.toFixed(2)} ${sizes[i]}`;
+};

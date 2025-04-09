@@ -4,6 +4,7 @@ const serializeProject = async (projID: string) => {
 	return JSON.stringify({
 		project: projID,
 		dbVersion: db.verno,
+		projectName: (await db.projects.get(projID))?.name || '',
 		sections: await db.sections.where({ project: projID }).toArray(),
 		characters: await db.characters.where({ project: projID }).toArray(),
 		characterDynamics: await db.dynamics.where({ project: projID }).toArray(),
