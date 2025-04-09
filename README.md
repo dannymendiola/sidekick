@@ -19,7 +19,7 @@ Sidekick aims to provide an intuitive way for writers to plan and connect import
 ⏹️: Planned
 <br>
 
-- ✅ **100% local**: Sidekick is a [local-only](https://dev.to/alexanderop/what-is-local-first-web-development-3mnd) app. Your projects never leave your device, keeping them away from servers, AI datasets, or anywhere else you may not want them. 
+- ✅ **100% local**: Sidekick is a [local-only](https://alexop.dev/posts/what-is-local-first-web-development/) app. Your projects never leave your device, keeping them away from servers, AI datasets, or anywhere else you may not want them. 
 - 🔨️ **Export and import**: Easily save your project to a file, for safekeeping or to import on another device
 - ⏹️ **Progressive web app**: (Optionally) install Sidekick as a PWA, allowing for a native-like experience on any device
 - 🔨️ **Create story elements**: Flesh out your story with an outline, themes, locations, and interrelated characters
