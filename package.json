@@ -34,6 +34,9 @@
 		"vitest": "^2.1.9"
 	},
 	"dependencies": {
+		"@tiptap/core": "^2.11.7",
+		"@tiptap/pm": "^2.11.7",
+		"@tiptap/starter-kit": "^2.11.7",
 		"dexie": "^4.0.9",
 		"fake-indexeddb": "^6.0.0",
 		"quill": "^2.0.2",
