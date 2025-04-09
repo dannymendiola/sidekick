@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { db, Character, Moment, Location, Dynamic } from '$lib/db';
+	import { db, Character, Section, Location, Dynamic } from '$lib/db';
 	import { liveQuery } from 'dexie';
 
 	interface Props {
-		table: 'characters' | 'moments' | 'locations' | 'dynamics';
+		table: 'characters' | 'sections' | 'locations' | 'dynamics';
 		id: string;
 		/**
 		 * Bindable object containing linked element info
@@ -11,7 +11,7 @@
 		linked?: {
 			dynamics: Dynamic[] | null;
 			characters: Character[] | null;
-			moments: Moment[] | null;
+			sections: Section[] | null;
 			locations: Location[] | null;
 		};
 		/**
@@ -30,14 +30,14 @@
 			return {
 				dynamics: null,
 				characters: null,
-				moments: null,
+				sections: null,
 				locations: null
 			};
 		}
 
 		let dynamics = null;
 		let characters = null;
-		let moments = null;
+		let sections = null;
 		let locations = null;
 		if (elemSnap instanceof Character) {
 			dynamics = await db.dynamics.where('aCharId').equals(id).or('bCharId').equals(id).toArray();
@@ -45,21 +45,21 @@
 				.where('id')
 				.anyOf(dynamics.map((d) => (d.aCharId === id ? d.bCharId : d.aCharId)))
 				.toArray();
-			moments = await db.moments.where('characters').equals(id).toArray();
+			sections = await db.sections.where('characters').equals(id).toArray();
 			locations = await elemSnap.getLocations();
-			if (moments.length === 0) moments = null;
+			if (sections.length === 0) sections = null;
 			if (locations.length === 0) locations = null;
 			if (characters.length === 0) characters = null;
 			if (dynamics.length === 0) dynamics = null;
-		} else if (elemSnap instanceof Moment) {
+		} else if (elemSnap instanceof Section) {
 			characters = await elemSnap.getCharacters();
 			locations = await elemSnap.getLocations();
 			if (characters.length === 0) characters = null;
 			if (locations.length === 0) locations = null;
 		} else if (elemSnap instanceof Location) {
-			moments = await db.moments.where('locations').equals(id).toArray();
+			sections = await db.sections.where('locations').equals(id).toArray();
 			characters = await db.characters.where('locations').equals(id).toArray();
-			if (moments.length === 0) moments = null;
+			if (sections.length === 0) sections = null;
 			if (characters.length === 0) characters = null;
 		} else if (elemSnap instanceof Dynamic) {
 			characters = (await elemSnap.getCharacters()).filter((c) => c !== undefined);
@@ -67,19 +67,19 @@
 		return {
 			dynamics: dynamics,
 			characters: characters,
-			moments: moments,
+			sections: sections,
 			locations: locations
 		};
 	});
 
-	const linkable: ('characters' | 'moments' | 'locations' | 'dynamics')[] = $derived.by(() => {
+	const linkable: ('characters' | 'sections' | 'locations' | 'dynamics')[] = $derived.by(() => {
 		switch (table) {
 			case 'characters':
-				return ['moments', 'characters', 'locations'];
-			case 'moments':
+				return ['sections', 'characters', 'locations'];
+			case 'sections':
 				return ['characters', 'locations'];
 			case 'locations':
-				return ['characters', 'moments'];
+				return ['characters', 'sections'];
 			case 'dynamics':
 				return ['characters'];
 		}
@@ -89,7 +89,7 @@
 		noLinks =
 			linked?.characters === null &&
 			linked?.dynamics === null &&
-			linked?.moments === null &&
+			linked?.sections === null &&
 			linked?.locations === null;
 	});
 
@@ -102,7 +102,7 @@
 			bg: 'bg-wazowski-200 dark:bg-wazowski-950 border-wazowski-500 dark:border-wazowski-800',
 			icon: 'fill-wazowski-900 dark:fill-wazowski-300'
 		},
-		moments: {
+		sections: {
 			bg: 'bg-smithers-400 dark:bg-smithers-950 border-smithers-700 dark:border-smithers-900',
 			icon: 'fill-smithers-950 dark:fill-smithers-300'
 		}
@@ -122,7 +122,7 @@
 				<div class="flex items-center gap-1">
 					{#if link === 'characters'}
 						<div
-							class="rounded border border-genie-600 bg-genie-300 p-1 dark:border-genie-700 dark:bg-genie-950"
+							class="rounded-full border border-genie-600 bg-genie-300 p-1 dark:border-genie-700 dark:bg-genie-950"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +136,7 @@
 						</div>
 					{:else if link === 'locations'}
 						<div
-							class="rounded border border-wazowski-600 bg-wazowski-200 p-1 dark:border-wazowski-700 dark:bg-wazowski-950"
+							class="rounded-full border border-wazowski-600 bg-wazowski-200 p-1 dark:border-wazowski-700 dark:bg-wazowski-950"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -150,14 +150,14 @@
 								/>
 							</svg>
 						</div>
-					{:else if link === 'moments'}
+					{:else if link === 'sections'}
 						<div
-							class="rounded border border-smithers-600 bg-smithers-300 p-1 dark:border-smithers-700 dark:bg-smithers-950"
+							class="rounded-full border border-smithers-600 bg-smithers-300 p-1 dark:border-smithers-700 dark:bg-smithers-950"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								viewBox="0 0 16 16"
-								class="size-4 {twLinkCategory['moments']['icon']}"
+								class="size-4 {twLinkCategory['sections']['icon']}"
 							>
 								<path
 									fill-rule="evenodd"
@@ -209,50 +209,4 @@
 			{/if}
 		{/each}
 	</section>
-	<!-- </div> -->
-
-	<!-- {:else} -->
-	<!-- <p>No links</p> -->
 {/if}
-
-<!-- {#snippet LinksExpander(target: 'characters' | 'moments' | 'locations', twSvg: string)}
-	<button
-		class="w-fit rounded-lg border px-2 py-1 {expandedLink === target
-			? `${twExpander[target]['bg']}`
-			: 'border-donkey-300 hover:bg-donkey-100 dark:border-donkey-700 hover:dark:bg-donkey-900 '}"
-		aria-label="Links to {target}"
-		onclick={() => {
-			expandedLink = expandedLink === target ? undefined : target;
-		}}
-	>
-		{#if target === 'characters'}
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" class="size-4 {twSvg}">
-				<path
-					d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z"
-				/>
-			</svg>
-		{:else if target === 'moments'}
-			<div></div>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 16 16"
-				fill="currentColor"
-				class="size-4 {twSvg}"
-			>
-				<path
-					fill-rule="evenodd"
-					d="M1 3.5A1.5 1.5 0 0 1 2.5 2h11A1.5 1.5 0 0 1 15 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9Zm1.5.25a.25.25 0 0 1 .25-.25h1.5a.25.25 0 0 1 .25.25v1a.25.25 0 0 1-.25.25h-1.5a.25.25 0 0 1-.25-.25v-1Zm3.75-.25a.25.25 0 0 0-.25.25v3.5c0 .138.112.25.25.25h3.5a.25.25 0 0 0 .25-.25v-3.5a.25.25 0 0 0-.25-.25h-3.5ZM6 8.75a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.5a.25.25 0 0 1-.25.25h-3.5a.25.25 0 0 1-.25-.25v-3.5Zm5.75-5.25a.25.25 0 0 0-.25.25v1c0 .138.112.25.25.25h1.5a.25.25 0 0 0 .25-.25v-1a.25.25 0 0 0-.25-.25h-1.5ZM2.5 11.25a.25.25 0 0 1 .25-.25h1.5a.25.25 0 0 1 .25.25v1a.25.25 0 0 1-.25.25h-1.5a.25.25 0 0 1-.25-.25v-1Zm9.25-.25a.25.25 0 0 0-.25.25v1c0 .138.112.25.25.25h1.5a.25.25 0 0 0 .25-.25v-1a.25.25 0 0 0-.25-.25h-1.5ZM2.5 8.75a.25.25 0 0 1 .25-.25h1.5a.25.25 0 0 1 .25.25v1a.25.25 0 0 1-.25.25h-1.5a.25.25 0 0 1-.25-.25v-1Zm9.25-.25a.25.25 0 0 0-.25.25v1c0 .138.112.25.25.25h1.5a.25.25 0 0 0 .25-.25v-1a.25.25 0 0 0-.25-.25h-1.5ZM2.5 6.25A.25.25 0 0 1 2.75 6h1.5a.25.25 0 0 1 .25.25v1a.25.25 0 0 1-.25.25h-1.5a.25.25 0 0 1-.25-.25v-1ZM11.75 6a.25.25 0 0 0-.25.25v1c0 .138.112.25.25.25h1.5a.25.25 0 0 0 .25-.25v-1a.25.25 0 0 0-.25-.25h-1.5Z"
-					clip-rule="evenodd"
-				/>
-			</svg>
-		{:else if target === 'locations'}
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" class="size-4 {twSvg}">
-				<path
-					fill-rule="evenodd"
-					d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
-					clip-rule="evenodd"
-				/>
-			</svg>
-		{/if}
-	</button>
-{/snippet} -->

@@ -1,78 +1,67 @@
 <script lang="ts">
-	import { vibrate, QLEditor } from '$lib';
+	import { vibrate, skstate, db } from '$lib';
 	import { onMount } from 'svelte';
 	import { elasticOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
 	import { version } from '$app/environment';
-	let mounted = false;
+	let mounted = $state(false);
 	onMount(() => {
 		mounted = true;
+	});
+
+	const project = $derived.by(async () => {
+		return skstate.projectID ? await db.projects.get(skstate.projectID) : undefined;
 	});
 </script>
 
 <div class="sk-content">
 	{#if mounted}
 		<h1
-			in:scale={{ duration: 600, easing: elasticOut }}
+			in:scale={{ duration: skstate.prefersReducedMotion ? 0 : 600, easing: elasticOut }}
 			class="mt-[15vh] -rotate-3 select-none text-center font-brand text-5xl uppercase text-robin-500 dark:text-smithers-600"
 		>
 			Sidekick
 		</h1>
 	{/if}
-	<div class="mt-6 flex flex-col items-center justify-center gap-8">
+	<div class="mt-2 flex flex-col items-center justify-center gap-8">
 		<h2 class="select-none font-title text-lg font-bold text-donkey-600 dark:text-donkey-400">
 			Map your story
 		</h2>
-		<p class=" max-w-xl text-center dark:text-donkey-500 md:px-32">
-			⚠️ This is a pre-beta version complete with bugs, limited functionality, and potential
-			breaking changes. For a stable, fully-featured app, please check back later.
+		<p class=" max-w-xl text-center dark:text-donkey-400 md:px-32">
+			⚠️ This pre-beta version has limited functionality and isn't ready for use. Future updates
+			will likely break your projects. For a stable app, please check back later.
 		</p>
-		<!-- <button
-			class="flex items-center gap-2 rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
-			onpointerup={() => {
-				vibrate();
-				console.log('tour not implemented');
-			}}
-		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke-width="2"
-				class="size-4 stroke-genie-100 dark:stroke-genie-300"
-			>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
-				/>
-			</svg>
-
-			<p class="text-genie-100 dark:text-genie-300">Take a quick tour</p>
-		</button> -->
 		<a
-			class="flex items-center gap-2 rounded-full bg-genie-500 px-4 py-2 text-genie-100 hover:bg-genie-600 dark:bg-genie-950 dark:hover:bg-genie-900"
+			class="flex items-center gap-2 rounded-xl border border-donkey-300 bg-donkey-200 px-4 py-2 text-donkey-100 hover:bg-donkey-300 dark:border-donkey-600 dark:bg-donkey-900 dark:hover:bg-donkey-800"
 			onpointerup={() => {
 				vibrate();
-				// console.log('tour not implemented');
 			}}
-			href="/all/moments"
+			href="/projects"
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke-width="2"
-				class="size-4 stroke-genie-100 dark:stroke-genie-300"
+				viewBox="0 0 20 20"
+				class="size-4 fill-donkey-800 dark:fill-donkey-300"
 			>
 				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+					d="M5.127 3.502 5.25 3.5h9.5c.041 0 .082 0 .123.002A2.251 2.251 0 0 0 12.75 2h-5.5a2.25 2.25 0 0 0-2.123 1.502ZM1 10.25A2.25 2.25 0 0 1 3.25 8h13.5A2.25 2.25 0 0 1 19 10.25v5.5A2.25 2.25 0 0 1 16.75 18H3.25A2.25 2.25 0 0 1 1 15.75v-5.5ZM3.25 6.5c-.04 0-.082 0-.123.002A2.25 2.25 0 0 1 5.25 5h9.5c.98 0 1.814.627 2.123 1.502a3.819 3.819 0 0 0-.123-.002H3.25Z"
 				/>
 			</svg>
 
-			<p class="text-genie-100 dark:text-genie-300">Get started</p>
+			{#await project}
+				<p class="text-donkey-800 dark:text-donkey-300">...</p>
+			{:then project}
+				<p class="text-donkey-800 dark:text-donkey-300">
+					{#if project}
+						Project:
+						<span class="font-semibold text-donkey-900 dark:text-donkey-200">
+							{project.name || 'Untitled project'}
+						</span>
+					{:else}
+						Open or create a project
+					{/if}
+				</p>
+			{/await}
 		</a>
 	</div>
 </div>

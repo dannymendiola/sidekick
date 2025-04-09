@@ -1,4 +1,4 @@
-export interface MomentAttr {
+export interface SectionAttr {
 	conflict?: string;
 	significance?: string;
 	start_point?: string;

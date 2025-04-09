@@ -312,24 +312,6 @@
 		{@render AttrSection('arc')}
 		{@render AttrSection('personality')}
 		{@render AttrSection('identity')}
-		<!-- <h2 class="mt-6 font-title text-xl font-bold italic">Relationships</h2>
-		{#if $dynamics?.length > 0}
-			{#each $dynamics as dynamic}
-				{#await dynamic.getOther(character.id) then other}
-					{other?.name}
-				{/await}
-			{/each}
-		{:else}
-			no dynamics :(
-		{/if}
-		<h2 class="mt-6 font-title text-xl font-bold italic">Moments</h2>
-		{#await character.getMoments() then moments}
-			{#if moments.length > 0}
-				hello
-			{:else}
-				no moments
-			{/if}
-		{/await} -->
 	{/if}
 	{#if numAttr < 10}
 		<div class="h-[40vh]"></div>

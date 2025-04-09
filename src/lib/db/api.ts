@@ -1,7 +1,7 @@
-import { db, Moment, Character, Dynamic, Location } from './db';
+import { db, Section, Character, Dynamic, Location } from './db';
 import { type EntityTable } from 'dexie';
 
-type Entity = Moment | Character | Dynamic | Location;
+type Entity = Section | Character | Dynamic | Location;
 
 type PropsOf<T extends Entity> = Partial<{
 	[K in keyof T as T[K] extends Function ? never : K]: T[K];
@@ -20,13 +20,13 @@ const addAfter = async <T extends Entity>(
 };
 
 /**
- * Add a Moment to the database and insert it in the order after the given Moment
+ * Add a Section to the database and insert it in the order after the given Section
  */
-export const addMomentAfter = async (
-	after: Moment | 'root' | 'tail',
-	params: PropsOf<Moment>
-): Promise<Moment | undefined> => {
-	return await addAfter(after, params, db.moments);
+export const addSectionAfter = async (
+	after: Section | 'root' | 'tail',
+	params: PropsOf<Section>
+): Promise<Section | undefined> => {
+	return await addAfter(after, params, db.sections);
 };
 
 /**

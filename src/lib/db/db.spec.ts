@@ -1,66 +1,66 @@
 import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
-import { addMomentAfter, addLocationAfter, addCharacterAfter } from './api';
+import { addSectionAfter, addLocationAfter, addCharacterAfter } from './api';
 import { db, ORDER_STEP, ORDER_MIN_FRAC } from './db';
 
 const slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
 
-describe('Moments', () => {
+describe('Sections', () => {
 	afterEach(async () => {
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
 
-	it('Moment ordering and deletion', async () => {
-		let momentA = await addMomentAfter('root', { name: 'Moment A' });
+	it('Section ordering and deletion', async () => {
+		let sectionA = await addSectionAfter('root', { name: 'Section A' });
 
-		expect(momentA).toBeTruthy();
-		expect(momentA?.name).toBe('Moment A');
+		expect(sectionA).toBeTruthy();
+		expect(sectionA?.name).toBe('Section A');
 
-		let momentB = await addMomentAfter(momentA!, { name: 'Moment B' });
-		expect(await db.moments.count()).toBe(2);
+		let sectionB = await addSectionAfter(sectionA!, { name: 'Section B' });
+		expect(await db.sections.count()).toBe(2);
 
-		expect(momentA!.order).toBe(0);
-		expect(momentB!.order).toEqual(ORDER_STEP);
+		expect(sectionA!.order).toBe(0);
+		expect(sectionB!.order).toEqual(ORDER_STEP);
 
-		let aNext = await (await db.moments.get(momentA!.id))!.getNext();
-		expect(aNext!.name).toBe('Moment B');
+		let aNext = await (await db.sections.get(sectionA!.id))!.getNext();
+		expect(aNext!.name).toBe('Section B');
 
-		let momentC = await addMomentAfter('root', { name: 'Moment C' });
-		expect(momentC!.order).toBe(0);
+		let sectionC = await addSectionAfter('root', { name: 'Section C' });
+		expect(sectionC!.order).toBe(0);
 
-		momentA = await db.moments.get(momentA!.id);
-		expect(momentA!.order).toEqual(ORDER_STEP / 2);
+		sectionA = await db.sections.get(sectionA!.id);
+		expect(sectionA!.order).toEqual(ORDER_STEP / 2);
 
-		let momentD = await addMomentAfter('tail', { name: 'Moment D' });
-		expect(momentD!.order).toBe(ORDER_STEP * 2);
+		let sectionD = await addSectionAfter('tail', { name: 'Section D' });
+		expect(sectionD!.order).toBe(ORDER_STEP * 2);
 
-		let momentE = await addMomentAfter('tail', { name: 'Moment E' });
-		expect(momentE!.order).toBe(ORDER_STEP * 3);
+		let sectionE = await addSectionAfter('tail', { name: 'Section E' });
+		expect(sectionE!.order).toBe(ORDER_STEP * 3);
 
-		await momentD!.delete();
+		await sectionD!.delete();
 
-		let bNext = await (await db.moments.get(momentB!.id))!.getNext();
-		expect(bNext!.name).toBe('Moment E');
+		let bNext = await (await db.sections.get(sectionB!.id))!.getNext();
+		expect(bNext!.name).toBe('Section E');
 	});
 
 	it('Rebalancing', async () => {
-		/* slices = number of times to divide MOMENT_ORDER_STEP before an index
+		/* slices = number of times to divide ORDER_STEP before an index
             goes below 0.001 */
 		for (let i = 0; i < slices; i++) {
-			await addMomentAfter('root', { name: `${i}` });
+			await addSectionAfter('root', { name: `${i}` });
 		}
-		let secondMoment = (await db.moments.orderBy('order').toArray())[1];
+		let secondSection = (await db.sections.orderBy('order').toArray())[1];
 
-		expect(secondMoment.order).within(ORDER_MIN_FRAC, 1);
+		expect(secondSection.order).within(ORDER_MIN_FRAC, 1);
 
-		let orderBefore = (await db.moments.orderBy('order').toArray()).map((m) => m.name);
+		let orderBefore = (await db.sections.orderBy('order').toArray()).map((m) => m.name);
 
-		await addMomentAfter('root', { name: `${slices}` });
-		secondMoment = (await db.moments.orderBy('order').toArray())[1];
+		await addSectionAfter('root', { name: `${slices}` });
+		secondSection = (await db.sections.orderBy('order').toArray())[1];
 
-		expect(secondMoment.order).equals(ORDER_STEP);
+		expect(secondSection.order).equals(ORDER_STEP);
 
-		let orderAfter = (await db.moments.orderBy('order').toArray()).map((m) => m.name).slice(1);
+		let orderAfter = (await db.sections.orderBy('order').toArray()).map((m) => m.name).slice(1);
 
 		let changedOrder = false;
 
@@ -73,71 +73,74 @@ describe('Moments', () => {
 
 		expect(changedOrder).toBeFalsy();
 
-		db.moments.clear();
+		db.sections.clear();
 
-		let moment1 = await addMomentAfter('root', { name: '1' });
-		let moment2 = await addMomentAfter(moment1!, { name: '2' });
-		await addMomentAfter(moment2!, { name: '3' });
+		let section1 = await addSectionAfter('root', { name: '1' });
+		let section2 = await addSectionAfter(section1!, { name: '2' });
+		await addSectionAfter(section2!, { name: '3' });
 
-		let preceding = moment2;
+		let preceding = section2;
 
 		for (let i = 0; i < slices - 1; i++) {
-			preceding = await addMomentAfter(preceding!, { name: `${i + 3}` });
+			preceding = await addSectionAfter(preceding!, { name: `${i + 3}` });
 		}
 
-		(await db.moments.orderBy('order').last())!.delete();
-		const lastMoment = await db.moments.orderBy('order').last();
-		const lastFrac = Math.ceil(lastMoment!.order!) - lastMoment!.order!;
+		(await db.sections.orderBy('order').last())!.delete();
+		const lastSection = await db.sections.orderBy('order').last();
+		const lastFrac = Math.ceil(lastSection!.order!) - lastSection!.order!;
 
 		expect(lastFrac).toEqual(0);
 	});
 
-	it('Links between moments and other elements', async () => {
-		let moment1 = await addMomentAfter('root', { name: 'Moment 1' });
-		let moment2 = await addMomentAfter(moment1!, { name: 'Moment 2' });
+	it('Links between sections and other elements', async () => {
+		let section1 = await addSectionAfter('root', { name: 'Section 1' });
+		let section2 = await addSectionAfter(section1!, { name: 'Section 2' });
 
 		const location1Id = await db.locations.add({ name: 'Location 1' });
 		const location1 = await db.locations.get(location1Id);
 
-		// link moment 1 to location 1
-		await moment1!.link((await db.locations.get(location1Id))!);
+		// link section 1 to location 1
+		await section1!.link((await db.locations.get(location1Id))!);
 
-		expect((await moment1!.getLocations()).length).toBe(1);
-		expect((await moment1!.getLocations())[0].name).toBe('Location 1');
-		expect((await location1!.getMoments())[0].id).toBe(moment1!.id);
+		expect((await section1!.getLocations()).length).toBe(1);
+		expect((await section1!.getLocations())[0].name).toBe('Location 1');
+		expect((await location1!.getSections())[0].id).toBe(section1!.id);
 
 		const character1Id = await db.characters.add({ name: 'Character 1' });
 		const character1 = await db.characters.get(character1Id);
 
-		// link moment 2 to character 1
-		await moment2!.link((await db.characters.get(character1Id))!);
+		// link section 2 to character 1
+		await section2!.link((await db.characters.get(character1Id))!);
 
-		expect((await moment2!.getCharacters())[0].name).toBe('Character 1');
-		expect((await character1!.getMoments())[0].id).toBe(moment2!.id);
+		expect((await section2!.getCharacters())[0].name).toBe('Character 1');
+		expect((await character1!.getSections())[0].id).toBe(section2!.id);
 	});
 
-	it('Moment attr', async () => {
-		let moment1Id = await db.moments.add({
-			name: 'Moment 1',
+	it('Section attr', async () => {
+		let section1Id = await db.sections.add({
+			name: 'Section 1',
 			attr: {
 				significance: 'This is when he finds out who his father is'
 			}
 		});
-		let moment1 = (await db.moments.get(moment1Id))!;
-		expect(moment1.attr!.significance).toBe('This is when he finds out who his father is');
-		await moment1.updateAttr({ conflict: 'His father is not a great guy' });
-		expect(moment1.attr!.conflict).toBe('His father is not a great guy');
-		expect(moment1.attr!.significance).toBe('This is when he finds out who his father is');
+		let section1 = (await db.sections.get(section1Id))!;
+		expect(section1.attr!.significance).toBe('This is when he finds out who his father is');
+		await section1.updateAttr({ conflict: 'His father is not a great guy' });
+		expect(section1.attr!.conflict).toBe('His father is not a great guy');
+		expect(section1.attr!.significance).toBe('This is when he finds out who his father is');
 	});
 
 	it('Clean attr', async () => {
-		let moment = (await addMomentAfter('tail', { name: 'Moment' }))!;
-		moment.updateAttr({ conflict: 'This moment has no driving force', driving_force: '' });
+		let section = (await addSectionAfter('tail', { name: 'Section' }))!;
+		section.updateAttr({
+			conflict: 'This part of the story has no driving force',
+			driving_force: ''
+		});
 
-		expect(moment.attr?.driving_force).toBe('');
-		await moment.cleanAttr();
-		expect(moment.attr?.driving_force).toBe(undefined);
-		expect(moment.attr?.conflict).toBe('This moment has no driving force');
+		expect(section.attr?.driving_force).toBe('');
+		await section.cleanAttr();
+		expect(section.attr?.driving_force).toBe(undefined);
+		expect(section.attr?.conflict).toBe('This part of the story has no driving force');
 	});
 });
 
@@ -290,27 +293,27 @@ describe('Characters', () => {
 	});
 
 	it('Remove character and cascade', async () => {
-		const momentId = await db.moments.add({
-			name: 'Moment 1'
+		const sectionID = await db.sections.add({
+			name: 'Section 1'
 		});
-		let moment = await db.moments.get(momentId);
+		let section = await db.sections.get(sectionID);
 		const bob = await db.characters.where('name').equals('Bob').first();
 		const alice = await db.characters.where('name').equals('Alice').first();
 		const charlie = await db.characters.where('name').equals('Charlie').first();
 
-		await moment!.link(bob!);
-		await moment!.link(alice!);
-		await moment!.link(charlie!);
+		await section!.link(bob!);
+		await section!.link(alice!);
+		await section!.link(charlie!);
 
 		expect((await alice!.getDynamics()).length).toBe(2);
-		expect(moment!.characters!.length).toBe(3);
+		expect(section!.characters!.length).toBe(3);
 
 		await bob!.delete();
 
 		expect((await alice!.getDynamics()).length).toBe(1);
 
-		moment = await db.moments.get(momentId);
-		expect(moment!.characters!.length).toBe(2);
+		section = await db.sections.get(sectionID);
+		expect(section!.characters!.length).toBe(2);
 
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});

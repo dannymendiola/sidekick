@@ -1,17 +1,19 @@
 import { db } from '$lib/db';
 
-const serializeProject = async () => {
+const serializeProject = async (projID: string) => {
 	return JSON.stringify({
-		moments: await db.moments.toArray(),
-		// themes: await db.themes.toArray(),
-		characters: await db.characters.toArray(),
-		characterDynamics: await db.dynamics.toArray(),
-		locations: await db.locations.toArray()
+		project: projID,
+		dbVersion: db.verno,
+		projectName: (await db.projects.get(projID))?.name || '',
+		sections: await db.sections.where({ project: projID }).toArray(),
+		characters: await db.characters.where({ project: projID }).toArray(),
+		characterDynamics: await db.dynamics.where({ project: projID }).toArray(),
+		locations: await db.locations.where({ project: projID }).toArray()
 	});
 };
 
-export const saveProject = async (filename?: string) => {
-	const data = await serializeProject();
+export const saveProject = async (projID: string, filename?: string) => {
+	const data = await serializeProject(projID);
 	const blob = new Blob([data], { type: 'application/json' });
 	const url = URL.createObjectURL(blob);
 	const link = document.createElement('a');
@@ -27,7 +29,7 @@ export const saveProject = async (filename?: string) => {
 };
 
 export const clearProject = async () => {
-	await db.moments.clear();
+	await db.sections.clear();
 	await db.characters.clear();
 	await db.dynamics.clear();
 	await db.locations.clear();
@@ -57,8 +59,7 @@ export const loadProject = async (
 
 			await clearProject();
 
-			await db.moments.bulkAdd(data.moments);
-			// await db.themes.bulkAdd(data.themes);
+			await db.sections.bulkAdd(data.sections);
 			await db.characters.bulkAdd(data.characters);
 			await db.dynamics.bulkAdd(data.characterDynamics);
 			await db.locations.bulkAdd(data.locations);

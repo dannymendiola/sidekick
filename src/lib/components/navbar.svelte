@@ -7,7 +7,7 @@
 	});
 
 	let currElemType = $derived.by(() => {
-		return page.route.id?.slice(1);
+		return page.params.element;
 	});
 
 	const capitalize = (s: string) => {
@@ -21,34 +21,35 @@
 		switch (buttonName) {
 			case 'locations':
 				return target === 'bg'
-					? 'bg-wazowski-200 dark:bg-wazowski-950'
+					? 'bg-wazowski-200 dark:bg-wazowski-950 border-wazowski-500 dark:border-wazowski-800'
 					: 'fill-wazowski-900 dark:fill-wazowski-300';
-			case 'moments':
+			case 'sections':
 				return target === 'bg'
-					? 'bg-smithers-400 dark:bg-smithers-950'
+					? 'bg-smithers-400 dark:bg-smithers-950 border-smithers-800 dark:border-smithers-900'
 					: 'fill-smithers-950 dark:fill-smithers-300';
 			case 'characters':
 				return target === 'bg'
-					? 'bg-genie-400 dark:bg-genie-950'
+					? 'bg-genie-400 dark:bg-genie-950 border-genie-600 dark:border-genie-800'
 					: 'fill-genie-950 dark:fill-genie-400';
 			case 'character-dynamics':
 				return target === 'bg'
-					? 'bg-donnie-200 dark:bg-donnie-950'
+					? 'bg-donnie-200 dark:bg-donnie-950 border-donnie-400 dark:border-donnie-800'
 					: 'fill-donnie-950 dark:fill-donnie-200';
 		}
 	};
 </script>
 
 <span
-	class="bottom-0 z-[100] flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-50 p-2 dark:bg-donkey-950 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
+	class="bottom-0 z-[100] flex h-16 w-screen flex-row items-center justify-center gap-6 bg-donkey-100 p-2 dark:bg-donkey-900 md:h-screen md:w-20 md:flex-col md:justify-between md:gap-8 md:bg-donkey-100 md:dark:bg-donkey-900"
 >
 	<div class="flex grow justify-center gap-6 md:flex-col md:justify-start md:gap-8">
 		<a
-			class="hidden rounded-full bg-donkey-100 hover:bg-donkey-200 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:block"
+			class="z-20 hidden rounded-lg bg-donkey-100 hover:bg-donkey-200 dark:bg-donkey-900 dark:drop-shadow-none hover:dark:bg-donkey-800 md:block"
 			onpointerup={() => {
 				vibrate();
 			}}
 			href="/welcome"
+			data-sveltekit-replacestate
 		>
 			<title>Home</title>
 			<img
@@ -57,18 +58,18 @@
 				alt="The word 'Sidekick' in yellow serif font over a red oval"
 			/>
 		</a>
-		{@render IndexButton('moments')}
-		{@render IndexButton('locations')}
+		{@render IndexButton('sections')}
 		{@render IndexButton('characters')}
 		{@render IndexButton('character-dynamics')}
+		{@render IndexButton('locations')}
 	</div>
-	<button
-		class="hidden rounded-lg p-4 hover:bg-donkey-200 dark:hover:bg-donkey-800 md:block"
+	<a
+		class="hidden rounded-lg border p-4 hover:bg-donkey-200 dark:hover:bg-donkey-800 md:block {page
+			.url.pathname === '/projects'
+			? 'border-donkey-300 bg-donkey-200 dark:border-donkey-600 dark:bg-donkey-800'
+			: 'border-donkey-100 dark:border-donkey-900 dark:bg-donkey-900'}"
 		aria-label="Import/export project"
-		onclick={() => {
-			skstate.showSaveLoad = true;
-			console.log('showSaveLoad');
-		}}
+		href="/projects"
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -78,30 +79,28 @@
 			stroke="currentColor"
 			class="size-6"
 		>
-			<title>Import/export</title>
 			<path
 				stroke-linecap="round"
 				stroke-linejoin="round"
-				d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z"
+				d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
 			/>
 		</svg>
-	</button>
+	</a>
 </span>
 
-{#snippet IndexButton(
-	buttonName: 'moments' | 'characters' | 'character-dynamics' | 'locations' | 'themes'
-)}
+{#snippet IndexButton(buttonName: 'sections' | 'characters' | 'character-dynamics' | 'locations')}
 	<a
 		href="/all/{buttonName}"
-		class="flex h-full flex-col items-center justify-center rounded-full p-2 text-sm md:h-min md:w-full md:p-4 {currIndex ===
+		class="flex h-full flex-col items-center justify-center rounded-xl border p-1 text-sm md:h-min md:w-full md:p-2 {currIndex ===
 		buttonName
 			? twActiveByButtonName(buttonName, 'bg')
 			: currElemType === buttonName.slice(0, -1)
-				? 'bg-donkey-100 dark:bg-donkey-800 md:bg-donkey-200'
-				: 'hover:bg-donkey-200 hover:dark:bg-donkey-800'}"
+				? 'border-donkey-300 bg-donkey-200 dark:border-donkey-700 dark:bg-donkey-800 '
+				: 'border-donkey-100 hover:bg-donkey-200 dark:border-donkey-900 hover:dark:bg-donkey-800'}"
 		onpointerup={() => {
 			vibrate();
 		}}
+		data-sveltekit-replacestate={page.route.id === '/all/[index]'}
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -119,8 +118,10 @@
 	</a>
 {/snippet}
 
-{#snippet IconInner(name: 'moments' | 'characters' | 'character-dynamics' | 'locations' | 'themes')}
-	{#if name === 'moments'}
+{#snippet IconInner(
+	name: 'sections' | 'characters' | 'character-dynamics' | 'locations' | 'themes'
+)}
+	{#if name === 'sections'}
 		{#if name === currIndex}
 			<path
 				fill-rule="evenodd"

@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { QLEditor } from '$lib';
-	import { addMomentAfter } from '$lib/db';
+	import { addSectionAfter } from '$lib/db';
 
 	let momentName = $state('');
 	let momentNameClean = $derived(momentName?.replace('\n', ''));
 
 	const gotoNewMoment = async () => {
-		let m = await addMomentAfter('tail', momentNameClean ? { name: momentNameClean } : {});
+		let m = await addSectionAfter('tail', momentNameClean ? { name: momentNameClean } : {});
 		if (m) {
 			goto(`/moment?id=${m.id}`, { replaceState: true });
 		} else {
