@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { Character, db, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery, type Observable } from 'dexie';
-	import { vibrate, QLEditor } from '$lib';
+	import { vibrate, QLEditor, SKInput } from '$lib';
 
 	type ElemType = 'section' | 'character' | 'character-dynamic' | 'location';
 	const elemType = page.params.element as ElemType;
@@ -98,7 +98,7 @@
 <div class="sk-content mb-32 md:mt-16">
 	{@render ElemHeader()}
 	{#if element}
-		<QLEditor
+		<!-- <QLEditor
 			id="body"
 			inputMode="full"
 			toolbar={false}
@@ -113,6 +113,15 @@
 				await updateElem({ body: elemBody });
 			}}
 			bind:text={elemBody}
+		/> -->
+		<SKInput
+			boundField={{
+				entityID: elemID || '',
+				entityTable: table,
+				fieldName: 'body',
+				bindAs: 'html'
+			}}
+			placeholder="Describe the {elemType.replaceAll('-', ' ')}..."
 		/>
 	{/if}
 </div>
@@ -127,7 +136,7 @@
 		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
 			<div class="w-full font-title font-bold">
 				{#if elemType !== 'character-dynamic'}
-					<QLEditor
+					<!-- <QLEditor
 						id="elemName"
 						initText={element.name || ''}
 						placeholder="Untitled {elemType}"
@@ -142,6 +151,17 @@
 							await updateElem({ name: elemName });
 						}}
 						bind:text={elemName}
+					/> -->
+					<SKInput
+						boundField={{
+							entityID: elemID || '',
+							entityTable: table,
+							fieldName: 'name',
+							bindAs: 'text'
+						}}
+						placeholder="{elemType === 'section' ? 'Untitled' : 'Unnamed'} {elemType}"
+						disableNewLine
+						twClass="my-4 text-4xl"
 					/>
 				{:else}
 					{#await (element as Dynamic).toString() then name}

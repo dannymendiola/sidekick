@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Delta } from 'quill/core';
-	import { QLEditor, skstate } from '$lib';
+	import { QLEditor, SKInput, skstate } from '$lib';
 	import { db, Character, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery } from 'dexie';
 	import { slide } from 'svelte/transition';
@@ -122,7 +122,7 @@
 						<div class="my-3 font-serif text-2xl font-bold">{name}</div>
 					{/await}
 				{:else}
-					<QLEditor
+					<!-- <QLEditor
 						initText={$element.name}
 						id={`t-${id}`}
 						twBG="bg-donkey-50 dark:bg-donkey-950"
@@ -141,6 +141,18 @@
 						{selectionColor}
 						bind:focused={titleFocused}
 						bind:text={currName}
+					/> -->
+					<SKInput
+						boundField={{
+							entityID: id,
+							entityTable: db[table],
+							fieldName: 'name',
+							bindAs: 'text'
+						}}
+						placeholder="{table === 'sections' ? 'Untitled' : 'Unnamed'} {table.slice(0, -1)}"
+						disableNewLine
+						twClass="mb-2 text-2xl font-semibold font-title"
+						bind:focused={titleFocused}
 					/>
 				{/if}
 			</div>
@@ -167,58 +179,11 @@
 						/>
 					</svg>
 				</button>
-				<!-- <button
-					class="rounded-lg border p-1 {showLinks
-						? 'border-donkey-300 bg-donkey-500 dark:border-donkey-500 dark:bg-donkey-400'
-						: noLinks
-							? 'border-donkey-300 bg-donkey-200 dark:border-donkey-700 dark:bg-donkey-800'
-							: 'border-donkey-400 bg-donkey-100 dark:border-donkey-600 dark:bg-donkey-900'}"
-					aria-label={collapsed ? 'Expand' : 'Collapse'}
-					onclick={() => {
-						showLinks = !showLinks;
-					}}
-					disabled={noLinks}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 16 16"
-						class="size-4 {showLinks
-							? 'fill-donkey-200 dark:fill-donkey-900'
-							: noLinks
-								? 'fill-donkey-300 dark:fill-donkey-600'
-								: 'fill-donkey-500 dark:fill-donkey-300'}"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M8.914 6.025a.75.75 0 0 1 1.06 0 3.5 3.5 0 0 1 0 4.95l-2 2a3.5 3.5 0 0 1-5.396-4.402.75.75 0 0 1 1.251.827 2 2 0 0 0 3.085 2.514l2-2a2 2 0 0 0 0-2.828.75.75 0 0 1 0-1.06Z"
-							clip-rule="evenodd"
-						/>
-						<path
-							fill-rule="evenodd"
-							d="M7.086 9.975a.75.75 0 0 1-1.06 0 3.5 3.5 0 0 1 0-4.95l2-2a3.5 3.5 0 0 1 5.396 4.402.75.75 0 0 1-1.251-.827 2 2 0 0 0-3.085-2.514l-2 2a2 2 0 0 0 0 2.828.75.75 0 0 1 0 1.06Z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-				</button> -->
 				<a
 					class="rounded-lg border border-donkey-400 bg-donkey-100 p-1 dark:border-donkey-600 dark:bg-donkey-900"
 					href="/{expandHref}?id={id}"
 					aria-label="Open character"
 				>
-					<!-- <svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-3 stroke-[1.4]"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-						/>
-					</svg> -->
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
@@ -255,7 +220,7 @@
 			<div
 				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 200, easing: quintInOut }}
 			>
-				<QLEditor
+				<!-- <QLEditor
 					initText={$element.body}
 					{id}
 					twBG="bg-donkey-50 dark:bg-donkey-950"
@@ -273,7 +238,18 @@
 					{selectionColor}
 					bind:focused={bodyFocused}
 					bind:delta={currBody}
+				/> -->
+				<SKInput
+					boundField={{
+						entityID: id,
+						entityTable: db[table],
+						fieldName: 'body',
+						bindAs: 'html'
+					}}
+					placeholder="Describe the {table.replaceAll('-', ' ').slice(0, -1)}..."
+					bind:focused={bodyFocused}
 				/>
+				<!-- placeholder={placeholders[Math.floor(Math.random() * placeholders.length)]} -->
 			</div>
 		{/if}
 	</div>

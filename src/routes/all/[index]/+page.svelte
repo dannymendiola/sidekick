@@ -85,6 +85,8 @@
 		}
 	});
 
+	console.log(skstate.projectID, 'projectID');
+
 	let touchReorderingId = $state<string | undefined>();
 
 	type Index = 'sections' | 'characters' | 'character-dynamics' | 'locations';

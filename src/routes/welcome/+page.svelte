@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { vibrate, skstate, db, TTEditor } from '$lib';
+	import { vibrate, skstate, db } from '$lib';
 	import { onMount } from 'svelte';
 	import { elasticOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
@@ -15,9 +15,6 @@
 </script>
 
 <div class="sk-content">
-	<div class="mt-32">
-		<TTEditor />
-	</div>
 	{#if mounted}
 		<h1
 			in:scale={{ duration: skstate.prefersReducedMotion ? 0 : 600, easing: elasticOut }}
