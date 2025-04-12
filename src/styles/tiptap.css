@@ -60,12 +60,11 @@
 			}
 		}
 	}
+	/* & p.is-editor-empty:first-child {
+		@apply relative;
+	} */
 	& p.is-editor-empty:first-child::before {
 		@apply pointer-events-none float-left h-0 text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500;
-		/* color: var(--gray-4);
-		content: attr(data-placeholder);
-		float: left;
-		height: 0;
-		pointer-events: none; */
+		/* @apply pointer-events-none absolute float-left block h-0 text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500; */
 	}
 }

@@ -50,6 +50,26 @@
 		extensions.push(DisableNewLine);
 	}
 
+	const updateBoundField = async () => {
+		if (!boundField) return;
+		const val =
+			boundField.bindAs === 'json'
+				? editor?.getJSON()
+				: boundField.bindAs === 'html'
+					? editor?.getHTML()
+					: editor?.getText();
+
+		if (boundField.fieldName === 'attr') {
+			const entity = await boundField.entityTable.get(boundField.entityID);
+			const currAttr = entity?.attr || {};
+			// @ts-ignore
+			const newAttr = { ...currAttr, [boundField.attrName]: val };
+			await boundField.entityTable.update(boundField.entityID, { attr: newAttr });
+		} else {
+			await boundField.entityTable.update(boundField.entityID, { [boundField.fieldName]: val });
+		}
+	};
+
 	onMount(async () => {
 		const entity = boundField ? await boundField.entityTable.get(boundField.entityID) : undefined;
 		editor = new Editor({
@@ -66,6 +86,8 @@
 				text = editor.getText();
 				html = editor.getHTML();
 				json = editor.getJSON();
+
+				updateBoundField();
 			},
 			onFocus() {
 				focused = true;
@@ -81,29 +103,4 @@
 	});
 </script>
 
-<div
-	bind:this={element}
-	onkeyup={async () => {
-		if (boundField) {
-			const val =
-				boundField.bindAs === 'json'
-					? editor?.getJSON()
-					: boundField.bindAs === 'html'
-						? editor?.getHTML()
-						: editor?.getText();
-
-			if (boundField.fieldName === 'attr') {
-				const entity = await boundField.entityTable.get(boundField.entityID);
-				const currAttr = entity?.attr || {};
-				// @ts-ignore
-				const newAttr = { ...currAttr, [boundField.attrName]: val };
-				await boundField.entityTable.update(boundField.entityID, { attr: newAttr });
-			} else {
-				await boundField.entityTable.update(boundField.entityID, { [boundField.fieldName]: val });
-			}
-		}
-	}}
-	role="textbox"
-	tabindex="0"
-	class={twClass}
-></div>
+<div bind:this={element} role="textbox" tabindex="0" class={twClass}></div>
