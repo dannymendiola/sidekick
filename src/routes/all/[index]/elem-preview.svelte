@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Delta } from 'quill/core';
-	import { QLEditor, SKInput, skstate } from '$lib';
+	import { SKInput, skstate } from '$lib';
 	import { db, Character, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery } from 'dexie';
 	import { slide } from 'svelte/transition';
@@ -116,7 +116,7 @@
 			: 'border-donkey-200 dark:border-donkey-800'}"
 	>
 		<div class="flex items-center justify-between">
-			<div class="flex max-w-[80%] gap-1">
+			<div class="flex max-w-[75%] gap-1">
 				{#if table === 'dynamics'}
 					{#await $element.toString() then name}
 						<div class="my-3 font-serif text-2xl font-bold">{name}</div>
@@ -150,8 +150,8 @@
 							bindAs: 'text'
 						}}
 						placeholder="{table === 'sections' ? 'Untitled' : 'Unnamed'} {table.slice(0, -1)}"
-						disableNewLine
-						twClass="mb-2 text-2xl font-semibold font-title"
+						disableLineBreak
+						twClass="mb-2 text-xl md:text-2xl font-semibold font-title"
 						bind:focused={titleFocused}
 					/>
 				{/if}

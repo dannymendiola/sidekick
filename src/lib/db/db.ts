@@ -128,6 +128,7 @@ export class Project {
 	name?: string;
 	createdAt?: number;
 	openedAt?: number;
+	attr?: {}; // Unused for now
 }
 
 db.projects.mapToClass(Project);

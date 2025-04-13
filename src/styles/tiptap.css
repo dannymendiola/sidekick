@@ -63,8 +63,19 @@
 	/* & p.is-editor-empty:first-child {
 		@apply relative;
 	} */
-	& p.is-editor-empty:first-child::before {
+	/* & p.is-editor-empty:first-child::before {
 		@apply pointer-events-none float-left h-0 text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500;
-		/* @apply pointer-events-none absolute float-left block h-0 text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500; */
+	} */
+
+	& p.is-editor-empty:first-child::before {
+		@apply pointer-events-none !static !mb-[-1.42em] !block italic text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500;
 	}
+
+	/* & p.is-editor-empty:first-child {
+		@apply relative ;
+	}
+
+	& p.is-editor-empty:first-child::before {
+		@apply pointer-events-none static float-left block whitespace-pre-wrap text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500;
+	} */
 }

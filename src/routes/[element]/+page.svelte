@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { Character, db, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery, type Observable } from 'dexie';
-	import { vibrate, QLEditor, SKInput } from '$lib';
+	import { vibrate, SKInput } from '$lib';
 
 	type ElemType = 'section' | 'character' | 'character-dynamic' | 'location';
 	const elemType = page.params.element as ElemType;
@@ -160,7 +160,7 @@
 							bindAs: 'text'
 						}}
 						placeholder="{elemType === 'section' ? 'Untitled' : 'Unnamed'} {elemType}"
-						disableNewLine
+						disableLineBreak
 						twClass="my-4 text-4xl"
 					/>
 				{:else}

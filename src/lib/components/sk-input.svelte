@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { db, Character, Project, Location, Section, Dynamic } from '$lib';
+	import { Character, Project, Location, Section, Dynamic } from '$lib';
 	import { Editor, type JSONContent } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import Placeholder from '@tiptap/extension-placeholder';
@@ -10,16 +10,17 @@
 	let element: HTMLElement | undefined = $state();
 	let editor: Editor | undefined = $state();
 
-	type Entity = Character | Section | Location | Dynamic;
+	type Entity = Character | Section | Location | Dynamic | Project;
 
 	interface Props {
 		placeholder?: string;
-		disableNewLine?: boolean;
-		entityID?: string;
-		entityTable?: Table<Entity, string, InsertType<Entity, 'id'>>;
+		disableLineBreak?: boolean;
+		disableSpellCheck?: boolean;
 		boundField?: {
 			entityID: string;
-			entityTable: Table<Entity, string, InsertType<Entity, 'id'>>;
+			entityTable:
+				| Table<Entity, string, InsertType<Entity, 'id'>>
+				| Table<Project, string, InsertType<Project, 'id'>>;
 			fieldName: 'name' | 'body' | 'attr';
 			attrName?: string;
 			bindAs: 'text' | 'html' | 'json';
@@ -39,7 +40,8 @@
 		focused = $bindable(false),
 		placeholder = undefined,
 		twClass = '',
-		disableNewLine = false,
+		disableLineBreak: disableNewLine = false,
+		disableSpellCheck = false,
 		boundField = undefined,
 		initContent = undefined
 	}: Props = $props();
@@ -72,6 +74,7 @@
 
 	onMount(async () => {
 		const entity = boundField ? await boundField.entityTable.get(boundField.entityID) : undefined;
+
 		editor = new Editor({
 			element: element,
 			extensions: extensions,
@@ -81,6 +84,10 @@
 					? // @ts-ignore
 						entity[boundField.fieldName] || entity.attr?.[boundField.attrName] || ''
 					: undefined),
+
+			onCreate: ({ editor }) => {
+				editor.view.dom.setAttribute('spellcheck', disableSpellCheck ? 'false' : 'true');
+			},
 
 			onUpdate({ editor }) {
 				text = editor.getText();
