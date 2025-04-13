@@ -1,6 +1,6 @@
 import { CharacterAttr, DynamicAttr, LocationAttr, SectionAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
-import { Delta } from 'quill/core';
+// import { Delta } from 'quill/core';
 import { ulid } from 'ulidx';
 import { addDynamicAfter } from './api';
 import { skstate } from '$lib';
@@ -22,10 +22,10 @@ const db = new Dexie('sidekick') as Dexie & {
 db.version(1).stores({
 	projects: 'id, name, openedAt',
 	// sections: 'id, name, order, *locations, *characters',
-	sections: 'id, name, order, project',
+	sections: 'id, name, order, project, *locations, *characters',
 	locations: 'id, name, order, project',
 	// characters: 'id, name, order, *locations',
-	characters: 'id, name, order, project',
+	characters: 'id, name, order, project, *locations',
 	dynamics: 'id, order, project, &[aCharId+bCharId], aCharId, bCharId'
 });
 
@@ -145,7 +145,7 @@ export class Section {
 	project?: string;
 	order?: number;
 	name?: string;
-	body?: Delta;
+	body?: string;
 	attr?: SectionAttr;
 	locations?: string[];
 	characters?: string[];
@@ -235,9 +235,9 @@ export class Section {
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
 			Object.entries(this.attr || {}).filter(([_, v]) => {
-				if ((v as Delta).ops) {
-					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
-				}
+				// if ((v as Delta).ops) {
+				// 	return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
+				// }
 
 				return v?.trim() !== '';
 			})
@@ -268,7 +268,7 @@ export class Location {
 	project?: string;
 	order?: number;
 	name?: string;
-	body?: Delta;
+	body?: string;
 	attr?: LocationAttr;
 	previewCollapsed?: boolean;
 
@@ -306,9 +306,9 @@ export class Location {
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
 			Object.entries(this.attr || {}).filter(([_, v]) => {
-				if ((v as Delta).ops) {
-					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
-				}
+				// if ((v as Delta).ops) {
+				// 	return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
+				// }
 				return v?.trim() !== '';
 			})
 		);
@@ -344,7 +344,7 @@ export class Character {
 	id!: string;
 	project?: string;
 	name?: string;
-	body?: Delta;
+	body?: string;
 	order?: number;
 	attr?: CharacterAttr;
 	locations?: string[];
@@ -427,9 +427,9 @@ export class Character {
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
 			Object.entries(this.attr || {}).filter(([_, v]) => {
-				if ((v as Delta).ops) {
-					return (v as Delta).ops?.some((op) => op.insert !== '' && op.insert !== '\n');
-				}
+				// if ((v as Delta).ops) {
+				// 	return (v as Delta).ops?.some((op) => op.insert !== '' && op.insert !== '\n');
+				// }
 
 				return v?.trim() !== '';
 			})
@@ -468,7 +468,7 @@ export class Dynamic {
 	aCharId!: string;
 	bCharId!: string;
 	name: string = '';
-	body?: Delta;
+	body?: string;
 	attr?: DynamicAttr;
 	previewCollapsed?: boolean;
 
@@ -516,9 +516,9 @@ export class Dynamic {
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
 			Object.entries(this.attr || {}).filter(([_, v]) => {
-				if ((v as Delta).ops) {
-					return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
-				}
+				// if ((v as Delta).ops) {
+				// 	return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
+				// }
 
 				return v?.trim() !== '';
 			})

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Delta } from 'quill/core';
 	import { SKInput, skstate } from '$lib';
 	import { db, Character, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery } from 'dexie';
@@ -20,9 +19,6 @@
 	let titleFocused = $state(false);
 
 	const focused = $derived(bodyFocused || titleFocused);
-
-	let currName = $state('');
-	let currBody = $state<Delta>();
 
 	const element = liveQuery(async () => await db[table].get(id));
 

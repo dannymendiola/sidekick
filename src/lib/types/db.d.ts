@@ -5,7 +5,7 @@ export interface SectionAttr {
 	driving_force?: string;
 	end_point?: string;
 	outcome_reason?: string;
-	notes?: Delta;
+	notes?: string;
 }
 
 export interface ThemeAttr {
@@ -14,14 +14,14 @@ export interface ThemeAttr {
 	leads_to?: string;
 	journey?: string;
 	manifestation?: string;
-	notes?: Delta;
+	notes?: string;
 }
 
 export interface LocationAttr {
 	description?: string;
 	history?: string;
 	significance?: string;
-	notes?: Delta;
+	notes?: string;
 }
 
 export interface CharacterAttr {
