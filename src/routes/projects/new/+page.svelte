@@ -16,13 +16,6 @@
 <div class="sk-content mt-[10vh] md:mt-[30vh]">
 	<h1 class="mb-4 font-title text-3xl font-bold">New project</h1>
 	<div class="h-min">
-		<!-- <QLEditor
-			id="new-elem-name"
-			placeholder="Untitled project"
-			inputMode="info"
-			title="Name"
-			bind:text={newProjName}
-		/> -->
 		<SKInput placeholder="Untitled project" bind:text={newProjName} />
 	</div>
 	<div class="mt-4 flex w-full justify-end">

@@ -1,6 +1,5 @@
 import { CharacterAttr, DynamicAttr, LocationAttr, SectionAttr } from '$lib/types/db';
 import Dexie, { type EntityTable } from 'dexie';
-// import { Delta } from 'quill/core';
 import { ulid } from 'ulidx';
 import { addDynamicAfter } from './api';
 import { skstate } from '$lib';
@@ -21,10 +20,8 @@ const db = new Dexie('sidekick') as Dexie & {
 
 db.version(1).stores({
 	projects: 'id, name, openedAt',
-	// sections: 'id, name, order, *locations, *characters',
 	sections: 'id, name, order, project, *locations, *characters',
 	locations: 'id, name, order, project',
-	// characters: 'id, name, order, *locations',
 	characters: 'id, name, order, project, *locations',
 	dynamics: 'id, order, project, &[aCharId+bCharId], aCharId, bCharId'
 });
@@ -37,12 +34,11 @@ const orderAfter = async <T extends Entity>(
 	table: EntityTable<T, 'id'>
 ) => {
 	// TODO get rid of these ts-ignores if possible
+
+	const projectID = elem.project || skstate.projectID || '';
+
 	const rebalance = async () => {
-		// const elements = await table.orderBy('order').toArray();
-		const elements = await table
-			.where('project')
-			.equals(skstate.projectID || '')
-			.sortBy('order');
+		const elements = await table.where('project').equals(projectID).sortBy('order');
 		const update = elements.map((m, i) => {
 			const order = i * ORDER_STEP;
 			return {
@@ -61,7 +57,8 @@ const orderAfter = async <T extends Entity>(
 	};
 
 	if (preceding === 'root') {
-		const currRoot = await table.where('order').equals(0).first();
+		let currRoot = (await table.where('project').equals(projectID).sortBy('order')).at(0);
+		currRoot = currRoot?.order === 0 ? currRoot : undefined;
 		// @ts-ignore
 		await table.update(elem.id, { order: 0 });
 		elem.order = 0;
@@ -69,6 +66,7 @@ const orderAfter = async <T extends Entity>(
 		if (currRoot) {
 			const afterRoot = await currRoot.getNext();
 			if (afterRoot) {
+				console.log({ afterRoot });
 				const currRootOrder = afterRoot.order! / 2;
 				// @ts-ignore
 				await table.update(currRoot.id, { order: currRootOrder });
@@ -86,7 +84,13 @@ const orderAfter = async <T extends Entity>(
 	}
 	// @ts-ignore
 	else if (preceding === 'tail') {
-		const currTail = await table.orderBy('order').last();
+		let currTail = (
+			await table
+				.where('project')
+				.equals(projectID)
+				.and((e) => e.id !== elem.id)
+				.sortBy('order')
+		).toReversed()[0];
 		if (currTail) {
 			const order = currTail.order! + ORDER_STEP;
 			// @ts-ignore
@@ -235,10 +239,6 @@ export class Section {
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
 			Object.entries(this.attr || {}).filter(([_, v]) => {
-				// if ((v as Delta).ops) {
-				// 	return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
-				// }
-
 				return v?.trim() !== '';
 			})
 		);
@@ -306,9 +306,6 @@ export class Location {
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
 			Object.entries(this.attr || {}).filter(([_, v]) => {
-				// if ((v as Delta).ops) {
-				// 	return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
-				// }
 				return v?.trim() !== '';
 			})
 		);
@@ -407,7 +404,7 @@ export class Character {
 		const existing = await db.dynamics.where('[aCharId+bCharId]').equals([idA, idB]).first();
 		if (existing) return existing;
 
-		return await addDynamicAfter('root', { aCharId: idA, bCharId: idB });
+		return await addDynamicAfter('root', { aCharId: idA, bCharId: idB, project: this.project });
 	}
 
 	async removeDynamic(otherId: string) {
@@ -427,10 +424,6 @@ export class Character {
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
 			Object.entries(this.attr || {}).filter(([_, v]) => {
-				// if ((v as Delta).ops) {
-				// 	return (v as Delta).ops?.some((op) => op.insert !== '' && op.insert !== '\n');
-				// }
-
 				return v?.trim() !== '';
 			})
 		);
@@ -516,10 +509,6 @@ export class Dynamic {
 	async cleanAttr() {
 		const newAttr = Object.fromEntries(
 			Object.entries(this.attr || {}).filter(([_, v]) => {
-				// if ((v as Delta).ops) {
-				// 	return (v as Delta).ops.some((op) => op.insert !== '' && op.insert !== '\n');
-				// }
-
 				return v?.trim() !== '';
 			})
 		);

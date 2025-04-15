@@ -140,13 +140,6 @@
 									: ''}"
 							>
 								<div class="grow">
-									<!-- <QLEditor
-										id="proj-{project.id}"
-										initText={project.name}
-										inputMode="info"
-										fieldID={project.id}
-										fieldTable={db.projects}
-									/> -->
 									<SKInput
 										boundField={{
 											entityID: project.id,

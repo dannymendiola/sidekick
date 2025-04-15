@@ -65,7 +65,6 @@
 		{elemType === 'section' ? 'Add to outline' : `Create a ${elemType}`}
 	</h1>
 	<div class="h-min">
-		<!-- <QLEditor id="new-elem-name" inputMode="info" title="Name" bind:text={newElemName} /> -->
 		<SKInput
 			placeholder="{elemType === 'section' ? 'Title' : 'Name'} your new {elemType === 'section'
 				? 'outline section'

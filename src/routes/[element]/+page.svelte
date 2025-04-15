@@ -98,22 +98,6 @@
 <div class="sk-content mb-32 md:mt-16">
 	{@render ElemHeader()}
 	{#if element}
-		<!-- <QLEditor
-			id="body"
-			inputMode="full"
-			toolbar={false}
-			twBG="bg-donkey-50 dark:bg-donkey-950"
-			twClass="border border-donkey-200 dark:border-donkey-300"
-			initText={element.body || ''}
-			placeholder="Describe the {elemType.replaceAll('-', ' ')}..."
-			onkeyup={async () => {
-				await updateElem({ body: elemBody });
-			}}
-			onfocusout={async () => {
-				await updateElem({ body: elemBody });
-			}}
-			bind:text={elemBody}
-		/> -->
 		<SKInput
 			boundField={{
 				entityID: elemID || '',
@@ -136,22 +120,6 @@
 		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
 			<div class="w-full font-title font-bold">
 				{#if elemType !== 'character-dynamic'}
-					<!-- <QLEditor
-						id="elemName"
-						initText={element.name || ''}
-						placeholder="Untitled {elemType}"
-						inputMode="info"
-						twBG="bg-donkey-50 dark:bg-donkey-950"
-						twText="text-donkey-900 dark:text-donkey-50"
-						twClass="[&>.ql-editor]:pl-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:font-title [&>.ql-editor>*]:text-3xl cursor-pointer [&>.ql-editor::before]:font-title [&>.ql-editor::before]:text-3xl [&>.ql-editor::before]:!italic [&>.ql-editor::before]:dark:text-donkey-700 [&>.ql-editor::before]:text-donkey-300"
-						onkeyup={async () => {
-							await updateElem({ name: elemName });
-						}}
-						onfocusout={async () => {
-							await updateElem({ name: elemName });
-						}}
-						bind:text={elemName}
-					/> -->
 					<SKInput
 						boundField={{
 							entityID: elemID || '',

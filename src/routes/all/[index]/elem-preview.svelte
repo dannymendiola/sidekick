@@ -118,26 +118,6 @@
 						<div class="my-3 font-serif text-2xl font-bold">{name}</div>
 					{/await}
 				{:else}
-					<!-- <QLEditor
-						initText={$element.name}
-						id={`t-${id}`}
-						twBG="bg-donkey-50 dark:bg-donkey-950"
-						twClass="[&>.ql-editor>*]:font-serif [&>.ql-editor>*]:text-2xl [&>.ql-editor>*]:font-bold [&>.ql-editor::before]:font-serif [&>.ql-editor::before]:text-2xl [&>.ql-editor::before]:font-bold [&>.ql-editor]:pl-0"
-						toolbar={false}
-						placeholder={titlePlaceholder}
-						inputMode="info"
-						onkeyup={async () => {
-							// @ts-ignore
-							await db[table].update(id, { name: currName });
-						}}
-						onfocusout={async () => {
-							// @ts-ignore
-							await db[table].update(id, { name: currName });
-						}}
-						{selectionColor}
-						bind:focused={titleFocused}
-						bind:text={currName}
-					/> -->
 					<SKInput
 						boundField={{
 							entityID: id,
@@ -216,25 +196,6 @@
 			<div
 				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 200, easing: quintInOut }}
 			>
-				<!-- <QLEditor
-					initText={$element.body}
-					{id}
-					twBG="bg-donkey-50 dark:bg-donkey-950"
-					twClass="[&>.ql-editor]:pl-2 [&>.ql-editor]:pt-1"
-					toolbar={false}
-					placeholder={placeholders[Math.floor(Math.random() * placeholders.length)]}
-					onkeyup={async () => {
-						// @ts-ignore
-						await db[table].update(id, { body: currBody });
-					}}
-					onfocusout={async () => {
-						// @ts-ignore
-						await db[table].update(id, { body: currBody });
-					}}
-					{selectionColor}
-					bind:focused={bodyFocused}
-					bind:delta={currBody}
-				/> -->
 				<SKInput
 					boundField={{
 						entityID: id,
@@ -245,7 +206,6 @@
 					placeholder="Describe the {table.replaceAll('-', ' ').slice(0, -1)}..."
 					bind:focused={bodyFocused}
 				/>
-				<!-- placeholder={placeholders[Math.floor(Math.random() * placeholders.length)]} -->
 			</div>
 		{/if}
 	</div>

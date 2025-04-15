@@ -1,5 +1,4 @@
 <script lang="ts">
-	// import { QLEditor } from '$lib';
 	import { ulid } from 'ulidx';
 
 	interface Props {
