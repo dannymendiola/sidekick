@@ -1,0 +1,81 @@
+.ProseMirror-focused {
+	@apply !outline-none;
+}
+
+.tiptap {
+	& * {
+		@apply text-donkey-700 selection:bg-donkey-600/80 selection:text-donkey-50 dark:text-donkey-200 selection:dark:bg-donkey-500/80;
+	}
+
+	& h1,
+	& h2,
+	& h3,
+	& h4,
+	& h5,
+	& h6 {
+		@apply font-title font-semibold;
+	}
+
+	& h1 {
+		@apply text-[2.5rem] leading-10;
+	}
+
+	& h2 {
+		/* font-size: 2.15rem; */
+		@apply text-[2.15rem] leading-9;
+	}
+
+	& h3 {
+		@apply text-3xl;
+	}
+
+	& h4 {
+		@apply text-2xl;
+	}
+
+	& h5 {
+		@apply text-xl;
+	}
+
+	& h6 {
+		@apply text-lg;
+	}
+
+	& ul {
+		@apply list-inside list-disc;
+
+		& li {
+			& > * {
+				@apply inline;
+			}
+		}
+	}
+
+	& ol {
+		@apply list-inside list-decimal;
+
+		& li {
+			& > * {
+				@apply inline;
+			}
+		}
+	}
+	/* & p.is-editor-empty:first-child {
+		@apply relative;
+	} */
+	/* & p.is-editor-empty:first-child::before {
+		@apply pointer-events-none float-left h-0 text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500;
+	} */
+
+	& p.is-editor-empty:first-child::before {
+		@apply pointer-events-none !static !mb-[-1.42em] !block italic text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500;
+	}
+
+	/* & p.is-editor-empty:first-child {
+		@apply relative ;
+	}
+
+	& p.is-editor-empty:first-child::before {
+		@apply pointer-events-none static float-left block whitespace-pre-wrap text-donkey-300 content-[attr(data-placeholder)] dark:text-donkey-500;
+	} */
+}

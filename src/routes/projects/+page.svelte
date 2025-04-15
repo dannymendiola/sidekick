@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { db, skstate, QLEditor, formatDate, saveProject, loadProject } from '$lib';
+	import { db, skstate, formatDate, saveProject, loadProject, SKInput } from '$lib';
 	import { liveQuery } from 'dexie';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
@@ -134,18 +134,23 @@
 									duration: skstate.prefersReducedMotion ? 0 : 200,
 									easing: quintOut
 								}}
-								class="flex rounded border border-donkey-200 p-1 dark:border-donkey-700 {project.id ===
+								class="flex items-center rounded border border-donkey-200 p-1 dark:border-donkey-700 {project.id ===
 								activeProject?.id
 									? 'bg-donkey-200 dark:bg-donkey-800'
 									: ''}"
 							>
 								<div class="grow">
-									<QLEditor
-										id="proj-{project.id}"
-										initText={project.name}
-										inputMode="info"
-										fieldID={project.id}
-										fieldTable={db.projects}
+									<SKInput
+										boundField={{
+											entityID: project.id,
+											entityTable: db.projects,
+											fieldName: 'name',
+											bindAs: 'text'
+										}}
+										disableLineBreak
+										disableSpellCheck
+										placeholder="Untitled project"
+										twClass="px-1 max-w-[80%]"
 									/>
 								</div>
 								<div class="flex items-center gap-1">

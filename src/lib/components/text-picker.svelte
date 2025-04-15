@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { QLEditor } from '$lib';
 	import { ulid } from 'ulidx';
 
 	interface Props {
@@ -82,7 +81,7 @@
 {:else}
 	<div class="flex gap-1">
 		<div class="flex-grow">
-			<QLEditor
+			<!-- <QLEditor
 				id={ulid()}
 				title={customTitle}
 				inputMode="info"
@@ -95,7 +94,7 @@
 					}
 				}}
 				bind:text={customValue}
-			/>
+			/> -->
 		</div>
 		<button
 			class="flex items-center justify-center rounded-lg bg-genie-500 p-4 drop-shadow-lg dark:bg-donkey-800 dark:drop-shadow-none dark:hover:bg-donkey-700"

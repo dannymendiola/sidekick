@@ -2,6 +2,7 @@ import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
 import { addSectionAfter, addLocationAfter, addCharacterAfter } from './api';
 import { db, ORDER_STEP, ORDER_MIN_FRAC } from './db';
+import { ulid } from 'ulidx';
 
 const slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
 
@@ -11,12 +12,14 @@ describe('Sections', () => {
 	});
 
 	it('Section ordering and deletion', async () => {
-		let sectionA = await addSectionAfter('root', { name: 'Section A' });
+		const project = ulid();
+
+		let sectionA = await addSectionAfter('root', { name: 'Section A', project });
 
 		expect(sectionA).toBeTruthy();
 		expect(sectionA?.name).toBe('Section A');
 
-		let sectionB = await addSectionAfter(sectionA!, { name: 'Section B' });
+		let sectionB = await addSectionAfter(sectionA!, { name: 'Section B', project });
 		expect(await db.sections.count()).toBe(2);
 
 		expect(sectionA!.order).toBe(0);
@@ -25,16 +28,16 @@ describe('Sections', () => {
 		let aNext = await (await db.sections.get(sectionA!.id))!.getNext();
 		expect(aNext!.name).toBe('Section B');
 
-		let sectionC = await addSectionAfter('root', { name: 'Section C' });
+		let sectionC = await addSectionAfter('root', { name: 'Section C', project });
 		expect(sectionC!.order).toBe(0);
 
 		sectionA = await db.sections.get(sectionA!.id);
 		expect(sectionA!.order).toEqual(ORDER_STEP / 2);
 
-		let sectionD = await addSectionAfter('tail', { name: 'Section D' });
+		let sectionD = await addSectionAfter('tail', { name: 'Section D', project });
 		expect(sectionD!.order).toBe(ORDER_STEP * 2);
 
-		let sectionE = await addSectionAfter('tail', { name: 'Section E' });
+		let sectionE = await addSectionAfter('tail', { name: 'Section E', project });
 		expect(sectionE!.order).toBe(ORDER_STEP * 3);
 
 		await sectionD!.delete();
@@ -44,18 +47,20 @@ describe('Sections', () => {
 	});
 
 	it('Rebalancing', async () => {
+		const project = 'rebalancing_test';
 		/* slices = number of times to divide ORDER_STEP before an index
             goes below 0.001 */
 		for (let i = 0; i < slices; i++) {
-			await addSectionAfter('root', { name: `${i}` });
+			await addSectionAfter('root', { name: `${i}`, project });
 		}
+		console.log(await db.sections.orderBy('order').toArray());
 		let secondSection = (await db.sections.orderBy('order').toArray())[1];
 
 		expect(secondSection.order).within(ORDER_MIN_FRAC, 1);
 
 		let orderBefore = (await db.sections.orderBy('order').toArray()).map((m) => m.name);
 
-		await addSectionAfter('root', { name: `${slices}` });
+		await addSectionAfter('root', { name: `${slices}`, project });
 		secondSection = (await db.sections.orderBy('order').toArray())[1];
 
 		expect(secondSection.order).equals(ORDER_STEP);
@@ -75,14 +80,14 @@ describe('Sections', () => {
 
 		db.sections.clear();
 
-		let section1 = await addSectionAfter('root', { name: '1' });
-		let section2 = await addSectionAfter(section1!, { name: '2' });
-		await addSectionAfter(section2!, { name: '3' });
+		let section1 = await addSectionAfter('root', { name: '1', project });
+		let section2 = await addSectionAfter(section1!, { name: '2', project });
+		await addSectionAfter(section2!, { name: '3', project });
 
 		let preceding = section2;
 
 		for (let i = 0; i < slices - 1; i++) {
-			preceding = await addSectionAfter(preceding!, { name: `${i + 3}` });
+			preceding = await addSectionAfter(preceding!, { name: `${i + 3}`, project });
 		}
 
 		(await db.sections.orderBy('order').last())!.delete();
@@ -150,8 +155,9 @@ describe('Locations', () => {
 	});
 
 	it('Location ordering and deletion', async () => {
-		let alcatraz = (await addLocationAfter('root', { name: 'Alcatraz' }))!;
-		let berlin = (await addLocationAfter(alcatraz, { name: 'Berlin' }))!;
+		const project = 'location_ordering_test';
+		let alcatraz = (await addLocationAfter('root', { name: 'Alcatraz', project }))!;
+		let berlin = (await addLocationAfter(alcatraz, { name: 'Berlin', project }))!;
 
 		expect(alcatraz!.order).toBe(0);
 		expect(berlin!.order).toEqual(ORDER_STEP);
@@ -162,7 +168,7 @@ describe('Locations', () => {
 		let aFromB = await berlin!.getPrev();
 		expect(aFromB!.name).toBe('Alcatraz');
 
-		let costco = (await addLocationAfter('tail', { name: 'Costco' }))!;
+		let costco = (await addLocationAfter('tail', { name: 'Costco', project }))!;
 		expect((await costco.getPrev())!.name).toBe('Berlin');
 
 		berlin.delete();
@@ -210,25 +216,31 @@ describe('Characters', () => {
 		await Promise.all(db.tables.map((table) => table.clear()));
 	});
 
-	it('Order', async () => {
-		let alice = (await addCharacterAfter('root', { name: 'Alice' }))!;
-		let bob = (await addCharacterAfter(alice, { name: 'Bob' }))!;
+	it('Character ordering and deletion', async () => {
+		const project = 'character_ordering_test';
+
+		let alice = (await addCharacterAfter('root', { name: 'Alice', project }))!;
+		let bob = (await addCharacterAfter(alice, { name: 'Bob', project }))!;
 
 		expect(alice!.order).toBe(0);
 		expect(bob!.order).toEqual(ORDER_STEP);
 
-		let charlie = (await addCharacterAfter(alice, { name: 'Charlie' }))!;
+		let bFromA = await alice!.getNext();
+		expect(bFromA!.name).toBe('Bob');
 
-		expect((await charlie.getPrev())!.name).toEqual('Alice');
-		expect((await charlie.getNext())!.name).toEqual('Bob');
+		let aFromB = await bob!.getPrev();
+		expect(aFromB!.name).toBe('Alice');
 
-		expect((await alice.getNext())!.name).toEqual('Charlie');
+		let charlie = (await addCharacterAfter('tail', { name: 'Charlie', project }))!;
+		expect((await charlie.getPrev())!.name).toBe('Bob');
 
-		await charlie.delete();
+		bob = await bob.refresh();
+		bob.delete();
 
-		expect((await bob.getPrev())!.name).toEqual('Alice');
+		expect((await (await charlie.refresh()).getPrev())!.name).toBe('Alice');
 
-		await Promise.all(db.tables.map((table) => table.clear()));
+		alice.delete();
+		charlie.delete();
 	});
 
 	it('Create dynamic', async () => {

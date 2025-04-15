@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { QLEditor, vibrate } from '$lib';
@@ -155,33 +155,7 @@
 				</svg>
 			</button>
 		</div>
-		<div class="w-full font-bold">
-			<!-- <QLEditor
-				id="location-tagline"
-				initText={t?.tagline}
-				placeholder="No tagline..."
-				inputMode="info"
-				twBG="bg-donkey-50 dark:bg-donkey-950"
-				twText="text-donkey-900 dark:text-donkey-50"
-				twClass="ml-4 [&>.ql-editor]:pl-0 [&>.ql-editor]:pb-2 [&>.ql-editor]:pt-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:text-donkey-500  [&>.ql-editor>*]:dark:text-donkey-400 [&>.ql-editor::before]:dark:text-donkey-600 cursor-pointer"
-				maxLen={50}
-				onkeyup={async () => {
-					if (locId) {
-						await db.locations.update(locId, {
-							tagline: locTagline === '\n' ? undefined : locTagline
-						});
-					}
-				}}
-				onfocusout={async () => {
-					if (locId) {
-						await db.characters.update(locId, {
-							tagline: locTagline === '\n' ? undefined : locTagline
-						});
-					}
-				}}
-				bind:text={locTagline}
-			/> -->
-		</div>
+		<div class="w-full font-bold"></div>
 	{/await}
 	{#if loc}
 		<section class="mb-8 mt-4 flex flex-col gap-2">
@@ -301,4 +275,4 @@
 	<title>
 		{locNameCleaned ? `📍 ${locNameCleaned}` : 'Untitled location'}
 	</title>
-</svelte:head>
+</svelte:head> -->

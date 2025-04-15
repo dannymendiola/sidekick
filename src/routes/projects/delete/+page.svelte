@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { db, Project } from '$lib/db';
-	import { QLEditor, skstate, vibrate } from '$lib';
+	import { skstate, vibrate } from '$lib';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { liveQuery, type Observable } from 'dexie';

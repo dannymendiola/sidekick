@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import Quill, { type QuillOptions } from 'quill';
 	import Keyboard from 'quill/modules/keyboard';
 	import { Delta } from 'quill/core';
@@ -379,4 +379,4 @@
 	.ql-editor::before {
 		font-family: 'Noto Sans', 'Arial', sans-serif !important;
 	}
-</style>
+</style> -->

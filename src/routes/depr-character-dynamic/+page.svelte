@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { QLEditor, vibrate } from '$lib';
@@ -145,33 +145,6 @@
 				</svg>
 			</button>
 		</div>
-		<!-- <div class="w-full font-bold">
-			<QLEditor
-				id="theme-tagline"
-				initText={t?.tagline}
-				placeholder="No tagline..."
-				inputMode="info"
-				twBG="bg-donkey-50 dark:bg-donkey-950"
-				twText="text-donkey-900 dark:text-donkey-50"
-				twClass="ml-4 [&>.ql-editor]:pl-0 [&>.ql-editor]:pb-2 [&>.ql-editor]:pt-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:text-donkey-500   [&>.ql-editor>*]:dark:text-donkey-400  [&>.ql-editor::before]:dark:text-donkey-600 cursor-pointer"
-				maxLen={50}
-				onkeyup={async () => {
-					if (dynamicID) {
-						await db.themes.update(dynamicID, {
-							tagline: themeTagline === '\n' ? undefined : themeTagline
-						});
-					}
-				}}
-				onfocusout={async () => {
-					if (dynamicID) {
-						await db.characters.update(dynamicID, {
-							tagline: themeTagline === '\n' ? undefined : themeTagline
-						});
-					}
-				}}
-				bind:text={themeTagline}
-			/>
-		</div> -->
 	{/await}
 	{#if dynamic}
 		<section class="mb-8 mt-4 flex flex-col gap-2">
@@ -291,4 +264,4 @@
 	<title>
 		{dynamicNameCleaned ? `💡 ${dynamicNameCleaned}` : 'Untitled theme'}
 	</title>
-</svelte:head>
+</svelte:head> -->

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { addCharacterAfter, addLocationAfter, addSectionAfter } from '$lib/db';
-	import { QLEditor } from '$lib';
+	import { SKInput } from '$lib';
 	import { goto } from '$app/navigation';
 
 	type ElemType = 'section' | 'character' | 'location';
@@ -61,9 +61,19 @@
 </script>
 
 <div class="sk-content mt-[10vh] md:mt-[30vh]">
-	<h1 class="mb-4 font-title text-3xl font-bold">New {elemType}</h1>
+	<h1 class="mb-4 font-title text-3xl font-bold">
+		{elemType === 'section' ? 'Add to outline' : `Create a ${elemType}`}
+	</h1>
 	<div class="h-min">
-		<QLEditor id="new-elem-name" inputMode="info" title="Name" bind:text={newElemName} />
+		<SKInput
+			placeholder="{elemType === 'section' ? 'Title' : 'Name'} your new {elemType === 'section'
+				? 'outline section'
+				: elemType} {allowUntitled ? '(optional)' : ''}"
+			twClass="text-xl"
+			disableLineBreak
+			disableSpellCheck
+			bind:text={newElemName}
+		/>
 	</div>
 	<div class="mt-4 flex w-full justify-end">
 		<button
@@ -72,7 +82,7 @@
 			].button}"
 			aria-label="Submit"
 			onpointerup={goToNewElem}
-			disabled={!allowUntitled && !newElemNameCleaned}
+			disabled={!allowUntitled && !newElemName}
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

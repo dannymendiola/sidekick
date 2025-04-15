@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { QLEditor, TextPicker, vibrate } from '$lib';
 	import { type CharacterAttr } from '$lib/types/db.d';
 	import { page } from '$app/state';
@@ -280,33 +280,6 @@
 				</button>
 			</div>
 		</div>
-		<!-- <div class="w-full font-bold">
-			<QLEditor
-				id="char-desc"
-				initText={char?.tagline}
-				placeholder="No tagline..."
-				inputMode="info"
-				twBG="bg-donkey-50 dark:bg-donkey-950"
-				twText="text-donkey-900 dark:text-donkey-50"
-				twClass="ml-4 [&>.ql-editor]:pl-0 [&>.ql-editor]:pb-2 [&>.ql-editor]:pt-0 drop-shadow-none max-w-[80%] [&>.ql-editor>*]:text-donkey-500   [&>.ql-editor>*]:dark:text-donkey-400  [&>.ql-editor::before]:dark:text-donkey-600 cursor-pointer"
-				maxLen={50}
-				onkeyup={async () => {
-					if (charId) {
-						await db.characters.update(charId, {
-							tagline: charTagline === '\n' ? undefined : charTagline
-						});
-					}
-				}}
-				onfocusout={async () => {
-					if (charId) {
-						await db.characters.update(charId, {
-							tagline: charTagline === '\n' ? undefined : charTagline
-						});
-					}
-				}}
-				bind:text={charTagline}
-			/>
-		</div> -->
 	{/await}
 	{#if character}
 		{@render AttrSection('arc')}
@@ -582,4 +555,4 @@
 	<title>
 		{charNameCleaned ? `🪪 ${charNameCleaned}` : 'Character'}
 	</title>
-</svelte:head>
+</svelte:head> -->

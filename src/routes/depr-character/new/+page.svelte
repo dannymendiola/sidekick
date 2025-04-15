@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { QLEditor } from '$lib';
 	import { addCharacterAfter } from '$lib/db';
@@ -42,4 +42,4 @@
 			</svg>
 		</button>
 	</div>
-</div>
+</div> -->

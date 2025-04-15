@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { QLEditor, vibrate } from '$lib';
@@ -352,7 +352,7 @@
 {/snippet}
 
 {#snippet Connections()}
-	<!-- {#if moment}
+	{#if moment}
 		<div class="flex w-full justify-between">
 			{#if prev}
 				<a
@@ -379,7 +379,7 @@
 				<div></div>
 			{/if}
 		</div>
-	{/if} -->
+	{/if}
 {/snippet}
 
 {#snippet Icon(
@@ -430,4 +430,4 @@
 	<title>
 		{momentNameClean ? `🎞️ ${momentNameClean}` : 'Untitled moment'}
 	</title>
-</svelte:head>
+</svelte:head> -->
