@@ -16,6 +16,10 @@ const config = {
 
 		version: {
 			name: pkg.version
+		},
+
+		files: {
+			serviceWorker: 'src/service-worker.ts'
 		}
 	}
 };
