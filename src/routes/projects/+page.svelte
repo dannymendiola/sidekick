@@ -85,7 +85,6 @@
 						<p class="text-donkey-400 dark:text-donkey-300">No projects yet</p>
 					{/if}
 				</h3>
-				<!-- <h3 class="text-sm text-donkey-400 dark:text-donkey-300"></h3> -->
 			</hgroup>
 			<button
 				class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 px-2 py-2 disabled:hover:bg-donkey-200 dark:border-donkey-700 disabled:hover:dark:!bg-donkey-800 md:mt-0 md:w-min {showManageProjects
