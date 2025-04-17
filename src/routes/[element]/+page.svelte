@@ -53,8 +53,16 @@
 
 	const element = $derived($query);
 
-	let elemName = $state('');
-	let elemNameClean = $derived(elemName?.replaceAll('\n', ''));
+	let elemName: string | undefined = $state();
+
+	const initName = async () => {
+		const e = await table.get(elemID || '');
+		if (e) {
+			elemName = elemType === 'character-dynamic' ? await e.toString() : e.name;
+		}
+	};
+
+	initName();
 
 	const updateElem = async (params: Object) => {
 		switch (elemType) {
@@ -114,7 +122,7 @@
 	{#if element}
 		{#if elemType !== 'character-dynamic'}
 			<h1 class="invisible absolute">
-				{elemNameClean}
+				{elemName}
 			</h1>
 		{/if}
 		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
@@ -130,6 +138,7 @@
 						placeholder="{elemType === 'section' ? 'Untitled' : 'Unnamed'} {elemType}"
 						disableLineBreak
 						twClass="my-4 text-4xl"
+						bind:text={elemName}
 					/>
 				{:else}
 					{#await (element as Dynamic).toString() then name}
@@ -155,7 +164,7 @@
 			class="sk-content z-[11] mb-[20vh] flex max-w-[512px] flex-col gap-2 rounded-xl bg-donkey-200 px-6 py-4 italic dark:bg-donkey-800"
 		>
 			<h2 class="mb-6 font-title text-2xl font-bold">
-				Delete {elemNameClean || elemType.replaceAll('-', ' ')}?
+				Delete {elemName || elemType.replaceAll('-', ' ')}?
 			</h2>
 			<div class="flex w-full justify-end gap-2">
 				<button
@@ -185,6 +194,6 @@
 
 <svelte:head>
 	<title
-		>{`${elemEmoji} ${elemType === 'character-dynamic' ? 'Character dynamic' : elemNameClean || 'Untitled'}`}</title
+		>{`${elemEmoji} ${elemType === 'character-dynamic' ? 'Character dynamic' : elemName || 'Untitled'}`}</title
 	>
 </svelte:head>

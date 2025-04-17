@@ -16,7 +16,12 @@
 <div class="sk-content mt-[10vh] md:mt-[30vh]">
 	<h1 class="mb-4 font-title text-3xl font-bold">New project</h1>
 	<div class="h-min">
-		<SKInput placeholder="Untitled project" bind:text={newProjName} />
+		<SKInput
+			placeholder="Untitled project"
+			disableSpellCheck
+			twClass="text-xl font-semibold"
+			bind:text={newProjName}
+		/>
 	</div>
 	<div class="mt-4 flex w-full justify-end">
 		<button
