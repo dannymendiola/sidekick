@@ -1,10 +1,68 @@
 import { describe, it, expect, afterAll, afterEach } from 'vitest';
 
-import { addSectionAfter, addLocationAfter, addCharacterAfter } from './api';
-import { db, ORDER_STEP, ORDER_MIN_FRAC } from './db';
+import { addSectionAfter, addLocationAfter, addCharacterAfter } from '$lib';
+import { db, ORDER_STEP, ORDER_MIN_FRAC } from '$lib';
 import { ulid } from 'ulidx';
 
 const slices = Math.ceil(Math.log2(ORDER_STEP / ORDER_MIN_FRAC)) + 1;
+
+describe('Projects', () => {
+	it('Differentiate Characters by their associated Projects', async () => {
+		const project1ID = await db.projects.add({ name: 'Project 1' });
+		const project2ID = await db.projects.add({ name: 'Project 2' });
+
+		// Create a Character under each Project
+		const p1c = await addCharacterAfter('root', {
+			name: 'One',
+			project: project1ID
+		});
+		const p2c = await addCharacterAfter('root', {
+			name: 'Uno',
+			project: project2ID
+		});
+
+		// Verify that the Characters are associated with the correct Projects
+		expect(p1c).toBeTruthy();
+		expect(p2c).toBeTruthy();
+
+		expect(p1c!.project).toBe(project1ID);
+		expect(p2c!.project).toBe(project2ID);
+
+		// Ensure Characters can be differentiated by their Projects
+		const project1Characters = await db.characters.where('project').equals(project1ID).toArray();
+		const project2Characters = await db.characters.where('project').equals(project2ID).toArray();
+
+		expect(project1Characters.length).toBe(1);
+		expect(project2Characters.length).toBe(1);
+
+		expect(project1Characters[0].name).toBe('One');
+		expect(project2Characters[0].name).toBe('Uno');
+	});
+
+	// TODO
+	// it('Ordering should be local to Project', async () => {
+	// 	// Grab projects and characters from previous test
+	// 	const project1ID = (await db.projects.where('name').equals('Project 1').first())?.id!;
+	// 	const project2ID = (await db.projects.where('name').equals('Project 2').first())?.id!;
+
+	// 	let p1Chars = await db.characters.where('project').equals(project1ID).toArray();
+	// 	let p2Chars = await db.characters.where('project').equals(project2ID).toArray();
+
+	// 	expect(p1Chars[0].name).toBe('One');
+	// 	expect(p2Chars[0].name).toBe('Uno');
+
+	// 	const proj1char2ID = (await addCharacterAfter(p1Chars[0], { name: 'Two' }))!;
+	// 	const proj2char2ID = (await addCharacterAfter(p2Chars[0], { name: 'Dos' }))!;
+
+	// 	const two = await db.characters.get(proj1char2ID.id);
+	// 	const dos = await db.characters.get(proj2char2ID.id);
+
+	// 	console.log({ two, dos });
+
+	// 	expect((await two?.getPrev())?.name).toBe('One');
+	// 	expect((await dos?.getPrev())?.name).toBe('Uno');
+	// });
+});
 
 describe('Sections', () => {
 	afterEach(async () => {
@@ -53,7 +111,6 @@ describe('Sections', () => {
 		for (let i = 0; i < slices; i++) {
 			await addSectionAfter('root', { name: `${i}`, project });
 		}
-		console.log(await db.sections.orderBy('order').toArray());
 		let secondSection = (await db.sections.orderBy('order').toArray())[1];
 
 		expect(secondSection.order).within(ORDER_MIN_FRAC, 1);

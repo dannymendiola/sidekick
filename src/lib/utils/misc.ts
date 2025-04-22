@@ -8,12 +8,16 @@ export const capitalize = (str: string) =>
 		.replace(/\w\S*/g, (t) => t.charAt(0).toUpperCase() + t.substring(1).toLowerCase());
 
 type DateStyle = Intl.DateTimeFormatOptions['dateStyle'];
+type TimeStyle = Intl.DateTimeFormatOptions['timeStyle'];
+
 export const formatDate = (
-	date: string = new Date().toISOString(),
-	dateStyle: DateStyle = 'medium',
-	locales = 'en'
+	date: string | number = Date.now(),
+	dateStyle: DateStyle = undefined,
+	timeStyle: TimeStyle = undefined,
+	timeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
+	locales: string | string[] = navigator.language
 ) => {
-	const formatter = new Intl.DateTimeFormat(locales, { dateStyle, timeZone: 'UTC' });
+	const formatter = new Intl.DateTimeFormat(locales, { dateStyle, timeStyle, timeZone });
 
 	return formatter.format(new Date(date));
 };

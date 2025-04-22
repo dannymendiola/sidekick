@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { db, skstate, formatDate, saveProject, loadProject, SKInput } from '$lib';
+	import { db, skstate, formatDate, exportProject, SKInput, importProject } from '$lib';
 	import { liveQuery } from 'dexie';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
@@ -14,6 +14,9 @@
 	const allProjects = $derived($qAllProjects);
 
 	let showManageProjects = $state(false);
+	let showExportProjects = $state(false);
+
+	let importInput: HTMLInputElement | undefined = $state();
 </script>
 
 <div class="sk-content">
@@ -25,7 +28,7 @@
 				alt="A red oval with the word 'Sidekick' in yellow serif font"
 			/>
 			<p
-				class="font-title text-3xl font-semibold text-robin-600 dark:text-smithers-500 md:text-donkey-600 md:dark:text-donkey-400"
+				class="font-title text-3xl font-bold text-donkey-600 dark:text-donkey-300 md:font-semibold md:dark:text-donkey-400"
 			>
 				Projects
 			</p>
@@ -90,7 +93,10 @@
 				class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 px-2 py-2 disabled:hover:bg-donkey-200 dark:border-donkey-700 disabled:hover:dark:!bg-donkey-800 md:mt-0 md:w-min {showManageProjects
 					? 'bg-donkey-300 dark:bg-donkey-600 '
 					: 'bg-donkey-200 hover:bg-donkey-300 dark:bg-donkey-800 hover:dark:bg-donkey-600 '}"
-				onclick={() => (showManageProjects = !showManageProjects)}
+				onclick={() => {
+					showManageProjects = !showManageProjects;
+					showExportProjects = false;
+				}}
 				disabled={allProjects?.length === 0}
 			>
 				<svg
@@ -154,7 +160,7 @@
 								</div>
 								<div class="flex items-center gap-1">
 									<button
-										class="rounded-xl border border-smithers-400 bg-smithers-50 p-2 dark:border-smithers-900 dark:bg-smithers-950"
+										class="rounded-xl border border-smithers-400 bg-smithers-400 p-2 dark:border-smithers-900 dark:bg-smithers-950"
 										onclick={async () => {
 											const deselect = project.id === activeProject?.id;
 											skstate.updateSettings({ currProj: deselect ? undefined : project.id });
@@ -176,7 +182,7 @@
 												viewBox="0 0 24 24"
 												stroke-width="1.5"
 												stroke="currentColor"
-												class="size-5 stroke-smithers-900 dark:stroke-smithers-400"
+												class="size-5 stroke-smithers-950 dark:stroke-smithers-400"
 											>
 												<path
 													stroke-linecap="round"
@@ -191,7 +197,7 @@
 												viewBox="0 0 24 24"
 												stroke-width="1.5"
 												stroke="currentColor"
-												class="size-5 stroke-smithers-900 dark:stroke-smithers-400"
+												class="size-5 stroke-smithers-950 dark:stroke-smithers-400"
 											>
 												<path
 													stroke-linecap="round"
@@ -243,14 +249,27 @@
 			<hgroup class="hidden text-center md:block md:text-left">
 				<h2 class="text-lg font-semibold">Import a project from a file</h2>
 				<h3 class="text-sm text-donkey-400 dark:text-donkey-300">
-					Load a project from another Sidekick instance (coming in a future update)
+					Load a project from another Sidekick instance
 				</h3>
 			</hgroup>
 			<button
-				class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 bg-donkey-200 px-2 py-2 text-white opacity-40 dark:border-donkey-700 dark:bg-donkey-800 md:mt-0 md:w-min"
+				class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 bg-donkey-200 px-2 py-2 text-white hover:bg-donkey-300 dark:border-donkey-700 dark:bg-donkey-800 hover:dark:bg-donkey-600 md:mt-0 md:w-min"
+				onclick={() => {
+					importInput?.click();
+				}}
 			>
+				<input
+					onchange={(e) => {
+						const file = e?.currentTarget.files && e.currentTarget.files[0];
+						importProject(file);
+					}}
+					type="file"
+					accept=".sidekick"
+					bind:this={importInput}
+					hidden
+				/>
+				<!-- class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 bg-donkey-200 px-2 py-2 text-white opacity-40 dark:border-donkey-700 dark:bg-donkey-800 md:mt-0 md:w-min" -->
 				<!-- FOR WHEN IMPLEMENTED:  -->
-				<!-- class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 bg-donkey-200 px-2 py-2 text-white hover:bg-donkey-300 dark:border-donkey-700 dark:bg-donkey-800 hover:dark:bg-donkey-600 md:mt-0 md:w-min" -->
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -273,18 +292,26 @@
 		<hr class="my-4 hidden border-donkey-200 dark:border-donkey-600 md:block" />
 
 		<!-- Export a project to a file section -->
-		<div class="flex flex-col items-center justify-center md:flex-row md:justify-between">
+		<div
+			class="flex flex-col items-center justify-center md:flex-row md:justify-between {allProjects?.length ===
+				0 && 'opacity-40'}"
+		>
 			<hgroup class="hidden text-center md:block md:text-left">
 				<h2 class="text-lg font-semibold">Export a project to file</h2>
 				<h3 class="text-sm text-donkey-400 dark:text-donkey-300">
-					For importing to another device (coming in a future update)
+					For importing to another device
 				</h3>
 			</hgroup>
 			<button
-				class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 bg-donkey-200 px-2 py-2 text-white opacity-40 dark:border-donkey-700 dark:bg-donkey-800 md:mt-0 md:w-min"
+				class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 px-2 py-2 disabled:hover:bg-donkey-200 dark:border-donkey-700 disabled:hover:dark:!bg-donkey-800 md:mt-0 md:w-min {showExportProjects
+					? 'bg-donkey-300 dark:bg-donkey-600 '
+					: 'bg-donkey-200 hover:bg-donkey-300 dark:bg-donkey-800 hover:dark:bg-donkey-600 '}"
+				onclick={() => {
+					showExportProjects = !showExportProjects;
+					showManageProjects = false;
+				}}
+				disabled={allProjects?.length === 0}
 			>
-				<!-- FOR WHEN IMPLEMENTED: -->
-				<!-- class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 bg-donkey-200 px-2 py-2 text-white hover:bg-donkey-300 dark:border-donkey-700 dark:bg-donkey-800 hover:dark:bg-donkey-600 md:mt-0 md:w-min" -->
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -304,6 +331,51 @@
 				<span class="md:hidden">Export a project</span>
 			</button>
 		</div>
+
+		{#if showExportProjects}
+			<div
+				transition:slide={{ easing: quintOut, duration: skstate.prefersReducedMotion ? 0 : 100 }}
+			>
+				<section class="my-6 max-h-[33vh] overflow-y-auto md:my-0 md:mt-2">
+					<div class="flex w-full flex-col gap-1">
+						{#each allProjects?.toReversed() as project (`project-${project.id}`)}
+							<div
+								class="flex items-center justify-between rounded border border-donkey-200 bg-donkey-200 p-1 dark:border-donkey-700 dark:bg-donkey-800"
+							>
+								<p class="p-1">
+									{project.name || 'Untitled project'}
+								</p>
+								<div class="flex items-center gap-1">
+									<button
+										class="rounded-xl border border-genie-400 bg-genie-400 p-2 dark:border-genie-900 dark:bg-genie-950"
+										onclick={async () => {
+											// console.log(`export ${project.name}`);
+											exportProject(project.id);
+										}}
+										aria-label="Export project"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="1.5"
+											stroke="currentColor"
+											class="size-5 stroke-genie-900 dark:stroke-genie-300"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
+											/>
+										</svg>
+									</button>
+								</div>
+							</div>
+						{/each}
+					</div>
+				</section>
+			</div>
+		{/if}
 	</div>
 </div>
 

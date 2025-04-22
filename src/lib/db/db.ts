@@ -66,7 +66,6 @@ const orderAfter = async <T extends Entity>(
 		if (currRoot) {
 			const afterRoot = await currRoot.getNext();
 			if (afterRoot) {
-				console.log({ afterRoot });
 				const currRootOrder = afterRoot.order! / 2;
 				// @ts-ignore
 				await table.update(currRoot.id, { order: currRootOrder });

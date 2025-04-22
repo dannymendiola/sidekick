@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { skstate, saveProject, loadProject, formatDate } from '$lib';
+	import { skstate, exportProject, importProject, formatDate } from '$lib';
 
 	let drawing = $state(false);
 
@@ -62,7 +62,7 @@
 							`Project_${formatDate(new Date().toString(), 'short').replaceAll('/', '-')}`
 						);
 						if (filename !== null) {
-							saveProject(filename);
+							exportProject(filename);
 							skstate.showSaveLoad = false;
 						}
 					}}
@@ -109,13 +109,8 @@
 
 					Load project
 				</button>
-				<input
-					type="file"
-					accept=".sidekick"
-					onchange={(e) => loadProject(e)}
-					bind:this={fileInput}
-					hidden
-				/>
+				<input type="file" accept=".sidekick" bind:this={fileInput} hidden />
+				<!-- onchange={(e) => loadProject(e)} -->
 			</div>
 		</div>
 	</div>
