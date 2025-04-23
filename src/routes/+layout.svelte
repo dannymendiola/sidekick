@@ -4,7 +4,6 @@
 	import { vibrate } from '$lib';
 	import { page } from '$app/state';
 	import '../app.css';
-	import SaveLoadModal from '$lib/components/save-load-modal.svelte';
 	import { untrack } from 'svelte';
 	import { db } from '$lib/db';
 
