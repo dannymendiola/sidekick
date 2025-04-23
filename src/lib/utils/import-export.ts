@@ -78,32 +78,19 @@ export const isValidProjectData = (data: any): data is ProjectData => {
 export const exportProject = async (projID: string, filename?: string) => {
 	const data = await serializeProject(projID);
 	const blob = new Blob([data], { type: 'application/octet-stream' });
-	// if ()
-
-	// filename = filename && filename.endsWith('.sidekick') ? filename : `${filename || 'Untitled'}.sidekick`
 	if (filename) {
 		filename = filename.endsWith('.sidekick') ? filename : `${filename}.sidekick`;
 	}
 	filename = filename || `${(await db.projects.get(projID))?.name || 'Untitled'}.sidekick`;
 
-	const file = new File([blob], filename, { type: 'application/octet-stream' });
-
-	if (navigator.canShare && navigator.canShare({ files: [file] })) {
-		console.log('Share');
-		await navigator.share({
-			files: [file]
-		});
-	} else {
-		console.log('Download');
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = filename;
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-		URL.revokeObjectURL(url);
-	}
+	const url = URL.createObjectURL(blob);
+	const link = document.createElement('a');
+	link.href = url;
+	link.download = filename;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	URL.revokeObjectURL(url);
 };
 
 export const clearProject = async (projID: string) => {
