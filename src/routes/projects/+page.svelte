@@ -268,8 +268,6 @@
 					bind:this={importInput}
 					hidden
 				/>
-				<!-- class="mt-4 flex h-min w-full justify-center gap-1 rounded-xl border border-donkey-300 bg-donkey-200 px-2 py-2 text-white opacity-40 dark:border-donkey-700 dark:bg-donkey-800 md:mt-0 md:w-min" -->
-				<!-- FOR WHEN IMPLEMENTED:  -->
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
