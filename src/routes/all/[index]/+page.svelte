@@ -179,8 +179,8 @@
 </script>
 
 {#if $elements}
-	<div class="sk-content md:mt-28">
-		<div class="flex w-full flex-col items-center justify-between gap-3 md:flex-row">
+	<div class="sk-content mt-24">
+		<div class="flex w-full flex-row items-center justify-between gap-3">
 			<h1 class="w-full text-center font-serif text-3xl font-bold md:text-left md:text-4xl">
 				{indexTitle === 'Sections' ? 'Outline' : indexTitle}
 			</h1>
@@ -190,7 +190,7 @@
 					class="flex items-center gap-2 rounded-xl p-2 {twAddBtn[indexName].bg}"
 				>
 					{@render Plus()}
-					<div class="md:hidden {twAddBtn[indexName].text}">Add</div>
+					<!-- <div class="md:hidden {twAddBtn[indexName].text}">Add</div> -->
 				</a>
 			{/if}
 		</div>

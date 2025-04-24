@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { skstate, DEFAULT_SETTINGS, Navbar } from '$lib';
 	import { goto } from '$app/navigation';
-	import { vibrate } from '$lib';
+	import { vibrate, SKInput } from '$lib';
 	import { page } from '$app/state';
 	import '../app.css';
 	import { untrack } from 'svelte';
@@ -50,11 +50,53 @@
 <div class="wrapper flex h-screen flex-col-reverse md:flex-row">
 	{#await projectPromise then project}
 		<!-- {#if !project && !['/welcome', '/projects', '/projects/new', 'projects/delete'].includes(page.url.pathname)} -->
-		{#if !project && !page.url.pathname
+		{#if !page.url.pathname.split('/').includes('projects') && page.url.pathname !== '/welcome'}
+			{#if project}
+				<div
+					class="fixed left-24 top-4 z-50 hidden items-center gap-2 rounded-xl bg-donkey-100 px-4 py-2 font-title text-xl dark:bg-donkey-900 md:flex"
+				>
+					<a
+						class="rounded-xl bg-donkey-500 bg-opacity-0 px-1 py-1 hover:bg-opacity-30"
+						href="/projects"
+						aria-label="Manage projects"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="size-6"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
+							/>
+						</svg>
+					</a>
+					<SKInput
+						boundField={{
+							entityID: project.id,
+							entityTable: db.projects,
+							fieldName: 'name',
+							bindAs: 'text'
+						}}
+						disableLineBreak
+						disableSpellCheck
+						placeholder="Untitled project"
+					/>
+
+					<!-- {project.name || 'Untitled project'} -->
+				</div>
+			{:else}
+				{@render CalloutNoProj()}
+			{/if}
+		{/if}
+		<!-- {#if !project && !page.url.pathname
 				.split('/')
 				.includes('projects') && page.url.pathname !== '/welcome'}
-			{@render CalloutNoProj()}
-		{/if}
+		{/if} -->
 	{/await}
 	<div class="navbar z-10 md:z-20">
 		<Navbar />

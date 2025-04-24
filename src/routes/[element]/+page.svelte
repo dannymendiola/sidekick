@@ -103,7 +103,7 @@
 	{@render DeleteModal()}
 {/if}
 
-<div class="sk-content mb-32 md:mt-16">
+<div class="sk-content mb-32 md:mt-0">
 	{@render ElemHeader()}
 	{#if element}
 		<SKInput
@@ -125,7 +125,7 @@
 				{elemName}
 			</h1>
 		{/if}
-		<div class="top-0 z-[9] flex flex-col bg-donkey-50 dark:bg-donkey-950 md:sticky">
+		<div class="top-0 z-[9] flex flex-col bg-donkey-50 pt-24 dark:bg-donkey-950 md:sticky">
 			<div class="w-full font-title font-bold">
 				{#if elemType !== 'character-dynamic'}
 					<SKInput
@@ -137,7 +137,7 @@
 						}}
 						placeholder="{elemType === 'section' ? 'Untitled' : 'Unnamed'} {elemType}"
 						disableLineBreak
-						twClass="my-4 text-4xl"
+						twClass="mb-4 text-4xl"
 						bind:text={elemName}
 					/>
 				{:else}

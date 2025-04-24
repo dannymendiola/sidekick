@@ -16,6 +16,7 @@
 		placeholder?: string;
 		disableLineBreak?: boolean;
 		disableSpellCheck?: boolean;
+		title?: string;
 		boundField?: {
 			entityID: string;
 			entityTable:
@@ -37,6 +38,7 @@
 		text = $bindable(),
 		html = $bindable(),
 		json = $bindable(),
+		title = undefined,
 		focused = $bindable(false),
 		placeholder = undefined,
 		twClass = '',
@@ -110,4 +112,4 @@
 	});
 </script>
 
-<div bind:this={element} role="textbox" tabindex="0" class={twClass}></div>
+<div bind:this={element} role="textbox" tabindex="0" class={twClass}>{title}</div>
