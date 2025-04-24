@@ -77,20 +77,31 @@ export const isValidProjectData = (data: any): data is ProjectData => {
 
 export const exportProject = async (projID: string, filename?: string) => {
 	const data = await serializeProject(projID);
-	const blob = new Blob([data], { type: 'application/octet-stream' });
+	const blob = new Blob([data], { type: 'application/sidekick' });
 	if (filename) {
 		filename = filename.endsWith('.sidekick') ? filename : `${filename}.sidekick`;
 	}
 	filename = filename || `${(await db.projects.get(projID))?.name || 'Untitled'}.sidekick`;
 
-	const url = URL.createObjectURL(blob);
-	const link = document.createElement('a');
-	link.href = url;
-	link.download = filename;
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
-	URL.revokeObjectURL(url);
+	const file = new File([blob], filename, { type: blob.type });
+
+	if (navigator.canShare() && navigator.canShare({ files: [file] })) {
+		console.log('Share');
+		navigator.share({
+			title: 'Exported Sidekick Project',
+			files: [file]
+		});
+	} else {
+		console.log('Download');
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = filename;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
+	}
 };
 
 export const clearProject = async (projID: string) => {
