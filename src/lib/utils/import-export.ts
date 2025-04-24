@@ -77,7 +77,7 @@ export const isValidProjectData = (data: any): data is ProjectData => {
 
 export const exportProject = async (projID: string, filename?: string) => {
 	const data = await serializeProject(projID);
-	const blob = new Blob([data], { type: 'application/json' });
+	const blob = new Blob([data], { type: 'application/x-sidekick' });
 	if (filename) {
 		filename = filename.endsWith('.json') ? filename : `${filename}.json`;
 	}
@@ -112,7 +112,7 @@ export const clearProject = async (projID: string) => {
 	await db.locations.where({ project: projID }).delete();
 };
 
-export const importProject = async (file: File | null) => {
+export const importProject = async (file: File | null, open = true) => {
 	if (!file) return;
 
 	const reader = new FileReader();
@@ -120,8 +120,6 @@ export const importProject = async (file: File | null) => {
 	reader.onload = async (e) => {
 		try {
 			const data = JSON.parse(e.target?.result as string);
-
-			console.log(data);
 
 			if (!isValidProjectData(data)) {
 				alert('Unfortunately, the selected file is invalid or corrupted, and cannot be imported.');
