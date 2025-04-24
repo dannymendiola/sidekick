@@ -77,11 +77,11 @@ export const isValidProjectData = (data: any): data is ProjectData => {
 
 export const exportProject = async (projID: string, filename?: string) => {
 	const data = await serializeProject(projID);
-	const blob = new Blob([data], { type: 'application/sidekick' });
+	const blob = new Blob([data], { type: 'application/json' });
 	if (filename) {
-		filename = filename.endsWith('.sidekick') ? filename : `${filename}.sidekick`;
+		filename = filename.endsWith('.json') ? filename : `${filename}.json`;
 	}
-	filename = filename || `${(await db.projects.get(projID))?.name || 'Untitled'}.sidekick`;
+	filename = filename || `${(await db.projects.get(projID))?.name || 'Untitled'}.json`;
 
 	const file = new File([blob], filename, { type: blob.type });
 

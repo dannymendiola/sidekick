@@ -264,7 +264,7 @@
 						importProject(file);
 					}}
 					type="file"
-					accept=".sidekick"
+					accept=".json"
 					bind:this={importInput}
 					hidden
 				/>
