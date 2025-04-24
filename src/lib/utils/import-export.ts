@@ -79,9 +79,9 @@ export const exportProject = async (projID: string, filename?: string) => {
 	const data = await serializeProject(projID);
 	const blob = new Blob([data], { type: 'application/x-sidekick' });
 	if (filename) {
-		filename = filename.endsWith('.json') ? filename : `${filename}.json`;
+		filename = filename.endsWith('.sidekick') ? filename : `${filename}.sidekick`;
 	}
-	filename = filename || `${(await db.projects.get(projID))?.name || 'Untitled'}.json`;
+	filename = filename || `${(await db.projects.get(projID))?.name || 'Untitled'}.sidekick`;
 
 	const file = new File([blob], filename, { type: blob.type });
 

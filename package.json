@@ -1,6 +1,6 @@
 {
 	"name": "sidekick",
-	"version": "0.13.2-alpha",
+	"version": "0.13.3-alpha",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host --port 3000",
