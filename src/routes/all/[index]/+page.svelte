@@ -181,7 +181,7 @@
 {#if $elements}
 	<div class="sk-content mt-24">
 		<div class="flex w-full flex-row items-center justify-between gap-3">
-			<h1 class="w-full text-center font-serif text-3xl font-bold md:text-left md:text-4xl">
+			<h1 class="w-full text-center text-3xl font-bold md:text-left md:text-4xl">
 				{indexTitle === 'Sections' ? 'Outline' : indexTitle}
 			</h1>
 			{#if $elements.length > 0 && indexName !== 'character-dynamics'}

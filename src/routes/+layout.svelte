@@ -5,7 +5,7 @@
 	import { page } from '$app/state';
 	import '../app.css';
 	import { untrack } from 'svelte';
-	import { db } from '$lib/db';
+	import { db, Project } from '$lib/db';
 
 	let { children } = $props();
 
@@ -33,6 +33,17 @@
 		return skstate.projectID ? await db.projects.get(skstate.projectID) : undefined;
 	});
 
+	const onElemPage = $derived(
+		['/character', '/location', '/section', '/character-dynamic'].includes(page.url.pathname)
+	);
+
+	const pathnameToName = {
+		'/character': 'Characters',
+		'/location': 'Locations',
+		'/section': 'Outline',
+		'/character-dynamic': 'Character Dynamics'
+	};
+
 	// const requestPersistence = async () => {
 	// 	if (navigator.storage && !(await navigator.storage.persisted())) {
 	// 		// TODO Show modal explainer:
@@ -49,54 +60,7 @@
 
 <div class="wrapper flex h-screen flex-col-reverse md:flex-row">
 	{#await projectPromise then project}
-		<!-- {#if !project && !['/welcome', '/projects', '/projects/new', 'projects/delete'].includes(page.url.pathname)} -->
-		{#if !page.url.pathname.split('/').includes('projects') && page.url.pathname !== '/welcome'}
-			{#if project}
-				<div
-					class="fixed left-24 top-4 z-50 hidden items-center gap-2 rounded-xl bg-donkey-100 px-4 py-2 font-title text-xl dark:bg-donkey-900 md:flex"
-				>
-					<a
-						class="rounded-xl bg-donkey-500 bg-opacity-0 px-1 py-1 hover:bg-opacity-30"
-						href="/projects"
-						aria-label="Manage projects"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							class="size-6"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
-							/>
-						</svg>
-					</a>
-					<SKInput
-						boundField={{
-							entityID: project.id,
-							entityTable: db.projects,
-							fieldName: 'name',
-							bindAs: 'text'
-						}}
-						disableLineBreak
-						disableSpellCheck
-						placeholder="Untitled project"
-					/>
-
-					<!-- {project.name || 'Untitled project'} -->
-				</div>
-			{:else}
-				{@render CalloutNoProj()}
-			{/if}
-		{/if}
-		<!-- {#if !project && !page.url.pathname
-				.split('/')
-				.includes('projects') && page.url.pathname !== '/welcome'}
-		{/if} -->
+		{@render Breadcrumbs(project)}
 	{/await}
 	<div class="navbar z-10 md:z-20">
 		<Navbar />
@@ -108,10 +72,12 @@
 
 {#snippet Topbar()}
 	<div
-		class="absolute z-20 flex h-20 w-screen items-center justify-between bg-donkey-50 bg-transparent p-4 dark:bg-donkey-950 md:hidden md:pr-8 dark:md:bg-transparent"
+		class="absolute z-10 flex h-20 items-center justify-between bg-donkey-50 p-4 dark:bg-donkey-950 md:pr-8 {skstate.touchscreen
+			? 'w-[calc(100%-6px)]'
+			: 'w-[calc(100%-12px)] '}"
 	>
 		<button
-			class="rounded-xl bg-donkey-50 hover:bg-donkey-300 dark:bg-donkey-900 hover:dark:bg-donkey-800"
+			class="rounded-xl bg-donkey-100 hover:bg-donkey-300 dark:bg-donkey-900 hover:dark:bg-donkey-800"
 			onpointerup={() => {
 				vibrate();
 				goto('/welcome');
@@ -126,7 +92,7 @@
 		<div class="hidden md:block"></div>
 		<div class="flex gap-4">
 			<button
-				class="rounded-full bg-donkey-100 p-2 hover:bg-donkey-200 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:bg-donkey-200"
+				class="rounded-full bg-donkey-100 p-2 hover:bg-donkey-200 dark:bg-donkey-900 dark:hover:bg-donkey-800 md:hidden"
 				onpointerup={() => {
 					skstate.updateSettings({ theme: skstate.darkMode ? 'light' : 'dark' });
 				}}
@@ -229,6 +195,53 @@
 			</a>
 		</div>
 	</div>
+{/snippet}
+
+{#snippet Breadcrumbs(project: Project | undefined)}
+	{#if !page.url.pathname.split('/').includes('projects') && page.url.pathname !== '/welcome'}
+		{#if project}
+			<div class="fixed left-24 top-4 z-50 hidden md:flex">
+				<a
+					class="z-50 flex items-center gap-2 bg-donkey-100 py-2 font-title text-xl hover:bg-donkey-200 dark:bg-donkey-900 hover:dark:bg-donkey-800 {onElemPage
+						? 'rounded-l-xl pl-4 pr-2'
+						: 'rounded-xl px-4'}"
+					href="/projects"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-6"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
+						/>
+					</svg>
+					{project.name || 'Untitled project'}
+				</a>
+				<div
+					class="flex items-center bg-donkey-100 px-1 dark:bg-donkey-900 {!onElemPage && 'hidden'}"
+				>
+					•
+				</div>
+				<a
+					class="z-50 items-center gap-2 rounded-r-xl bg-donkey-100 py-2 pl-2 pr-4 font-title text-xl hover:bg-donkey-200 dark:bg-donkey-900 hover:dark:bg-donkey-800 {onElemPage
+						? 'flex'
+						: 'hidden'}"
+					href={`/all${page.url.pathname}s`}
+				>
+					<!-- {page.url.pathname.split('/').slice(-1)[0].replaceAll('-', ' ')} -->
+					{pathnameToName[page.url.pathname as keyof typeof pathnameToName]}
+				</a>
+			</div>
+		{:else}
+			{@render CalloutNoProj()}
+		{/if}
+	{/if}
 {/snippet}
 
 <style>
