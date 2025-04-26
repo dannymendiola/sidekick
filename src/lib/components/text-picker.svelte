@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { ulid } from 'ulidx';
+	import { type ComponentProps } from 'svelte';
+	import { SKInput } from '$lib';
+
+	type BoundField = ComponentProps<typeof SKInput>['boundField'];
 
 	interface Props {
 		options?: string[];
-		initValue?: string;
+		// initValue?: string;
+		boundField?: BoundField;
 		value?: string;
 		placeholder?: string;
 		selectTitle?: string;
@@ -21,7 +26,8 @@
 
 	let {
 		options = [],
-		initValue,
+		// initValue,
+		boundField = undefined,
 		value = $bindable(),
 		placeholder = 'None',
 		selectTitle = 'Selection',
@@ -37,7 +43,7 @@
 		onlistbutton = () => {}
 	}: Props = $props();
 
-	let selectedValue = $state(initValue);
+	let selectedValue = $state('');
 	let customValue = $state('');
 
 	let isCustom = $derived(selectedValue === '@@CUSTOM' || (value && !options.includes(value)));
