@@ -3,25 +3,27 @@ export interface SectionAttr {
 	significance?: string;
 	start_point?: string;
 	driving_force?: string;
-	end_point?: string;
+	outcome?: string;
 	outcome_reason?: string;
-	notes?: string;
 }
 
-export interface ThemeAttr {
-	thesis?: string;
-	conflict?: string;
-	leads_to?: string;
-	journey?: string;
-	manifestation?: string;
-	notes?: string;
-}
+// export interface ThemeAttr {
+// 	thesis?: string;
+// 	conflict?: string;
+// 	leads_to?: string;
+// 	journey?: string;
+// 	manifestation?: string;
+// 	notes?: string;
+// }
 
 export interface LocationAttr {
-	description?: string;
 	history?: string;
 	significance?: string;
-	notes?: string;
+	atmosphere?: string;
+	start_condition?: string;
+	end_condition?: string;
+	end_condition_reason?: string;
+	ownership?: string;
 }
 
 export interface CharacterAttr {
@@ -72,6 +74,7 @@ export interface CharacterAttr {
 	religion?: string;
 	introvert_extrovert?: string;
 	optimist_pessimist?: string;
+	archetype?: string;
 }
 
 export interface DynamicAttr {
@@ -79,25 +82,27 @@ export interface DynamicAttr {
 	/**
 	 * Enforce as Set
 	 */
-	type?: (
-		| 'friends'
-		| 'family'
-		| 'acquaintances'
-		| 'strangers'
-		| 'lovers'
-		| 'dating'
-		| 'enemies'
-		| 'foils'
-		| 'colleagues'
-		| 'opponents'
-	)[];
+	// type?: (
+	// 	| 'friends'
+	// 	| 'family'
+	// 	| 'acquaintances'
+	// 	| 'strangers'
+	// 	| 'lovers'
+	// 	| 'dating'
+	// 	| 'enemies'
+	// 	| 'foils'
+	// 	| 'colleagues'
+	// 	| 'opponents'
+	// )[];
+	type?: string; // for custom types
 
 	// (i) dynamic
 	chemistry?: string;
 	chemistry_reasons?: string;
 	incompatibility?: string;
 	incompatibility_reasons?: string;
-	health?: 'excellent' | 'good' | 'friendly' | 'neutral' | 'unfriendly' | 'toxic' | 'hostile';
+	// health?: 'excellent' | 'good' | 'friendly' | 'neutral' | 'unfriendly' | 'toxic' | 'hostile';
+	health?: string;
 	health_reasons?: string;
 	misunderstandings?: string;
 	conflict_sources?: string;
@@ -114,14 +119,18 @@ export interface DynamicAttr {
 	outside_perception?: string; // of the relationship
 
 	// (i) love and hate
-	affection?: 'loving' | 'warm' | 'neutral' | 'cold' | 'venomous';
-	intensity?: 'fiery' | 'passionate' | 'lukewarm' | 'neutral' | 'unfeeling';
+	// affection?: 'loving' | 'warm' | 'neutral' | 'cold' | 'venomous';
+	affection?: string;
+	// intensity?: 'fiery' | 'passionate' | 'lukewarm' | 'neutral' | 'unfeeling';
+	intensity?: string;
 	attraction?: string;
 
 	// (i) dynamic/relationship fundamentals
 	respect?: string;
-	trust?: 'none' | 'low' | 'medium' | 'high' | 'absolute';
-	faith?: 'none' | 'low' | 'medium' | 'high' | 'absolute';
+	// trust?: 'none' | 'low' | 'medium' | 'high' | 'absolute';
+	trust?: string;
+	// faith?: 'none' | 'low' | 'medium' | 'high' | 'absolute';
+	faith?: string;
 	vulnerability?: string;
 	loyalty?: string;
 	loyalty_reasons?: string;

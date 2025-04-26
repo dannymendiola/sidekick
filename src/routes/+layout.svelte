@@ -202,9 +202,9 @@
 		{#if project}
 			<div class="fixed left-24 top-4 z-50 hidden md:flex">
 				<a
-					class="z-50 flex items-center gap-2 bg-donkey-100 py-2 font-title text-xl hover:bg-donkey-200 dark:bg-donkey-900 hover:dark:bg-donkey-800 {onElemPage
-						? 'rounded-l-xl pl-4 pr-2'
-						: 'rounded-xl px-4'}"
+					class="z-50 flex items-center gap-2 border bg-donkey-100 py-2 font-title text-xl hover:bg-donkey-200 dark:bg-donkey-900 hover:dark:bg-donkey-800 {onElemPage
+						? 'rounded-l-xl border-r-0 border-y-donkey-300 border-l-donkey-300 pl-4 pr-2 dark:border-y-donkey-700 dark:border-l-donkey-700'
+						: 'rounded-xl border-donkey-200 px-4 dark:border-donkey-700'}"
 					href="/projects"
 				>
 					<svg
@@ -224,17 +224,17 @@
 					{project.name || 'Untitled project'}
 				</a>
 				<div
-					class="flex items-center bg-donkey-100 px-1 dark:bg-donkey-900 {!onElemPage && 'hidden'}"
+					class="flex items-center border border-x-0 border-y-donkey-300 bg-donkey-100 px-1 dark:border-donkey-700 dark:bg-donkey-900 {!onElemPage &&
+						'hidden'}"
 				>
 					•
 				</div>
 				<a
-					class="z-50 items-center gap-2 rounded-r-xl bg-donkey-100 py-2 pl-2 pr-4 font-title text-xl hover:bg-donkey-200 dark:bg-donkey-900 hover:dark:bg-donkey-800 {onElemPage
+					class="z-50 items-center gap-2 rounded-r-xl border border-l-0 border-y-donkey-300 border-r-donkey-300 bg-donkey-100 py-2 pl-2 pr-4 font-semibold hover:bg-donkey-200 dark:border-y-donkey-700 dark:border-r-donkey-700 dark:bg-donkey-900 hover:dark:bg-donkey-800 {onElemPage
 						? 'flex'
 						: 'hidden'}"
 					href={`/all${page.url.pathname}s`}
 				>
-					<!-- {page.url.pathname.split('/').slice(-1)[0].replaceAll('-', ' ')} -->
 					{pathnameToName[page.url.pathname as keyof typeof pathnameToName]}
 				</a>
 			</div>
