@@ -7,15 +7,6 @@ export interface SectionAttr {
 	outcome_reason?: string;
 }
 
-// export interface ThemeAttr {
-// 	thesis?: string;
-// 	conflict?: string;
-// 	leads_to?: string;
-// 	journey?: string;
-// 	manifestation?: string;
-// 	notes?: string;
-// }
-
 export interface LocationAttr {
 	history?: string;
 	significance?: string;
@@ -79,57 +70,34 @@ export interface CharacterAttr {
 
 export interface DynamicAttr {
 	// (i) type
-	/**
-	 * Enforce as Set
-	 */
-	// type?: (
-	// 	| 'friends'
-	// 	| 'family'
-	// 	| 'acquaintances'
-	// 	| 'strangers'
-	// 	| 'lovers'
-	// 	| 'dating'
-	// 	| 'enemies'
-	// 	| 'foils'
-	// 	| 'colleagues'
-	// 	| 'opponents'
-	// )[];
-	type?: string; // for custom types
+	type?: string;
 
 	// (i) dynamic
 	chemistry?: string;
 	chemistry_reasons?: string;
 	incompatibility?: string;
 	incompatibility_reasons?: string;
-	// health?: 'excellent' | 'good' | 'friendly' | 'neutral' | 'unfriendly' | 'toxic' | 'hostile';
 	health?: string;
 	health_reasons?: string;
 	misunderstandings?: string;
 	conflict_sources?: string;
 	rivalry_sources?: string;
-	cooperation_sources?: string;
+	cooperation_causes?: string;
 	shared_goals?: string;
 	conflicting_goals?: string;
-	manipulation?: string;
+	shared_interests?: string;
 	expectations?: string;
-	expectation_fulfillment?: string;
-	communication_style?: string;
 	power_dynamics?: string;
-	mutual_influence?: string;
-	outside_perception?: string; // of the relationship
+	outside_perception?: string;
 
 	// (i) love and hate
-	// affection?: 'loving' | 'warm' | 'neutral' | 'cold' | 'venomous';
 	affection?: string;
-	// intensity?: 'fiery' | 'passionate' | 'lukewarm' | 'neutral' | 'unfeeling';
 	intensity?: string;
 	attraction?: string;
 
 	// (i) dynamic/relationship fundamentals
 	respect?: string;
-	// trust?: 'none' | 'low' | 'medium' | 'high' | 'absolute';
 	trust?: string;
-	// faith?: 'none' | 'low' | 'medium' | 'high' | 'absolute';
 	faith?: string;
 	vulnerability?: string;
 	loyalty?: string;

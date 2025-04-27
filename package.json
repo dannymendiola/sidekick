@@ -1,6 +1,6 @@
 {
 	"name": "sidekick",
-	"version": "0.13.6-alpha",
+	"version": "0.13.7-alpha",
 	"type": "module",
 	"scripts": {
 		"dev": "sh check-version.sh && vite dev --host --port 3000 && sh check-version.sh",

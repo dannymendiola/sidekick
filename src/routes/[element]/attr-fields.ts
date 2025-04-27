@@ -168,22 +168,52 @@ export const DYNAMIC_FIELDS: DynamicField[] = [
     { key: 'incompatibility',   label: 'Incompatibility',   group: 'dynamic' },
     { key: 'incompatibility_reasons',   label: 'Reasons for incompatibility',
                                                             group: 'dynamic' },
-    { key: 'health',            label: 'Relationship health',
-                                                            group: 'dynamic',
-      pickerOpts: {
-        allowCustom: true,
-        type: 'single',
-        choices: [
-            'Excellent', 'Great', 'Friendly', 'Neutral', 'Unfriendly', 'Toxic', 'Hostile',
-        ]
-       }
-    },
-    { key: 'health_reasons',    label: 'Reasons for relationship health',
-                                                            group: 'dynamic' },
+    // { key: 'health',            label: 'Relationship health',
+    //                                                         group: 'dynamic',
+    //   pickerOpts: {
+    //     allowCustom: true,
+    //     type: 'single',
+    //     choices: [
+    //         'Excellent', 'Great', 'Friendly', 'Neutral', 'Unfriendly', 'Toxic', 'Poor',
+    //     ]
+    //   }
+    // },
+    // { key: 'health_reasons',    label: 'Reasons for relationship health',
+    //                                                         group: 'dynamic' },
     { key: 'misunderstandings', label: 'Misunderstandings',
                                                             group: 'dynamic' },
     { key: 'conflict_sources',  label: 'Sources of conflict',
                                                             group: 'dynamic' },
-    { key: 'incompatibility',   label: 'Incompatibility',   group: 'dynamic' },
-    // TODO finish this
+    { key: 'rivalry_sources',   label: 'Sources of rivalry',group: 'dynamic' },
+    { key: 'cooperation_causes',label: 'Causes of cooperation',
+                                                            group: 'dynamic' },
+    { key: 'shared_goals',      label: 'Shared goals',      group: 'dynamic' },
+    { key: 'conflicting_goals', label: 'Conflicting goals', group: 'dynamic' },
+    { key: 'shared_interests',  label: 'Shared interests',  group: 'dynamic' },
+    { key: 'expectations',      label: 'Expectations for relationship',
+                                                            group: 'dynamic' },
+    { key: 'power_dynamics',    label: 'Power dynamics',    group: 'dynamic' },
+    { key: 'outside_perception', label: 'How the relationship is viewed',
+                                                            group: 'dynamic' },
+
+    // (i) love and hate
+    { key: 'affection',         label: 'Affection',         group: 'love',
+      pickerOpts: {
+        allowCustom: true,
+        type: 'single',
+        choices: [
+            'Loving', 'Warm', 'Neutral', 'Cold', 'Hostile',
+        ]
+      }
+     },
+    { key: 'attraction',        label: 'Attraction',        group: 'love'},
+    { key: 'intensity',         label: 'Intensity',         group: 'love'},
+
+    // (i) basics
+    { key: 'respect',           label: 'Respect',           group: 'basics' },
+    { key: 'trust',             label: 'Trust',             group: 'basics' },
+    { key: 'faith',             label: 'Faith',             group: 'basics' },
+    { key: 'vulnerability',     label: 'Vulnerability',     group: 'basics' },
+    { key: 'loyalty',           label: 'Loyalty',           group: 'basics' },
+    { key: 'loyalty_reasons',   label: 'Reasons for loyalty',group: 'basics' },
 ]
