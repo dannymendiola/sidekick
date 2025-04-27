@@ -104,8 +104,8 @@
 {/if}
 
 <div class="sk-content mb-32 md:mt-0">
-	{@render ElemHeader()}
 	{#if element}
+		{@render ElemHeader()}
 		<SKInput
 			boundField={{
 				entityID: elemID || '',

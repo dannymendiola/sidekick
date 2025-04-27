@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { skstate, DEFAULT_SETTINGS, Navbar } from '$lib';
+	import { skstate, Navbar } from '$lib';
 	import { goto } from '$app/navigation';
 	import { vibrate, SKInput } from '$lib';
 	import { page } from '$app/state';
@@ -8,9 +8,6 @@
 	import { db, Project } from '$lib/db';
 
 	let { children } = $props();
-
-	const storedSettings = localStorage.getItem('sk-settings');
-	skstate.updateSettings(storedSettings ? JSON.parse(storedSettings) : DEFAULT_SETTINGS);
 
 	let pageColor: TWColor = $derived(skstate.darkMode ? 'bg-donkey-950' : 'bg-donkey-50');
 

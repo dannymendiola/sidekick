@@ -1,6 +1,20 @@
-import { DEFAULT_SETTINGS } from '$lib';
 import { prefersReducedMotion } from 'svelte/motion';
 import { formatBytes } from '$lib/utils';
+import { browser } from '$app/environment';
+
+const DEFAULT_SETTINGS: SKSettings = {
+	theme: 'dark',
+	currPath: '/welcome',
+	currProj: undefined,
+	displayMode: 'view'
+};
+
+interface SKSettings {
+	theme: 'dark' | 'light';
+	currPath: string;
+	currProj?: string;
+	displayMode: 'view' | 'edit';
+}
 
 class SKState {
 	#settings: typeof DEFAULT_SETTINGS | undefined = $state();
@@ -8,6 +22,21 @@ class SKState {
 	showSaveLoad = $state(false);
 	prefersReducedMotion = $derived(prefersReducedMotion.current);
 	projectID = $derived(this.#settings?.currProj);
+
+	constructor() {
+		if (browser) {
+			const storedSettings = localStorage.getItem('sk-settings');
+			if (storedSettings) {
+				this.#settings = { ...DEFAULT_SETTINGS, ...JSON.parse(storedSettings) };
+			} else {
+				this.#settings = DEFAULT_SETTINGS;
+			}
+		}
+	}
+
+	get viewMode() {
+		return this.#settings ? this.#settings.displayMode : DEFAULT_SETTINGS.displayMode;
+	}
 
 	get settings() {
 		return this.#settings ? this.#settings : DEFAULT_SETTINGS;
@@ -21,7 +50,7 @@ class SKState {
 	}
 
 	get darkMode() {
-		return this.#settings ? this.#settings.theme === 'dark' : DEFAULT_SETTINGS.theme === 'dark';
+		return this.#settings ? this.#settings.theme === 'dark' : true;
 	}
 
 	get touchscreen() {

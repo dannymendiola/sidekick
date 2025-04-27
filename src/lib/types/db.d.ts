@@ -77,8 +77,8 @@ export interface DynamicAttr {
 	chemistry_reasons?: string;
 	incompatibility?: string;
 	incompatibility_reasons?: string;
-	health?: string;
-	health_reasons?: string;
+	// health?: string;
+	// health_reasons?: string;
 	misunderstandings?: string;
 	conflict_sources?: string;
 	rivalry_sources?: string;
