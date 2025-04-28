@@ -180,14 +180,14 @@
 
 {#if $elements}
 	<div class="sk-content mt-24">
-		<div class="flex w-full flex-row items-center justify-between gap-3">
-			<h1 class="w-full text-center text-3xl font-bold md:text-left md:text-4xl">
+		<div class="flex w-full flex-row items-center gap-3 md:justify-between">
+			<h1 class="inline text-3xl font-bold md:w-full md:text-4xl">
 				{indexTitle === 'Sections' ? 'Outline' : indexTitle}
 			</h1>
 			{#if $elements.length > 0 && indexName !== 'character-dynamics'}
 				<a
 					href="/{page.params.index.slice(0, -1)}/new"
-					class="flex items-center gap-2 rounded-xl p-2 {twAddBtn[indexName].bg}"
+					class="inline items-center gap-2 rounded-xl p-2 {twAddBtn[indexName].bg}"
 				>
 					{@render Plus()}
 					<!-- <div class="md:hidden {twAddBtn[indexName].text}">Add</div> -->

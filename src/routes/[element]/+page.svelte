@@ -95,15 +95,13 @@
 	});
 
 	let showDeleteModal = $state(false);
-
-	let elemBody = $state('');
 </script>
 
 {#if showDeleteModal}
 	{@render DeleteModal()}
 {/if}
 
-<div class="sk-content mb-32 md:mt-0">
+<div class="sk-content mb-32 mt-0">
 	{#if element}
 		{@render ElemHeader()}
 		<SKInput

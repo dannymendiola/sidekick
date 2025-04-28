@@ -36,73 +36,6 @@
 				return 'border-donnie-600 dark:border-donnie-400';
 		}
 	});
-
-	const titlePlaceholder = $derived.by(() => {
-		switch (table) {
-			case 'characters':
-				return 'Unnamed character';
-			case 'locations':
-				return 'Unnamed location';
-			case 'sections':
-				return 'Untitled section';
-			case 'dynamics':
-				return '';
-		}
-	});
-
-	const placeholders = $derived.by(() => {
-		switch (table) {
-			case 'characters':
-				return [
-					'Capable, but impulsive',
-					'Loose cannon',
-					'Has trouble opening up',
-					'Severe main character syndrome',
-					'The chosen one',
-					'Causes a lot of problems'
-				];
-			case 'locations':
-				return [
-					'The place where the magic happens',
-					'Has seen better days',
-					'Feels oddly familiar',
-					"They've got a cherry pie there that'll kill you",
-					'The place they swore never to return to',
-					''
-				];
-			case 'sections':
-				return [
-					'And then everything worked out',
-					'Insert fight sequence',
-					'The protagonist is given a choice',
-					'Events occur',
-					'That thing that was hinted at earlier comes back to bite everyone',
-					"The antagonist's master plan is revealed",
-					'The protagonist suffers unforeseen consequences'
-				];
-			case 'dynamics':
-				return [
-					'Source of all the drama',
-					"Can't stand each other, forced to work together",
-					"Enable each other's worst qualities",
-					'Thick, thick tension',
-					'Would kill for each other',
-					'Friendly rivalry',
-					'Bonded over shared trauma'
-				];
-		}
-	});
-
-	let linked = $state<{
-		locations: Location[] | null;
-		characters: Character[] | null;
-		sections: Section[] | null;
-		dynamics: Dynamic[] | null;
-	}>();
-
-	let showLinks = $state(false);
-
-	let noLinks = $state(false);
 </script>
 
 {#if $element}
@@ -158,43 +91,67 @@
 				<a
 					class="rounded-lg border border-donkey-400 bg-donkey-100 p-1 dark:border-donkey-600 dark:bg-donkey-900"
 					href="/{expandHref}?id={id}"
-					aria-label="Open character"
+					aria-label="Open"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
+						viewBox="0 0 20 20"
 						fill="currentColor"
 						class="size-4"
 					>
 						<path
-							d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32L19.513 8.2Z"
+							fill-rule="evenodd"
+							d="M4.25 5.5a.75.75 0 0 0-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 0 0 .75-.75v-4a.75.75 0 0 1 1.5 0v4A2.25 2.25 0 0 1 12.75 17h-8.5A2.25 2.25 0 0 1 2 14.75v-8.5A2.25 2.25 0 0 1 4.25 4h5a.75.75 0 0 1 0 1.5h-5Z"
+							clip-rule="evenodd"
+						/>
+						<path
+							fill-rule="evenodd"
+							d="M6.194 12.753a.75.75 0 0 0 1.06.053L16.5 4.44v2.81a.75.75 0 0 0 1.5 0v-4.5a.75.75 0 0 0-.75-.75h-4.5a.75.75 0 0 0 0 1.5h2.553l-9.056 8.194a.75.75 0 0 0-.053 1.06Z"
+							clip-rule="evenodd"
 						/>
 					</svg>
 
-					<!-- <svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						class="size-4 stroke-[1.3]"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-						/>
-					</svg> -->
+					<!-- {#if skstate.displayMode === 'expanded'}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="currentColor"
+							class="size-4"
+						>
+							<path
+								d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32L19.513 8.2Z"
+							/>
+						</svg>
+					{:else}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+							class="size-4"
+						>
+							<path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+							<path
+								fill-rule="evenodd"
+								d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					{/if} -->
 				</a>
 			</div>
 		</div>
 
-		<!-- <div class={!showLinks ? 'pointer-events-none absolute opacity-0' : ''}>
-			<ElemLinks {table} {id} bind:linked bind:noLinks />
-		</div> -->
-
 		{#if !collapsed}
 			<div
-				transition:slide={{ duration: skstate.prefersReducedMotion ? 0 : 200, easing: quintInOut }}
+				in:slide={{
+					duration: skstate.prefersReducedMotion ? 0 : 200,
+					easing: quintInOut,
+					delay: 200
+				}}
+				out:slide={{
+					duration: skstate.prefersReducedMotion ? 0 : 200,
+					easing: quintInOut
+				}}
 			>
 				<SKInput
 					boundField={{

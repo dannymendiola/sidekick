@@ -6,20 +6,18 @@ const DEFAULT_SETTINGS: SKSettings = {
 	theme: 'dark',
 	currPath: '/welcome',
 	currProj: undefined,
-	displayMode: 'view'
+	displayMode: 'expanded'
 };
 
 interface SKSettings {
 	theme: 'dark' | 'light';
 	currPath: string;
 	currProj?: string;
-	displayMode: 'view' | 'edit';
+	displayMode: 'condensed' | 'expanded';
 }
 
 class SKState {
 	#settings: typeof DEFAULT_SETTINGS | undefined = $state();
-	quillInit = $state(false);
-	showSaveLoad = $state(false);
 	prefersReducedMotion = $derived(prefersReducedMotion.current);
 	projectID = $derived(this.#settings?.currProj);
 
@@ -34,10 +32,6 @@ class SKState {
 		}
 	}
 
-	get viewMode() {
-		return this.#settings ? this.#settings.displayMode : DEFAULT_SETTINGS.displayMode;
-	}
-
 	get settings() {
 		return this.#settings ? this.#settings : DEFAULT_SETTINGS;
 	}
@@ -50,7 +44,11 @@ class SKState {
 	}
 
 	get darkMode() {
-		return this.#settings ? this.#settings.theme === 'dark' : true;
+		return this.#settings ? this.#settings.theme === 'dark' : DEFAULT_SETTINGS.theme === 'dark';
+	}
+
+	get displayMode() {
+		return this.#settings ? this.#settings.displayMode : DEFAULT_SETTINGS.displayMode;
 	}
 
 	get touchscreen() {
@@ -59,8 +57,6 @@ class SKState {
 
 	async getUsage() {
 		const quota = await navigator.storage.estimate();
-		// let usage = quota.usage;
-		// usage = usage ? usage - 49147 : 0;
 		return `${formatBytes(quota.usage || 0)} / ${formatBytes(quota.quota || 0)} (${((quota.usage || 0) / (quota.quota || 0)).toFixed(1)}%)`;
 	}
 }

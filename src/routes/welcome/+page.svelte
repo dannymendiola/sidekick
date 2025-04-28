@@ -18,7 +18,7 @@
 	{#if mounted}
 		<h1
 			in:scale={{ duration: skstate.prefersReducedMotion ? 0 : 600, easing: elasticOut }}
-			class="mt-[15vh] -rotate-3 select-none text-center font-brand text-5xl uppercase text-robin-500 dark:text-smithers-600"
+			class="mt-[5vh] -rotate-3 select-none text-center font-brand text-5xl uppercase text-robin-500 dark:text-smithers-600 md:mt-[15vh]"
 		>
 			Sidekick
 		</h1>

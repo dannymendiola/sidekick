@@ -17,6 +17,8 @@
 		disableLineBreak?: boolean;
 		disableSpellCheck?: boolean;
 		title?: string;
+		titleH?: `h${1 | 2 | 3 | 4 | 5 | 6}`;
+		twTitle?: string;
 		boundField?: {
 			entityID: string;
 			entityTable:
@@ -39,6 +41,8 @@
 		html = $bindable(),
 		json = $bindable(),
 		title = undefined,
+		titleH = 'h2',
+		twTitle = '',
 		focused = $bindable(false),
 		placeholder = undefined,
 		twClass = '',
@@ -47,6 +51,10 @@
 		boundField = undefined,
 		initContent = undefined
 	}: Props = $props();
+
+	const htmlTitle = title
+		? `<${titleH} class="${twTitle || 'text-xl font-semibold'}">${title}</${titleH}>`
+		: '';
 
 	let extensions = [StarterKit, Placeholder.configure({ placeholder })];
 
@@ -112,4 +120,6 @@
 	});
 </script>
 
-<div bind:this={element} role="textbox" tabindex="0" class={twClass}>{title}</div>
+<div bind:this={element} role="textbox" tabindex="0" class={twClass}>
+	{@html htmlTitle}
+</div>
