@@ -33,7 +33,7 @@ export const CHARACTER_FIELDS: { [key in CharFieldGroup]: CharField[] } = {
 	arc: [
 		{ key: 'arc_start', label: 'Starting point' },
 		{ key: 'arc_end', label: 'Ending point' },
-		{ key: 'arc_driver', label: 'Driving force of development' },
+		{ key: 'arc_driver', label: 'What drives development' },
 		{
 			key: 'role',
 			label: 'Role',

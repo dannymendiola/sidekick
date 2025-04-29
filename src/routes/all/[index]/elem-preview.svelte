@@ -27,20 +27,20 @@
 	const twFocusedBorder = $derived.by(() => {
 		switch (table) {
 			case 'characters':
-				return 'border-genie-600 dark:border-genie-400';
+				return 'border-genie-600 dark:border-genie-400/50';
 			case 'locations':
-				return 'border-wazowski-600 dark:border-wazowski-400';
+				return 'border-wazowski-600 dark:border-wazowski-400/60';
 			case 'sections':
-				return 'border-smithers-600 dark:border-smithers-400';
+				return 'border-smithers-600 dark:border-smithers-400/50';
 			case 'dynamics':
-				return 'border-donnie-600 dark:border-donnie-400';
+				return 'border-donnie-600 dark:border-donnie-400/40';
 		}
 	});
 </script>
 
 {#if $element}
 	<div
-		class="rounded-xl border-l px-2 py-1 {focused
+		class="rounded-xl border px-2 py-2 lg:px-4 {focused
 			? twFocusedBorder
 			: 'border-donkey-200 dark:border-donkey-800'}"
 	>
@@ -60,6 +60,7 @@
 						}}
 						placeholder="{table === 'sections' ? 'Untitled' : 'Unnamed'} {table.slice(0, -1)}"
 						disableLineBreak
+						disableSpellCheck
 						twClass="mb-2 text-xl md:text-2xl font-semibold font-title"
 						bind:focused={titleFocused}
 					/>
@@ -110,33 +111,6 @@
 							clip-rule="evenodd"
 						/>
 					</svg>
-
-					<!-- {#if skstate.displayMode === 'expanded'}
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							fill="currentColor"
-							class="size-4"
-						>
-							<path
-								d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32L19.513 8.2Z"
-							/>
-						</svg>
-					{:else}
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 20 20"
-							fill="currentColor"
-							class="size-4"
-						>
-							<path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
-							<path
-								fill-rule="evenodd"
-								d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-					{/if} -->
 				</a>
 			</div>
 		</div>

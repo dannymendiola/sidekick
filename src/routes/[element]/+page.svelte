@@ -4,6 +4,7 @@
 	import { Character, db, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery, type Observable } from 'dexie';
 	import { vibrate, SKInput } from '$lib';
+	import { CHARACTER_FIELDS, DYNAMIC_FIELDS, LOCATION_FIELDS, SECTION_FIELDS } from './attr-fields';
 
 	type ElemType = 'section' | 'character' | 'character-dynamic' | 'location';
 	const elemType = page.params.element as ElemType;
@@ -20,6 +21,48 @@
 				return db.locations;
 		}
 	});
+
+	// const attrGroups = {
+	// 	section: undefined,
+	// 	location: undefined,
+	// 	character: ['identity', 'arc', 'personality'],
+	// 	'character-dynamic': ['type', 'dynamic', 'love', 'basics']
+	// };
+
+	const attrFields = $derived.by(() => {
+		switch (elemType) {
+			case 'section':
+				return SECTION_FIELDS;
+			case 'character':
+				return CHARACTER_FIELDS;
+			case 'character-dynamic':
+				return DYNAMIC_FIELDS;
+			case 'location':
+				return LOCATION_FIELDS;
+		}
+	});
+
+	type AttrType =
+		| typeof CHARACTER_FIELDS
+		| typeof DYNAMIC_FIELDS
+		| typeof LOCATION_FIELDS
+		| typeof SECTION_FIELDS;
+
+	const areFieldsChar = (attrFields: AttrType): attrFields is typeof CHARACTER_FIELDS => {
+		return elemType === 'character';
+	};
+
+	const areFieldsDynamic = (attrFields: AttrType): attrFields is typeof DYNAMIC_FIELDS => {
+		return elemType === 'character-dynamic';
+	};
+
+	const areFieldsLocation = (attrFields: AttrType): attrFields is typeof LOCATION_FIELDS => {
+		return elemType === 'location';
+	};
+
+	const areFieldsSection = (attrFields: AttrType): attrFields is typeof SECTION_FIELDS => {
+		return elemType === 'section';
+	};
 
 	const elemID = $derived(page.url.searchParams.get('id'));
 
@@ -112,7 +155,25 @@
 				bindAs: 'html'
 			}}
 			placeholder="Describe the {elemType.replaceAll('-', ' ')}..."
+			twClass="mb-12"
 		/>
+
+		{#if areFieldsChar(attrFields)}
+			<h2 class="font-title text-2xl font-semibold">Character Arc</h2>
+			{#each attrFields.arc as f}
+				{#if !f.pickerOpts}
+					<SKInput title={f.label} titleH="h3" placeholder="..." />
+				{:else}
+					<!-- picker -->
+				{/if}
+			{/each}
+		{:else if areFieldsDynamic(attrFields)}
+			dynamic
+		{:else if areFieldsSection(attrFields)}
+			section
+		{:else if areFieldsLocation(attrFields)}
+			location
+		{/if}
 	{/if}
 </div>
 
