@@ -4,11 +4,14 @@
 	import { SKInput } from '$lib';
 
 	type BoundField = ComponentProps<typeof SKInput>['boundField'];
+	type SKInputTitleH = ComponentProps<typeof SKInput>['titleH'];
 
 	interface Props {
 		options?: string[];
 		// initValue?: string;
+		title?: string;
 		boundField?: BoundField;
+		titleH?: SKInputTitleH;
 		value?: string;
 		placeholder?: string;
 		selectTitle?: string;
@@ -28,6 +31,8 @@
 		options = [],
 		// initValue,
 		boundField = undefined,
+		title = undefined,
+		titleH = 'h2',
 		value = $bindable(),
 		placeholder = 'None',
 		selectTitle = 'Selection',
@@ -87,6 +92,8 @@
 {:else}
 	<div class="flex gap-1">
 		<div class="flex-grow">
+			<SKInput {title} {titleH} {boundField} />
+
 			<!-- <QLEditor
 				id={ulid()}
 				title={customTitle}

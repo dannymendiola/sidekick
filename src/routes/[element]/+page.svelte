@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { Character, db, Dynamic, Section, Location } from '$lib/db';
 	import { liveQuery, type Observable } from 'dexie';
-	import { vibrate, SKInput } from '$lib';
+	import { vibrate, SKInput, SKPicker } from '$lib';
 	import { CHARACTER_FIELDS, DYNAMIC_FIELDS, LOCATION_FIELDS, SECTION_FIELDS } from './attr-fields';
 
 	type ElemType = 'section' | 'character' | 'character-dynamic' | 'location';
@@ -162,9 +162,23 @@
 			<h2 class="font-title text-2xl font-semibold">Character Arc</h2>
 			{#each attrFields.arc as f}
 				{#if !f.pickerOpts}
-					<SKInput title={f.label} titleH="h3" placeholder="..." />
+					<SKInput
+						boundField={{
+							entityID: elemID || '',
+							entityTable: table,
+							fieldName: 'attr',
+							attrName: f.key,
+							// fieldName: f.key,
+							bindAs: 'text'
+						}}
+						placeholder="..."
+						title={f.label}
+						titleH="h3"
+						disableLineBreak
+					/>
 				{:else}
 					<!-- picker -->
+					<!-- <SKPicker title={f.label} titleH="h3"/> -->
 				{/if}
 			{/each}
 		{:else if areFieldsDynamic(attrFields)}

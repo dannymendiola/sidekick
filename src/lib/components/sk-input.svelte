@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Character, Project, Location, Section, Dynamic } from '$lib';
+	import type { CharacterAttr, SectionAttr, LocationAttr, DynamicAttr } from '$lib/types/db';
 	import { Editor, type JSONContent } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import Placeholder from '@tiptap/extension-placeholder';
@@ -11,6 +12,7 @@
 	let editor: Editor | undefined = $state();
 
 	type Entity = Character | Section | Location | Dynamic | Project;
+	type AttrKey = keyof CharacterAttr | keyof SectionAttr | keyof LocationAttr | keyof DynamicAttr;
 
 	interface Props {
 		placeholder?: string;
@@ -25,7 +27,7 @@
 				| Table<Entity, string, InsertType<Entity, 'id'>>
 				| Table<Project, string, InsertType<Project, 'id'>>;
 			fieldName: 'name' | 'body' | 'attr';
-			attrName?: string;
+			attrName?: AttrKey;
 			bindAs: 'text' | 'html' | 'json';
 		};
 		text?: string;
@@ -76,6 +78,7 @@
 			const currAttr = entity?.attr || {};
 			// @ts-ignore
 			const newAttr = { ...currAttr, [boundField.attrName]: val };
+			// @ts-ignore
 			await boundField.entityTable.update(boundField.entityID, { attr: newAttr });
 		} else {
 			await boundField.entityTable.update(boundField.entityID, { [boundField.fieldName]: val });
@@ -85,15 +88,28 @@
 	onMount(async () => {
 		const entity = boundField ? await boundField.entityTable.get(boundField.entityID) : undefined;
 
+		let _initContent: JSONContent | string | undefined = initContent;
+
+		if (!initContent && entity && boundField) {
+			if (boundField.fieldName === 'attr') {
+				_initContent =
+					boundField.attrName && entity.attr
+						? entity.attr[boundField.attrName as keyof typeof entity.attr]
+						: undefined;
+			} else {
+				_initContent = entity[boundField.fieldName];
+			}
+		}
+
 		editor = new Editor({
 			element: element,
 			extensions: extensions,
-			content:
-				initContent ||
-				(entity
-					? // @ts-ignore
-						entity[boundField.fieldName] || entity.attr?.[boundField.attrName] || ''
-					: undefined),
+			content: _initContent,
+			// initContent ||
+			// (entity
+			// 	? // @ts-ignore
+			// 		entity[boundField.fieldName] || entity.attr?.[boundField.attrName] || ''
+			// 	: undefined),
 
 			onCreate: ({ editor }) => {
 				editor.view.dom.setAttribute('spellcheck', disableSpellCheck ? 'false' : 'true');
